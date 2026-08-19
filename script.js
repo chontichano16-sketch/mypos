@@ -19,59 +19,41 @@ window.addEventListener('click', function (event) {
     }
 });
 
-// ฟังก์ชันคลิกเมนู เพิ่มรายการออเดอร์
-let orderItems = [];
-function addToOrder(card) {
-    const id = card.dataset.id;
-    const name = card.dataset.name;
-    // แปลงตัวเลขให้คำนวณได้ 
-    const price = parseFloat(card.dataset.price);
+// ตัวแปรเก็บตะกร้าสินค้า (ดึงจาก sessionStorage ถ้าเคยมีของอยู่)
+let orderItems = JSON.parse(sessionStorage.getItem('orderItems')) || [];
+// เรียกให้แสดงผลตะกร้าทันทีตอนโหลดหน้าเว็บ
+renderOrder();
 
-    const existing = orderItems.find(item => item.id === id);
-    // ถ้าเจอเมนูซ่ำ +1 ถ้าไม่มี เพิ่มเมนูใหม่
-    if (existing) {
-        existing.quantity += 1;
-    } else {
-        orderItems.push({ id, name, price, quantity: 1 });
-    }
-
-    renderOrder();
-}
-// ฟังก์ชันกด + / − บนรายการออเดอร์
-// id = รายการไหน, delta = จะเปลี่ยนเท่าไหร่ (+1 หรือ -1)
-function changeQty(id, delta) {
-    const item = orderItems.find(i => i.id === id);
-    // ถ้าหาไม่เจอให้หยุดทำงานทันที (ป้องกัน error)
-    if (!item) return;
-
-    item.quantity += delta;
-    if (item.quantity <= 0) {
-        orderItems = orderItems.filter(i => i.id !== id);
-    }
-    renderOrder();
-}
 // วาด HTML ของรายการออเดอร์ใหม่ทุกครั้ง
 function renderOrder() {
     sessionStorage.setItem('orderItems', JSON.stringify(orderItems));
     const container = document.querySelector('.order-items-container');
+
+    if (!container) return;
 
     if (orderItems.length == 0) {
         container.innerHTML = '<p style="text-align:center; color:#aaa;">รายการที่สั่งจะแสดงที่นี่</p>';
         updateTotal();
         return;
     }
-
-    // .map() วนแปลงทุก item ใน array ให้เป็น HTML string
-    // .join('') รวม array ของ string ทั้งหมดให้เป็น string เดียว แล้วยัดเข้า HTML
+    // อัปเดต HTML เพื่อเพิ่มปุ่มลบ และแสดงหมายเหตุ
     container.innerHTML = orderItems.map(item => ` 
-        <div class="order-row" onclick="changeQty('${item.id}', +1)" style="cursor:pointer;">
-                <span class="order-name">${item.name} x${item.quantity}</span>
-                <span class="order-price">${(item.price * item.quantity).toFixed(2)}</span>
+        <div class="order-row" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid #eee;">
+            <div style="display:flex; flex-direction:column;">
+                <div>
+                    <button type="button" onclick="decreaseItem('${item.id}')" style="background-color: #ab1625; color: white; border: none; border-radius: 8px; padding: 2px 8px; margin-right: 8px; cursor: pointer;">-</button>
+                    <span class="order-name">${item.name} x${item.quantity}</span>
+                </div>
+                <!-- แสดงหมายเหตุ ถ้ามี -->
+                ${item.remark ? `<small style="color: gray; margin-left: 35px;">* ${item.remark}</small>` : ''}
+            </div>
+            <span class="order-price">${(item.price * item.quantity).toFixed(2)}</span>
         </div>
     `).join('');
 
     updateTotal();
 }
+
 function updateTotal() {
     const total = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
     // อัปเดตข้อความยอดรวมใน HTML
@@ -80,7 +62,7 @@ function updateTotal() {
         `รวมทั้งหมด ${total.toFixed(2)} บาท`;
 }
 
- 
+
 // ปุ่มบันทึกออเดอร์
 function saveOrder() {
     orderItems = JSON.parse(sessionStorage.getItem('orderItems')) || [];
@@ -256,6 +238,7 @@ function saveProductAjax(event) {
         });
 }
 
+// ============================================== ดูบิล ==================================================
 function fetchBillsData() {
     let tbody = document.getElementById('billListBody');
     if (!tbody) return;
@@ -269,14 +252,12 @@ function fetchBillsData() {
             if (data.length > 0) {
                 data.forEach(bill => {
                     let tableId = bill.table_id ? bill.table_id : '-';
-                    let note = bill.note ? bill.note : '-';
 
                     // สร้างแถว HTML ของตาราง
                     let row = `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 10px; text-align: center;">${bill.order_id}</td>
                         <td style="padding: 10px; text-align: center;">${tableId}</td>
-                        <td style="padding: 10px; text-align: center;">${note}</td>
                         <td style="padding: 10px; text-align: center;">${bill.formatted_date}</td>
                         <td style="padding: 10px; text-align: center;">
                             <button class="btn-bill" onclick="viewBill(${bill.order_id})">ดู</button>
@@ -287,7 +268,7 @@ function fetchBillsData() {
                     tbody.innerHTML += row;
                 });
             } else {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">ยังไม่มีข้อมูลบิลในระบบ</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">ยังไม่มีข้อมูลบิลในระบบ</td></tr>';
             }
         })
         .catch(error => {
@@ -305,27 +286,33 @@ function viewBill(orderId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // A. เปลี่ยนค่าตัวเลือกเบอร์โต๊ะ (ถ้ามี id="tables")
+                // เปลี่ยนค่าตัวเลือกเบอร์โต๊ะ
                 let tableSelect = document.getElementById('tables');
                 if (tableSelect) tableSelect.value = data.table_id;
 
-                // B. นำรายการอาหารมาแสดงผลฝั่งขวา
-                // (หมายเหตุ: เปลี่ยนคำว่า '.order-items-container' และ '.total-price' ให้ตรงกับ Class ฝั่งขวาของคุณ)
+                // นำรายการอาหารมาแสดงผลฝั่งขวา
                 let orderContainer = document.querySelector('.order-items-container');
                 if (orderContainer) {
                     let html = '';
                     data.items.forEach(item => {
                         let sum = item.price * item.quantity;
+                        
+                        // เช็คว่ามีหมายเหตุไหม ถ้ามีให้แสดงเพิ่ม
+                        let remarkHtml = item.remark ? `<small style="color: gray; margin-left: 10px;">* ${item.remark}</small>` : '';
+
                         html += `
-                            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
-                                <div>${item.name} x ${item.quantity}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
+                                <div style="display:flex; flex-direction:column;">
+                                    <div>${item.name} x ${item.quantity}</div>
+                                    ${remarkHtml}
+                                </div>
                                 <div>${sum} บาท</div>
                             </div>`;
                     });
                     orderContainer.innerHTML = html;
                 }
 
-                // C. แสดงราคารวม
+                // แสดงราคารวม
                 let totalPriceElement = document.querySelector('.total-price');
                 if (totalPriceElement) {
                     totalPriceElement.innerText = `รวมทั้งหมด ${data.total} บาท`;
@@ -341,21 +328,18 @@ function viewBill(orderId) {
 }
 
 function decreaseItem(productId) {
-    // สมมติว่าตัวแปรตะกร้าสินค้าของคุณชื่อ cart (ถ้าของคุณชื่ออื่น เช่น orderItems ให้เปลี่ยนตามด้วยนะครับ)
-    let index = cart.findIndex(item => item.id == productId);
-    
+    let index = orderItems.findIndex(item => item.id == productId);
+
     if (index !== -1) {
-        if (cart[index].quantity > 1) {
+        if (orderItems[index].quantity > 1) {
             // ถ้ามีมากกว่า 1 ชิ้น ให้ลดจำนวนลงทีละ 1
-            cart[index].quantity--;
+            orderItems[index].quantity--;
         } else {
             // ถ้าเหลือแค่ 1 ชิ้น แล้วกดลบอีก ให้เอาออกจากตะกร้าไปเลย
-            cart.splice(index, 1);
+            orderItems.splice(index, 1);
         }
-        
-        // **สำคัญมาก**: ตรงนี้ต้องเรียกใช้ฟังก์ชันที่ทำหน้าที่ "อัปเดตหน้าจอ" ของคุณ
-        // (เช่น updateCart(), renderOrder(), หรืออัปเดต HTML ฝั่งขวามือ)
-        renderCart(); 
+
+        renderOrder();
     }
 }
 
@@ -376,3 +360,58 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+// ================================================== popup เพิ่มหมายเหตุ ==========================================================
+let currentSelectedItem = null;
+
+function openOrderModal(id, name, price) {
+    currentSelectedItem = { id: id, name: name, price: price };
+
+    document.getElementById('modalProductName').innerText = name;
+    document.getElementById('modalProductPrice').innerText = price;
+
+    document.getElementById('modalQty').value = 1;
+    document.getElementById('modalRemark').value = '';
+
+    // show popup
+    document.getElementById('orderModal').style.display = 'flex';
+}
+
+function closeOrderModal() {
+    document.getElementById('orderModal').style.display = 'none';
+    currentSelectedItem = null;
+}
+
+function changeModalQty(amount) {
+    let qtyInput = document.getElementById('modalQty');
+    let currentQty = parseInt(qtyInput.value);
+    let newQty = currentQty + amount;
+    if (newQty >= 1) {
+        qtyInput.value = newQty;
+    }
+}
+
+function confirmAddToOrder() {
+    if (!currentSelectedItem) return;
+
+    let qty = parseInt(document.getElementById('modalQty').value);
+    let remark = document.getElementById('modalRemark').value;
+
+    // เช็คว่ามีเมนูนี้และหมายเหตุนี้ในตะกร้าอยู่แล้วไหม 
+    let index = orderItems.findIndex(item => item.id == currentSelectedItem.id && item.remark == remark);
+
+    if (index !== -1) {
+        orderItems[index].quantity += qty;
+    } else {
+        orderItems.push({
+            id: currentSelectedItem.id,
+            name: currentSelectedItem.name,
+            price: currentSelectedItem.price,
+            quantity: qty,
+            remark: remark
+        });
+    }
+
+    closeOrderModal();
+    renderOrder();
+}

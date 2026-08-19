@@ -696,12 +696,11 @@ body {
 
 .order-modal-box {
     background: #fff;
-    width: 300px;
+    width: 600px;
     text-align: center;
-    padding: 20px;
+    padding: 30px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    justify-content: center;
 }
 
 .modal-qty-control {
@@ -710,20 +709,84 @@ body {
 
 .btn-qty {
     padding: 5px 15px;
+    touch-action: manipulation;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+
     cursor: pointer;
+    transition: all 0,1s ease;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    transition: all 0,1s ease;
-    background: #f0f0f0;
+}
+
+.btn-qty:active {
+    background: #d7d7d7;
+    transform: scale(0.96);
+}
+.input-qty {
+    width: 50px;
+    text-align: center;
+    margin: 0 5px;
+    padding: 5px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 
-.input-qty {
-    width: 50px;
-    text-align: center;
-    margin: 0 15px;
-    
+.modal-remark-section {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.input-remark {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 5px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modal-action {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-cancel {
+    background: #dc3545;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: all 0.1s ease;
+}
+
+.btn-cancel:active {
+    background: #8b212c;
+    transform: scale(0.96);
+}
+
+.btn-confirm {
+    background: #28a745;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: all 0.1s ease;
+}
+
+.btn-confirm:active {
+    background: #1e7e34; 
+    transform: scale(0.96); 
 }
 
 /* ========================================================================

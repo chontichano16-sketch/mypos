@@ -216,12 +216,11 @@
                 <div class="table-responsive" style="padding: 15px;">
                     <table style="width: 100%; border-collapse: collapse; text-align: left;">
                         <thead>
-                            <tr style="border-bottom: 2px solid #ccc;">
-                                <th style="padding: 10px; color: #63554c;">รหัสบิล</th>
-                                <th style="padding: 10px; color: #63554c;">เบอร์โต๊ะ</th>
-                                <th style="padding: 10px; color: #63554c;">หมายเหตุ</th>
-                                <th style="padding: 10px; color: #63554c;">เวลาที่เปิดบิล</th>
-                                <th style="padding: 10px; color: #63554c;">จัดการ</th>
+                            <tr style="border-bottom: 2px solid #ddd;">
+                                <th style="padding: 10px; text-align: center; color: #63554c;">รหัสบิล</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">เบอร์โต๊ะ</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">เวลาที่เปิดบิล</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody id="billListBody">
@@ -235,7 +234,7 @@
         </div>
     </div>
     <!-- ================================= popup สำหรับเพิ่มหมายเหตุ ================================ -->
-    <div id="orderModal" class="modal-over-lay">
+    <div id="orderModal" class="modal-over-lay" style="display: none;">
         <div class="order-modal-box">
             <h3 id="modalProductName">ชื่อเมนู</h3>
             <p>ราคา: <span id="modalProductPrice">0</span>บาท</p>
@@ -254,7 +253,7 @@
 
             <div class="modal-action">
                 <button type="button" class="btn-cancel" onclick="closeOrderModal()">ยกเลิก</button>
-                <button type="button" class="btn-confirm" onclick="confirmAddToOrder">เพิ่มลงบิล</button>
+                <button type="button" class="btn-confirm" onclick="confirmAddToOrder()">เพิ่มลงบิล</button>
             </div>
         </div>
     </div>

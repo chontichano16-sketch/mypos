@@ -15,12 +15,12 @@
                 <!-- <div class="shop-icon"></div> -->
                 <div class="welcome-block">
                     <h1>Welcome</h1>
-                    <h1>To The Story cafe</h1>
+                    <h1>To The Story</h1>
                 </div>
             </div>
         </div>
         <form action="chk.php" method="post" id="loginForm">
-            <input type="hidden" name="username" value="owner">
+            <input type="hidden" name="username" value="admin">
             <input type="hidden" name="pin" id="pin">
 
             <div class="right">

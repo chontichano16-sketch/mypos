@@ -9,7 +9,7 @@ if ($order_id > 0) {
     $query_order = mysqli_query($conn, $sql_order);
     $order_data = mysqli_fetch_assoc($query_order);
 
-    $sql_details = "SELECT od.quantity, od.price, p.p_name AS name 
+    $sql_details = "SELECT od.quantity, od.price, p.p_name AS name , od.remark
                     FROM order_detail od
                     JOIN products p ON od.product_id = p.p_id 
                     WHERE od.order_id = $order_id";

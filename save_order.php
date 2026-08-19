@@ -14,68 +14,70 @@ if (empty($items)) {
     exit;
 }
 
-// เริ่ม Transaction เพื่อป้องกันข้อมูลบันทึกไม่ครบ
+// เริ่ม Transaction
 mysqli_begin_transaction($conn);
+$last_sql = ""; //เก็บคำสั่ง SQL ล่าสุดไว้ดูตอนพัง
 
 try {
     $total_amount = 0;
     $processed_items = [];
 
-    // 1. วนลูปดึงราคาอาหารจากตาราง products มาคำนวณยอดรวม
+    // คำนวณยอดรวม
     foreach ($items as $item) {
         $prod_id = (int)$item['id'];
         $qty = (int)$item['quantity'];
+        $remark = mysqli_real_escape_string($conn, $item['remark'] ?? '');
 
-        $sql_price = "SELECT p_price FROM products WHERE p_id = $prod_id";
-        $res_price = mysqli_query($conn, $sql_price);
+        $last_sql = "SELECT p_price FROM products WHERE p_id = $prod_id";
+        $res_price = mysqli_query($conn, $last_sql);
         
         if ($row = mysqli_fetch_assoc($res_price)) {
             $price = (float)$row['p_price'];
-            $total_amount += ($price * $qty); // บวกยอดรวมทั้งบิล
+            $total_amount += ($price * $qty); 
             
-            // เก็บข้อมูลเตรียมไว้บันทึกลง order_detail
             $processed_items[] = [
                 'id' => $prod_id,
                 'qty' => $qty,
-                'price' => $price
+                'price' => $price,
+                'remark' => $remark
             ];
         } else {
             throw new Exception("ไม่พบสินค้า ID: $prod_id");
         }
     }
 
-    // 2. บันทึกลงตาราง order (พร้อมยอด total_amount)
-    $note = mysqli_real_escape_string($conn, $table_id);
-    $sql_order = "INSERT INTO `order` (table_id, note, created_at, total_amount) 
-                  VALUES ('$table_id', '$note', UNIX_TIMESTAMP(), $total_amount)";
+    // บันทึกลงตาราง order
+    $last_sql = "INSERT INTO `order` (table_id, created_at, total_amount) 
+                 VALUES ('$table_id', UNIX_TIMESTAMP(), $total_amount)";
     
-    if (!mysqli_query($conn, $sql_order)) {
-        throw new Exception('บันทึกตาราง order พลาด: ' . mysqli_error($conn));
+    if (!mysqli_query($conn, $last_sql)) {
+        throw new Exception('บันทึกตาราง order พลาด');
     }
     
     $order_id = mysqli_insert_id($conn);
 
-    // 3. บันทึกลงตาราง order_detail (ใช้ชื่อคอลัมน์ product_id และ price ตามฐานข้อมูลจริง)
+    // บันทึกลงตาราง order_detail
     foreach ($processed_items as $p_item) {
         $pid = $p_item['id'];
         $qty = $p_item['qty'];
         $item_price = $p_item['price'];
+        $item_remark = $p_item['remark']; 
 
-        $sql_detail = "INSERT INTO order_detail (order_id, product_id, quantity, price) 
-                       VALUES ($order_id, $pid, $qty, $item_price)";
+        $last_sql = "INSERT INTO order_detail (order_id, product_id, quantity, price, remark) 
+                     VALUES ($order_id, $pid, $qty, $item_price, '$item_remark')";
 
-        if (!mysqli_query($conn, $sql_detail)) {
-            throw new Exception('บันทึกตาราง order_detail พลาด: ' . mysqli_error($conn));
+        if (!mysqli_query($conn, $last_sql)) {
+            throw new Exception('บันทึกตาราง order_detail พลาด');
         }
     }
 
-    // ทำงานครบทุกขั้นตอน กดยืนยันบันทึกข้อมูล
+    // ยืนยันข้อมูล
     mysqli_commit($conn);
     echo json_encode(['success' => true, 'order_id' => $order_id]);
 
 } catch (Exception $e) {
-    // ถ้ามีอะไรพัง ให้ยกเลิกการบันทึกทั้งหมด แล้วส่งข้อความแจ้งเตือน
     mysqli_rollback($conn);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    // ถ้าพังจะส่งประโยค SQL ออกไปโชว์ที่หน้าจอด้วยเลย จะได้รู้ว่าผิดตรงไหน
+    echo json_encode(['success' => false, 'message' => $e->getMessage() . " | คำสั่งที่พังคือ: " . $last_sql]);
 }
 ?>
