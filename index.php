@@ -66,7 +66,7 @@
                         data-id="<?php echo $row['p_id']; ?>"
                         data-name="<?php echo htmlspecialchars($row['p_name']) ?>"
                         data-price="<?php echo $row['p_price'] ?>"
-                        onclick="openOrderModal(<?php echo $row['p_id']; ?>, '<?php echo htmlspecialchars($row['p_name']); ?>', <?php echo $row['p_price']; ?>)">  
+                        onclick="openOrderModal(<?php echo $row['p_id']; ?>, '<?php echo htmlspecialchars($row['p_name']); ?>', <?php echo $row['p_price']; ?>)">
 
                         <?php
                         $placehold = "https://placehold.co/200x200?text=No+Image";
@@ -109,17 +109,17 @@
                     <label>โต๊ะ : </label>
                     <select name="tables" id="tables" style="font-size: 14px;">
                         <option value="" selected>ไม่ได้เลือก</option>
-                        <?php 
+                        <?php
                         $sql_tables = "SELECT * FROM tables";
                         $query_tabels = mysqli_query($conn, $sql_tables);
 
-                        if (mysqli_num_rows($query_tabels) > 0 ) {
-                            while($row_table = mysqli_fetch_assoc($query_tabels)) {
+                        if (mysqli_num_rows($query_tabels) > 0) {
+                            while ($row_table = mysqli_fetch_assoc($query_tabels)) {
                         ?>
                                 <option value="<?php echo $row_table['tables_number']; ?>">
-                                 T.<?php echo $row_table['tables_number']; ?>
+                                    T.<?php echo $row_table['tables_number']; ?>
                                 </option>
-                                <?php
+                        <?php
                             }
                         }
                         ?>
@@ -234,10 +234,30 @@
             </div>
         </div>
     </div>
-    <!-- ================================= popup เพิ่มคำสั่งพิเศษ ================================ -->
-     <div id="orderModal" style="display: none;">
+    <!-- ================================= popup สำหรับเพิ่มหมายเหตุ ================================ -->
+    <div id="orderModal" class="modal-over-lay">
+        <div class="order-modal-box">
+            <h3 id="modalProductName">ชื่อเมนู</h3>
+            <p>ราคา: <span id="modalProductPrice">0</span>บาท</p>
 
-     </div>
+            <div class="modal-qty-control">
+                <label>จำนวน: </label><br>
+                <button type="button" class="btn-qty" onclick="changeModalQty(-1)">-</button>
+                <input type="number" id="modalQty" class="input-qty" value="1" min="1" readonly>
+                <button type="button" class="btn-qty" onclick="changeModalQty(1)">+</button>
+            </div>
+
+            <div class="modal-remark-section">
+                <label>หมายเหตุ (ถ้ามี): </label><br>
+                <textarea id="modalRemark" class="input-remark" rows="3" placeholder="เช่น เผ็ดน้อย, ไม่ใช่ผัก"></textarea>
+            </div>
+
+            <div class="modal-action">
+                <button type="button" class="btn-cancel" onclick="closeOrderModal()">ยกเลิก</button>
+                <button type="button" class="btn-confirm" onclick="confirmAddToOrder">เพิ่มลงบิล</button>
+            </div>
+        </div>
+    </div>
 
 
     <script src="script.js"></script>
