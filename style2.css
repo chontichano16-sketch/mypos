@@ -1,0 +1,782 @@
+/* ฟ้อน */
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh; /* dvh รองรับ mobile/tablet browser ที่มี address bar ได้ดีกว่า vh */
+    
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* ป้องกันหน้าจอหลักเลื่อน (จอใหญ่) */
+    background: #e9e9e9;
+    font-family: sans-serif;
+}
+
+.navbar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    width: 100%;
+    height: 50px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: stretch;
+    height: 100%;
+    overflow-x: auto; /* เลื่อนได้ถ้าเมนูเยอะเกินจอแคบ */
+}
+
+.nav-links button {
+    height: 50px;
+    font-size: 16px;
+    padding: 0 25px;
+    border: none;
+    background-color: #ffffff;
+    color: #63554c;
+}
+
+.nav-links li {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.nav-links li::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 20px;
+    background-color: #aaa;
+    z-index: 2;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #63554c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0px 25px;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.navbar a.active {
+    background-color: #dfdfdf;
+    box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.nav-links a:last-child::after {
+    display: none;
+}
+
+.search-box {
+    position: relative;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    padding-right: 15px;
+    flex-shrink: 0;
+}
+
+.main-container {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 10px;
+    box-sizing: border-box;
+    gap: 20px;
+    overflow: hidden; /* ป้องกันไม่ให้ทะลุ Container บนจอใหญ่ */
+    min-height: 0; /* สำคัญ: ทำให้ flex child ที่มี overflow ทำงานถูกต้อง */
+}
+
+.left-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+}
+
+.menu-list {
+    width: 100%;
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* การ์ดเรียงอัตโนมัติตามขนาดจอ */
+    gap: 15px;
+    overflow-y: auto; /* เลื่อนดูสินค้าได้ */
+    align-content: start;
+    padding-right: 5px;
+    min-height: 0;
+}
+
+.menu-item {
+    position: relative;
+    height: 180px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    text-align: center;
+    padding: 5px;
+}
+
+.overlay h3,
+.overlay h4 {
+    margin: 5px 0;
+}
+
+.side-bar-menu {
+    display: flex;
+    background-color: #ffffff;
+    width: 100%;
+    height: 50px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    align-items: stretch;
+    overflow-x: auto;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch; /* เลื่อนลื่นขึ้นบน iPad/iOS */
+}
+
+.side-bar-menu a {
+    text-decoration: none;
+    color: #63554c;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 22px;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+}
+
+.side-bar-menu a.active {
+    background-color: #dfdfdf;
+    box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.side-bar-menu a::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 30%;
+    width: 1px;
+    height: 40%;
+    background-color: #AAA;
+}
+
+.side-bar-menu a:last-child::after {
+    display: none;
+}
+
+.order-items-container {
+    padding: 10px;
+    color: #434343;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.order-section {
+    width: 320px;
+    max-width: 32%;  /* ไม่กินพื้นที่ตายตัว 320px จนบีบฝั่งเมนู */
+    min-width: 260px;
+    flex-shrink: 0;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.headorder {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.headorder h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #63554c;
+}
+
+.action-buttons {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.action-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+}
+
+.btn-save {
+    background-color: #6a60b8;
+}
+
+.btn-pay {
+    background-color: #4CAF50;
+}
+
+.open-btn {
+    background-color: transparent;
+    border: none;
+    color: #eee;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+    align-items: stretch;
+    height: 100%;
+    width: 50px;
+}
+
+.dropbtn {
+    background-color: #ffffff;
+    color: #63554c;
+    font-size: 30px;
+    border: none;
+    width: 100%;
+    height: 100%;
+}
+
+.dropbtn:hover {
+    background-color: #dfdfdf;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 250px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: #63554c;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border: 1px solid #63554c1f;
+}
+
+.dropdown-content a:hover {
+    background-color: #aaa;
+}
+
+.show {
+    display: block;
+}
+
+.order-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 4px;
+    font-size: 15px;
+}
+
+.order-section p {
+    border-top: 1px dashed #ccc;
+    padding-top: 10px;
+    margin-top: 6px;
+    color: #63554c;
+}
+
+.order-name {
+    flex: 1;
+}
+
+.oder-qty {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.order-qty button {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 4px;
+    background: #ccc;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.order-qty button:hover {
+    background: #aaa;
+}
+
+.order-price {
+    width: 70px;
+    text-align: right;
+}
+
+.add-product-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.add-product-card {
+    width: 700px;
+    max-width: 90%;
+    height: auto;
+    min-height: 500px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.add-product-card h2 {
+    border-radius: 15px;
+    text-align: center;
+    font-size: 26px;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 10px;
+    color: #63554c;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    margin: 0 auto;
+    font-size: 20px;
+}
+
+.form-group input {
+    font-size: 16px;
+    border-radius: 5px;
+    height: 30px;
+    color: #63554c;
+}
+
+.form-group select {
+    font-size: 16px;
+    border-radius: 5px;
+    height: 30px;
+    color: #63554c;
+}
+
+.form-group label {
+    padding-top: 15px;
+    color: #63554c;
+}
+
+.form-buntons {
+    display: flex;
+    padding: 10px 25%;
+    gap: 20px;
+    height: 50px;
+    margin-top: 20px;
+}
+
+.form-buntons button {
+    flex: 1;
+    font-size: 16px;
+}
+
+.btn-reset {
+    background-color: #ffffff;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+    color: rgb(0, 0, 0);
+    border: 1px solid #2a2a2a;
+}
+
+.btn-submit {
+    background-color: #251b6f;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+    color: white;
+    border: 1px solid #2a2a2a;
+}
+
+/* เมนูย่อย */
+.submenu {
+    display: none;
+    list-style: none;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.show-submenu {
+    display: block;
+}
+
+.submenu li a {
+    display: block;
+    padding: 10px 20px;
+    background: #f5f5f5;
+    text-decoration: none;
+    color: #63554c;
+    font-size: 15px;
+}
+
+.submenu button {
+    display: block;
+    padding: 10px 20px;
+    color: #63554c;
+    font-size: 15px;
+    border: 1px solid #63554c1f;
+    width: 100%;
+    text-align: justify;
+    background: #f5f5f5;
+}
+
+.submenu li:last-child button {
+    border-bottom: none;
+}
+
+.menu-btn {
+    width: 100%;
+    text-align: left;
+    border: 1px solid #63554c1f;
+    background: white;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #63554c;
+}
+
+.menu-btn i.bi-chevron-down {
+    transition: transform 0.3s ease;
+}
+
+.rotate-icon {
+    transform: rotate(180deg);
+}
+
+/* popup add_pro */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 8px;
+    width: 500px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    font-size: 24px;
+}
+
+.close-btn-clean {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #adb5bd;
+    font-size: 40px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 10px;
+    line-height: 0.8;
+}
+
+.close-btn-clean:active {
+    color: #495057;
+    transform: scale(0.9);
+}
+
+.container {
+    padding: 10px;
+    margin: 10px;
+    justify-items: center;
+    overflow: auto;
+}
+
+.container tr {
+    border: 1px solid #919191;
+    color: #63554c;
+}
+
+.container th {
+    background-color: #c9c9c9;
+    padding: 10px;
+}
+
+.container td {
+    padding: 5px 0;
+    background-color: #ffffff;
+}
+
+.container h2 {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 10px;
+}
+
+.container td a {
+    text-decoration: none;
+}
+
+.btn-edit {
+    color: #251b6f;
+    padding-right: 10px;
+}
+
+.btn-delete {
+    color: #943535;
+    padding-left: 10px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    padding: 20px;
+}
+
+.bi-person-circle {
+    padding-left: 10px;
+}
+
+.search-box input {
+    font-size: 16px;
+    height: 30px;
+    border-radius: 5px;
+    border: 1px solid #9a9a9a;
+    padding-inline: 10px;
+    padding-right: 30px;
+}
+
+.search-box button {
+    position: absolute;
+    background-color: #ffffff00;
+    border: none;
+    font-size: 18px;
+    display: inline;
+    color: #7d7d7d;
+    right: 10px;
+    padding-right: inherit;
+}
+/* ================================== popup openorder ==================================== */
+.modal2-header {
+    display: flex;
+    justify-content: center;
+    font-size: 18px;
+}
+
+#billListBody td {
+    color: #63554c;
+}
+
+.modal2-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal2-content {
+    background-color: rgb(255, 255, 255);
+    padding: 20px;
+    border-radius: 8px;
+    width: 900px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+.btn-bill {
+    font-size: 14px;
+    width: 50%;
+    border-radius: 5px;
+    border: 1px solid #c6c6c6;
+}
+
+/* ========================================================================
+   ======================================================================== */
+
+/* iPad แนวนอน / จอเล็กลงหน่อย: ลดขนาด order-section และ gap */
+@media (max-width: 1100px) {
+    .main-container {
+        gap: 12px;
+        padding: 8px;
+    }
+
+    .order-section {
+        padding: 15px;
+    }
+
+    .menu-list {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+
+    .menu-item {
+        height: 150px;
+    }
+}
+
+/* iPad แนวตั้ง / แท็บเล็ตแคบ / มือถือแนวนอน:
+   สลับ layout จากซ้าย-ขวา เป็นบน-ล่าง เพื่อไม่ให้บีบกริดเมนู */
+@media (max-width: 900px) {
+    html, body {
+        overflow: auto;
+    }
+
+    .main-container {
+        flex-direction: column;
+        overflow: visible;
+        height: auto;
+    }
+
+    .left-content {
+        overflow: visible;
+        min-height: 400px;
+    }
+
+    .menu-list {
+        max-height: 55vh;
+        overflow-y: auto;
+    }
+
+    .order-section {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        order: -1;
+        max-height: 45vh;
+    }
+
+    .navbar a {
+        padding: 0 16px;
+        font-size: 15px;
+    }
+}
+
+/* มือถือแนวตั้งจอเล็ก */
+@media (max-width: 480px) {
+    .menu-list {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 8px;
+    }
+
+    .menu-item {
+        height: 120px;
+    }
+
+    .overlay h3,
+    .overlay h4 {
+        font-size: 13px;
+    }
+
+    .navbar a {
+        padding: 0 10px;
+        font-size: 13px;
+    }
+
+    .side-bar-menu a {
+        padding: 0 14px;
+        font-size: 14px;
+    }
+
+    .add-product-card {
+        padding: 15px;
+    }
+
+    .form-group {
+        width: 90%;
+    }
+
+    .form-buntons {
+        padding: 10px 5%;
+    }
+}

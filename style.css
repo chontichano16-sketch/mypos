@@ -1,0 +1,182 @@
+/* ของหน้า login */
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Prompt', sans-serif;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ededed;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.card {
+    display: flex;
+    width: 90%;
+    max-width: 900px;
+    height: 90%;
+    background-color: #fffaf2;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* ฝั่งซ้าย */
+.left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    background-color: #806d62;
+    color: white;
+    padding: 50px;
+}
+
+.left h1 {
+    text-align: center;
+    font-size: 40px;
+    margin: 0 0 12px 0;
+}
+
+/* ฝั่งขวา ฟอร์ม PIN */
+.right {
+    padding: 50px;
+    text-align: center;
+    background-color: #fff;
+}
+
+.clerk-icon {
+    width: 54px;
+    height: 54px;
+    background-color: #e6e6e6;
+    border-radius: 50%;
+    font-size: 26px;
+    margin: 0 auto 12px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.right h2 {
+    margin: 0;
+    color: #333;
+    font-size: 22px;
+}
+
+.right .sub {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+/* ช่องแสดง PIN */
+.pin-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.pin-box {
+    width: 50px;
+    height: 56px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.pin-box.filled {
+    border-color: #a3a3a3;
+}
+
+/* ปุ่มกดตัวเลข  */
+.keypad {
+    display: grid;
+    grid-template-columns: 72px 72px 72px;
+    gap: 16px;
+    justify-content: center;
+}
+
+.key {
+    width: 72px;
+    height: 72px;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    background-color: white;
+    font-size: 22px;
+    touch-action: manipulation;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.key:active {
+    background-color: #e4e4e4;
+    border-color: #737373;
+}
+
+.key.empty {
+    border: none;
+    background-color: transparent;
+}
+
+/* ข้อความแจ้งผล */
+.status {
+    margin-top: 18px;
+    font-size: 14px;
+    font-weight: bold;
+    color: green;
+    min-height: 18px;
+}
+
+.status.err {
+    color: red;
+}
+
+/* จอไอแพดแนวตั้ง: เรียงเป็นแนวตั้งแทน */
+@media (max-width: 700px) {
+    .card {
+        flex-direction: column;
+        width: 95%;
+    }
+
+    .left {
+        padding: 30px;
+        text-align: center;
+    }
+
+    .shop-icon {
+        margin: 0 auto 16px auto;
+    }
+}
+
+/* ปุ่มลืมรหัสผ่าน */
+.forgot-pin {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #8c8c8c;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
