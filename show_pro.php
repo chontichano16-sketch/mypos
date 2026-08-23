@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,12 @@
     <link rel="stylesheet" href="style2.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
+
 <body>
-    <?php 
-    include "navbar.php"; 
-    include "db.php";  
-    
+    <?php
+    include "navbar.php";
+    include "db.php";
+
 
     // คำสั่ง SQL ดึงข้อมูลสินค้าทั้งหมด
     $sql = "SELECT * FROM products";
@@ -31,26 +33,27 @@
                 </tr>
             </thead>
             <tbody>
-                <?php 
+                <?php
                 // วนลูปดึงข้อมูลสินค้ามาแสดงทีละแถว
-                while($row = mysqli_fetch_array($result)) { 
+                while ($row = mysqli_fetch_array($result)) {
                 ?>
-                <tr>
-                    <td><?= $row['p_id']; ?></td>
-                    <td>
-                        <img src="upload/<?= $row['p_img']; ?>" width="50" alt="รูปสินค้า">
-                    </td>
-                    <td><?= $row['p_name']; ?></td>
-                    <td><?= number_format($row['p_price'], 2); ?> ฿</td>
-                    <td>
-                        <a href="edit_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-edit"><i class="bi bi-pencil-fill"></i>แก้ไข</a>
-                        <a href="delete_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-delete" onclick="return confirm('คุณแน่ใจแล้วหรือไม่ว่าต้องการลบรายการสินค้านี้?')"><i class="bi bi-trash3"></i>ลบ</a>
-                    </td>
-                </tr>
+                    <tr>
+                        <td><?= $row['p_id']; ?></td>
+                        <td>
+                            <img src="upload/<?= $row['p_img']; ?>" width="50" alt="รูปสินค้า">
+                        </td>
+                        <td><?= $row['p_name']; ?></td>
+                        <td><?= number_format($row['p_price'], 2); ?> ฿</td>
+                        <td>
+                            <a href="edit_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-edit"><i class="bi bi-pencil-fill"></i>แก้ไข</a>
+                            <a href="delete_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-delete" onclick="return confirm('คุณแน่ใจแล้วหรือไม่ว่าต้องการลบรายการสินค้านี้?')"><i class="bi bi-trash3"></i>ลบ</a>
+                        </td>
+                    </tr>
                 <?php } ?>
             </tbody>
         </table>
     </div>
+
     <!--========================================== popup เพิ่มสินค้า ===============================================-->
     <div id="addProductModal" class="modal-overlay" style="display: none;">
 
@@ -90,7 +93,7 @@
                     </select>
                 </div>
                 <div class="form-buntons">
-                    <button type="button" class="btn-reset"  onclick="closeModal()">ยกเลิก</button>
+                    <button type="button" class="btn-reset" onclick="closeModal()">ยกเลิก</button>
                     <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
                 </div>
             </form>
@@ -112,13 +115,45 @@
                 </div>
 
                 <div class="form-buntons">
-                    <button type="button" class="btn-reset"  onclick="closeModal()">ยกเลิก</button>
+                    <button type="button" class="btn-reset" onclick="closeModal()">ยกเลิก</button>
                     <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
                 </div>
             </form>
         </div>
     </div>
-    
+
+    <!-- ================================= popup เปิดบิล =================================== -->
+    <div id="openOrder" class="modal2-overlay" style="display: none;">
+        <div class="modal2-content">
+            <div class="modal2-header">
+                <h3 style=" color: #63554c;">บิลทั้งหมด</h3>
+                <button class="close-btn-clean" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="form-openOrder">
+                <div class="table-responsive" style="padding: 15px;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #ddd;">
+                                <th style="padding: 10px; text-align: center; color: #63554c;">รหัสบิล</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">เบอร์โต๊ะ</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">เวลาที่เปิดบิล</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billListBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 20px;">กำลังโหลดข้อมูล...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script src="script.js"></script>
 </body>
+
 </html>

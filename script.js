@@ -151,19 +151,27 @@ function openModal(type) {
         }
     }
 }
+
 function closeModal() {
     const addProductModal = document.getElementById('addProductModal');
     const addTypeModal = document.getElementById('addTypeModal');
     const openOrder = document.getElementById('openOrder');
+    const paymentModal = document.getElementById('paymentModal');
 
     if (addProductModal) addProductModal.style.display = 'none';
     if (addTypeModal) addTypeModal.style.display = 'none';
     if (openOrder) openOrder.style.display = 'none';
+    if (paymentModal) paymentModal.style.display = 'none';
 
     const allInputs = document.querySelectorAll('#addProductModal input, #addTypeModal input');
     allInputs.forEach(input => {
         input.value = "";
     });
+
+    const receiveMoney = document.getElementById('receiveMoney');
+    const changeMoney = document.getElementById('changeMoney');
+    if (receiveMoney) receiveMoney.value = '';
+    if (changeMoney) changeMoney.innerText = '0';
 }
 
 // ========================================= login ===============================================
@@ -275,6 +283,7 @@ function fetchBillsData() {
             console.error('Error fetching bills:', error);
             tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">เกิดข้อผิดพลาดในการดึงข้อมูล (เช็คไฟล์ get_bills.php)</td></tr>';
         });
+        
 }
 
 function viewBill(orderId) {
@@ -294,9 +303,12 @@ function viewBill(orderId) {
                 let orderContainer = document.querySelector('.order-items-container');
                 if (orderContainer) {
                     let html = '';
+                    let grandTotal = 0;
+
                     data.items.forEach(item => {
                         let sum = item.price * item.quantity;
-                        
+                        grandTotal += sum;
+
                         // เช็คว่ามีหมายเหตุไหม ถ้ามีให้แสดงเพิ่ม
                         let remarkHtml = item.remark ? `<small style="color: gray; margin-left: 10px;">* ${item.remark}</small>` : '';
 
@@ -315,7 +327,7 @@ function viewBill(orderId) {
                 // แสดงราคารวม
                 let totalPriceElement = document.querySelector('.total-price');
                 if (totalPriceElement) {
-                    totalPriceElement.innerText = `รวมทั้งหมด ${data.total} บาท`;
+                    totalPriceElement.innerHTML = `<strong>รวมทั้งหมด ${data.total} บาท</strong>`;
                 }
 
             } else {
@@ -325,6 +337,23 @@ function viewBill(orderId) {
         .catch(error => {
             console.error('Fetch Error:', error);
         });
+
+        document.getElementById('btnCloseBillView').style.display = 'inline-block';
+}
+
+function closeBillView() {
+    document.getElementById('tables').value = "";
+
+    let orderContainer = document.querySelector('.order-items-container'); 
+    if (orderContainer) {
+        orderContainer.innerHTML = 'รายการที่สั่งจะแสดงที่นี่';
+    }
+
+    let totalElement = document.querySelector('.total-price');
+    if (totalElement) {
+        totalElement.innerHTML = '<strong>รวมทั้งหมด 0 บาท</strong>';
+    }
+    document.getElementById('btnCloseBillView').style.display = 'none';
 }
 
 function decreaseItem(productId) {
@@ -414,4 +443,159 @@ function confirmAddToOrder() {
 
     closeOrderModal();
     renderOrder();
+}
+
+// ================================================== popup ชำระเงิน =================================
+// สลับหน้าจอตามวิธีการชำระเงิน
+function togglePaymentMode() {
+    let isCash = document.getElementById('paymentCash').checked;
+    let cashSection = document.getElementById('cashInputSection');
+    let transferSection = document.getElementById('transferInputSection');
+
+    if (isCash) {
+        cashSection.style.display = 'block';
+        transferSection.style.display = 'none';
+    } else {
+        cashSection.style.display = 'none';
+        transferSection.style.display = 'block';
+    }
+}
+
+// ========================================== Popup ชำระเงิน ==========================================
+function openPaymentModal() {
+    let totalElement = document.querySelector('.total-price strong');
+    let totalText = totalElement ? totalElement.innerText : '0';
+    let totalAmount = parseFloat(totalText.replace(/[^0-9.]/g, '')) || 0;
+
+    if (totalAmount <= 0) {
+        alert('กรุณาเลือกรายการอาหารก่อนชำระเงินครับ');
+        return;
+    }
+
+    document.getElementById('payTotalAmount').innerText = totalAmount.toFixed(2);
+
+    // สร้าง QR Code จากยอดเงินจริง
+    let promptpayNo = "0981833902";
+    let payload = generatePromptPayPayload(promptpayNo, totalAmount);
+    let qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payload)}`;
+
+    document.getElementById('qrImage').src = qrImageUrl;
+
+    // เคลียร์ค่าและแสดง Pop-up
+    document.getElementById('receiveMoney').value = '';
+    document.getElementById('changeMoney').innerText = '0';
+    document.getElementById('paymentCash').checked = true;
+    togglePaymentMode();
+
+    document.getElementById('paymentModal').style.display = 'flex';
+}
+
+// ===================================== PromptPay Payload (คำนวณ CRC16) ===============================
+function generatePromptPayPayload(promptpayID, amount) {
+    let target = promptpayID.replace(/[^0-9]/g, '');
+    let targetTag = '';
+
+    if (target.length >= 15) {
+        targetTag = "0315" + target;
+    } else if (target.length >= 13) {
+        targetTag = "0213" + target;
+    } else {
+        let formattedPhone = "0066" + target.substring(1);
+        targetTag = "0113" + formattedPhone;
+    }
+
+    let tag29Value = "0016A000000677010111" + targetTag;
+    let tag29Length = tag29Value.length.toString().padStart(2, '0');
+    let tag29 = "29" + tag29Length + tag29Value;
+
+    let payload = "000201";
+    payload += amount ? "010211" : "010212";
+    payload += tag29;
+    payload += "5303764";
+
+    if (amount) {
+        let amountStr = parseFloat(amount).toFixed(2);
+        let amountLength = amountStr.length.toString().padStart(2, '0');
+        payload += "54" + amountLength + amountStr;
+    }
+
+    payload += "5802TH";
+    payload += "6304";
+
+    let crc = 0xFFFF;
+    for (let i = 0; i < payload.length; i++) {
+        crc ^= (payload.charCodeAt(i) << 8);
+        for (let j = 0; j < 8; j++) {
+            if ((crc & 0x8000) !== 0) {
+                crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
+            } else {
+                crc = (crc << 1) & 0xFFFF;
+            }
+        }
+    }
+
+    let crcHex = (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    return payload + crcHex;
+}
+
+function confirmPayment() {
+    let tableId = document.getElementById('tables').value;
+    if (tableId === "") {
+        alert("กรุณาเลือกโต๊ะก่อนชำระเงิน");
+        return;
+    }
+
+    let isCash = document.getElementById('paymentCash').checked;
+    let paymentMethod = isCash ? "Cash" : "Transfer";
+    let totalAmount = document.getElementById('payTotalAmount').innerText;
+
+    if (isCash) {
+        let receiveMoney = document.getElementById('receiveMoney').value;
+        if (receiveMoney === "" || parseFloat(receiveMoney) < parseFloat(totalAmount)) {
+            alert("กรุณากรอกเงินที่รับมาให้ถูกต้อง (ต้องไม่น้อยกว่ายอดรวม)");
+            return;
+        }
+    }
+
+    let formData = new FormData();
+    formData.append("table_id", tableId);
+    formData.append("payment_method", paymentMethod);
+    formData.append("total_amount", totalAmount);
+
+    fetch('save_payment.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.text()) // รับคำตอบจาก PHP
+        .then(data => {
+            if (data.trim() === "Success"){
+                alert(" บันทึกการชำระเงินสำเร็จ!");
+                location.reload();
+            } else {
+                alert("ไม่สามารถบันทึกได้: " + data);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(" เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+        })
+    }
+
+    function calculateChange() {
+    let totalText = document.getElementById('payTotalAmount').innerText;
+    let totalAmount = parseFloat(totalText) || 0;
+
+    let receiveText = document.getElementById('receiveMoney').value;
+    let receiveAmount = parseFloat(receiveText) || 0;
+
+    let changeDisplay = document.getElementById('changeMoney');
+
+    // คำนวณเงินทอน
+    if (receiveAmount >= totalAmount) {
+        let change = receiveAmount - totalAmount;
+        // แสดงทศนิยม 2 ตำแหน่ง
+        changeDisplay.innerText = change.toFixed(2); 
+    } else {
+        changeDisplay.innerText = "0"; 
+    }
 }
