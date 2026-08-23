@@ -239,7 +239,6 @@ body {
     margin-bottom: 15px;
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
-    margin-right: 10px;
     flex-shrink: 0;
 }
 
@@ -267,7 +266,7 @@ body {
 }
 
 .btn-save {
-    background-color: #6a60b8;
+    background-color: #251b6f;
 }
 
 .btn-pay {
@@ -410,9 +409,23 @@ body {
 
 .form-group input {
     font-size: 16px;
-    border-radius: 5px;
+    border-radius: 8px;
     height: 30px;
     color: #63554c;
+    border: 1px solid #dbdbdb;
+    font-size-adjust: ex-height 0.5;
+}
+
+#p_name {
+    padding-inline: 10px;
+}
+
+#p_price {
+    padding-inline: 10px;
+}
+
+#type_name {
+    padding-inline: 10px;
 }
 
 .form-group select {
@@ -420,6 +433,7 @@ body {
     border-radius: 5px;
     height: 30px;
     color: #63554c;
+    border: 1px solid #dbdbdb;
 }
 
 .form-group label {
@@ -431,7 +445,7 @@ body {
     display: flex;
     padding: 10px 25%;
     gap: 20px;
-    height: 50px;
+    height: 60px;
     margin-top: 20px;
 }
 
@@ -441,21 +455,19 @@ body {
 }
 
 .btn-reset {
-    background-color: #ffffff;
-    border: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
     color: rgb(0, 0, 0);
-    border: 1px solid #2a2a2a;
+    background: #ffffff;
+    border: 1px solid #dbdbdb;
 }
 
 .btn-submit {
     background-color: #251b6f;
-    border: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
     color: white;
-    border: 1px solid #2a2a2a;
+    border: 1px solid #dbdbdb;
 }
 
 /* เมนูย่อย */
@@ -529,9 +541,9 @@ body {
 }
 
 .modal-content {
-    background-color: rgb(255, 255, 255);
+    background-color: oklch(98.5% 0 none);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 30px;
     width: 500px;
     max-width: 100%;
     max-height: 90vh;
@@ -566,19 +578,21 @@ body {
 }
 
 .container {
+    width: 100%;
     padding: 10px;
-    margin: 10px;
     justify-items: center;
     overflow: auto;
+    background: #fff;
+    height: 100%;
 }
 
 .container tr {
-    border: 1px solid #919191;
+    border: 1px solid oklch(86.9% 0.022 252.894);
     color: #63554c;
 }
 
 .container th {
-    background-color: #c9c9c9;
+    background-color: oklch(96.8% 0.007 247.896);
     padding: 10px;
 }
 
@@ -637,6 +651,12 @@ body {
     right: 10px;
     padding-right: inherit;
 }
+/* ปุ่มปิดดูบิล */
+.btn-clear-panel {
+    background: none;
+    border: none;
+}
+
 /* ================================== popup openorder ==================================== */
 .modal2-header {
     display: flex;
@@ -680,7 +700,7 @@ body {
     border-radius: 5px;
     border: 1px solid #c6c6c6;
 }
-/* ========================= popup =====================เพิ่มหมายเหตุ */
+/* ========================= popup เพิ่มหมายเหตุ ===================*/
 .modal-over-lay {
     /* display: none; */
     position: fixed;
@@ -789,8 +809,231 @@ body {
     transform: scale(0.96); 
 }
 
-/* ========================================================================
-   ======================================================================== */
+/* ========================= popup วิธีชำระเงิน ===================== */
+.modal-overlay1 {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%
+}
+
+.close-btn-pay {
+    position: absolute;
+    background: none;
+    right: 20px;
+    top: 10px;
+    border: none;
+    color: #adb5bd;
+    font-size: 40px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 10px;
+    line-height: 0.8;
+}
+
+.payment-modal-content {
+    width: 700px;
+    display: flex;
+    margin: 100px auto;
+    background: oklch(98.5% 0 none);
+    border-radius: 30px;
+    flex-direction: column;
+    padding: 10px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.payment-modal-header {
+    padding: 20px;
+    font-size: 20px;
+}
+
+.payment-method-group {
+    display: flex;
+    flex-direction: column;
+    font-size: 20px;
+    padding: 0px 50px;
+}
+
+.payment-label input[type="radio"] {
+    display: none;
+}
+
+.custom-check {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.custom-check::after {
+  content: "✓";
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+  display: none;
+}
+
+.payment-label:has(input[type="radio"]:checked) .custom-check {
+  background-color: #00a66c; 
+  border-color: #00a66c;
+}
+
+.payment-label:has(input[type="radio"]:checked) .custom-check::after {
+  display: block;
+}
+
+.payment-label:has(input[type="radio"]:checked) {
+  border-color: #00a66c;
+  background-color: #f0fdf4; 
+}
+
+.payment-label {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid #d7d7d7;
+    margin-bottom: 10px;
+    font-size: large;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+}
+
+.payment-total-box {
+    padding-bottom: 10px;
+    color: oklch(37% 0.013 285.805);
+    justify-items: center;
+    font-size: small;
+}
+
+.change-money-box {
+    display: flex;
+    justify-content: center;
+    color: oklch(50.8% 0.118 165.612);
+}
+
+.form-buntons-payment-buttons {
+    display: flex;
+    justify-content: space-evenly;
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.btn-reset-pay {
+    height: 50px;
+    background: oklch(98.5% 0 none);
+    border: 1px solid #d7d7d7;
+    border-radius: 50px;
+    color: oklch(27.4% 0.006 286.033);
+    font-size: 18px;
+    width: 30%;
+    background-color: #ffffff;
+}
+
+.btn-submit-pay {
+    font-size: 18px;
+    width: 30%;
+    height: 50px;
+    background: oklch(59.6% 0.145 163.225);
+    border: 1px solid #d7d7d7;
+    border-radius: 50px;
+    color: white;
+}
+
+.form-group-pay {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding: 15px 100px;
+    font-size: larger;
+}
+
+.form-group-pay input {
+    font-size: 18px;
+    padding-inline: 10px;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    width: 300px;
+    font-size-adjust: ex-height 0.5;
+    padding: 10px;
+}
+
+#changeMoney {
+    padding: 0 10px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ========================= qr โอนเงิน ===================== */
+.transfer-section {
+    margin: 15px 0;
+    padding-left: 20%;
+}
+
+.qr-container {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    flex-direction: column;
+    align-items: center;
+    width: 400px;
+}
+
+.qr-title {
+    margin: 0 0 10px 0;
+    font-weight: bold;
+    color: #4A3B32;
+    font-size: 15px;
+}
+
+.qr-image {
+    width: 180px;
+    height: 180px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 5px;
+    background: #fff;
+}
+
+.qr-promptpay {
+    margin: 10px 0 0 0;
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.qr-number {
+    color: #2e7d32;
+}
+
+.qr-warning {
+    color: #e67e22;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ==================================================================================================================== */
 
 /* iPad แนวนอน / จอเล็กลงหน่อย: ลดขนาด order-section และ gap */
 @media (max-width: 1100px) {

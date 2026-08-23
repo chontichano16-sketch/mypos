@@ -12,37 +12,7 @@
 <body>
     <?php include "navbar.php" ?>
     <!-- ปุ่มแฮมเบอร์เกอร์ -->
-    <!-- <nav class="navbar">
-        <div class="dropdown">
-            <button onclick="toggleMenu(event)" class="dropbtn"> &#9776; </button>
-
-            <div id="myDropdown" class="dropdown-content">
-                <button class="menu-btn">จัดการข้อมูลโต๊ะ</button>
-                <ul class="submenu">
-                    <li><a href="create_QR">สร้าง QR Code โตีะ</a></li>
-                </ul>
-                <button class="menu-btn">จัดการข้อมูลเมนูอาหาร</button>
-                <ul class="submenu">
-                    <li><a href="add_pro.php">เพิ่มสินค้า</a></li>
-                    <li><a href="add_type.php">เพิ่มประเภทสินค้า</a></li>
-                    <li><a href="edit_pro.php">แก้ไขสินค้า</a></li>
-                </ul>
-                <a href="#">รายการสินค้าทั้งหมด</a>
-                <a href="#">รายงานยอดขาย</a>
-                <a href="#">ออกจากระบบ</a>
-            </div>
-        </div>
-
-        <ul class="nav-links" id="nav-links">
-            <li><a href="index.php" class="active">หน้าร้าน</a></li>
-            <li><a href="neworder.php">ออเดอร์ใหม่</a></li>
-            <li><a href="#services">เปิดบิล</a></li>
-        </ul>
-        <form action="search.php" method="get" class="search-box">
-            <input type="text" name="keyword" placeholder="ค้นหาเมนู...">
-            <button type="submit">ค้นหา</button>
-        </form>
-    </nav> -->
+     
     <div class="main-container">
 
         <div class="left-content">
@@ -116,7 +86,7 @@
                         if (mysqli_num_rows($query_tabels) > 0) {
                             while ($row_table = mysqli_fetch_assoc($query_tabels)) {
                         ?>
-                                <option value="<?php echo $row_table['tables_number']; ?>">
+                                <option value="<?php echo $row_table['tables_id']; ?>">
                                     T.<?php echo $row_table['tables_number']; ?>
                                 </option>
                         <?php
@@ -125,14 +95,15 @@
                         ?>
                     </select>
                 </div>
+                <button type="button" id="btnCloseBillView" class="btn-clear-panel" onclick="closeBillView()" title="ปิดการดูบิล" style="display:none;"><i class="bi bi-x-circle-fill" style="font-size: x-large; color: #251b6f;"></i></i></button>
             </div>
 
             <div class="order-items-container">รายการที่สั่งจะแสดงที่นี่</div>
 
-            <p style="text-align: right; font-size: 18px; padding-bottom: 10px;"><strong>รวมทั้งหมด 0 บาท</strong></p>
+            <p class="total-price" style="text-align: right; font-size: 18px; padding-bottom: 10px;"><strong>รวมทั้งหมด 0 บาท</strong></p>
             <div class="action-buttons">
                 <button type="submit" class="btn-save" onclick="saveOrder()">บันทึก</button>
-                <button type="button" class="btn-pay">ชำระเงิน</button>
+                <button type="button" class="btn-pay" onclick="openPaymentModal()">ชำระเงิน</button>
             </div>
         </aside>
 
@@ -257,6 +228,60 @@
             </div>
         </div>
     </div>
+    <!-- ================================= popup ชำระเงิน ================================ -->
+    <div id="paymentModal" class="modal-overlay1" style="display: none;">
+        <div class="payment-modal-content">
+            <div class="payment-modal-header">
+                <h3>วิธีการชำระเงิน</h3>
+                <button class="close-btn-pay" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="payment-total-box">
+                <h2>ยอดรวม: <span id="payTotalAmount" class="text-amount">0</span> บาท</h2>
+            </div>
+
+            <div class="payment-method-group">
+                <label class="payment-label">
+                    <span class="custom-check"></span>
+                    <input type="radio" name="payment_method" id="paymentCash" value="Cash" checked onchange="togglePaymentMode()">เงินสด (Cash)
+                </label>
+
+                <label class="payment-label">
+                    <span class="custom-check"></span>
+                    <input type="radio" name="payment_method" id="paymentTransfer" value="Transfer" onchange="togglePaymentMode()">โอนเงิน (QR / PromptPay)
+                </label>
+            </div>
+
+            <!-- ส่วนของเงินสด -->
+            <div id="cashInputSection">
+                <div class="form-group-pay">
+                    <label>รับเงินมา (บาท): </label>
+                    <input type="number" id="receiveMoney" onkeyup="calculateChange()" placeholder="กรอกจำนวนเงิน...">
+                </div>
+                <h3 class="change-money-box">เงินทอน: <span id="changeMoney"> 0</span> บาท</h3>
+            </div>
+
+            <!-- แจ้งเตือนโอนเงิน -->
+            <div id="transferInputSection" class="transfer-section">
+                <div class="qr-container">
+                    <p class="qr-title">กรุณาตรวจสอบสลิปโอนเงินให้ตรงกับยอดรวมสุทธิ</p>
+                    <img id="qrImage" src="" alt="PromptPay QR Code" class="qr-image">
+                    <p class="qr-promptpay">
+                        พร้อมเพย์: <span class="qr-number">0981833902</span>
+                    </p>
+                </div>
+                <p class="qr-warning">
+                    ⚠️ กรุณาตรวจสอบสลิปโอนเงินให้ตรงกับยอดรวมสุทธิ
+                </p>
+            </div>
+
+            <div class="form-buntons-payment-buttons">
+                <button type="button" class="btn-reset-pay" onclick="closeModal()">ยกเลิก</button>
+                <button type="button" class="btn-submit-pay" onclick="confirmPayment()">ยืนยันชำระเงิน</button>
+            </div>
+        </div>
+    </div>
+
 
 
     <script src="script.js"></script>
