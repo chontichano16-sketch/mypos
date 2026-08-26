@@ -285,6 +285,7 @@ function fetchBillsData() {
             console.error('Error fetching bills:', error);
             tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">เกิดข้อผิดพลาดในการดึงข้อมูล (เช็คไฟล์ get_bills.php)</td></tr>';
         });
+
 }
 
 function viewBill(orderId) {
@@ -576,23 +577,41 @@ function confirmPayment() {
     formData.append("payment_method", paymentMethod);
     formData.append("total_amount", totalAmount);
 
+    let currentItems = JSON.parse(sessionStorage.getItem('orderItems')) || orderItems;
+    // ตรวจสอบเงื่อนไข
+    if (tableId === "10") {
+        if (!currentItems || currentItems.length === 0) {
+            alert("กรุณาเลือกรายการอาหารก่อนชำระเงิน");
+            return;
+        }
+        formData.append("is_takeaway", "yes");
+        formData.append("items", JSON.stringify(currentItems));
+    } else {
+        formData.append("is_takeaway", "no");
+    }
+
     fetch('save_payment.php', {
         method: 'POST',
         body: formData
     })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data => {
-            if (data.trim() === "Success"){
-                alert("บันทึกการชำระเงินสำเร็จ!");
+            if (data.status === "success") {
+
+                let confirmPrint = confirm("ชำระเงินสำเร็จ!\nต้องการพิมพ์ใบเสร็จหรือไม่?");
+                if (confirmPrint) {
+                    window.open('print_receipt.php?id=' + data.order_id, '_blank');
+                }
+                sessionStorage.removeItem('orderItems');
                 location.reload();
             } else {
-                alert("ไม่สามารถบันทึกได้: " + data);
+                alert("ไม่สามารถบันทึกได้: " + data.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
             alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-        })
+        });
 }
 
 function calculateChange() {
@@ -606,8 +625,55 @@ function calculateChange() {
 
     if (receiveAmount >= totalAmount) {
         let change = receiveAmount - totalAmount;
-        changeDisplay.innerText = change.toFixed(2); 
+        // แสดงทศนิยม 2 ตำแหน่ง
+        changeDisplay.innerText = change.toFixed(2);
     } else {
-        changeDisplay.innerText = "0.00"; 
+        changeDisplay.innerText = "0";
     }
 }
+
+// =========================== ปุ่มเลือกรายวัน เดือน ปี ==============================
+let currentType = 'daily';
+
+function loadReport(type, btnElement) {
+    currentType = type;
+    const selectedDate = document.getElementById('date-report').value;
+
+    // สลับคลาส active ไปที่ปุ่มที่ถูกกด
+    if (btnElement && btnElement.tagName === 'BUTTON') {
+        document.querySelectorAll('.report-buttons button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        btnElement.classList.add('active');
+    }
+
+    // ดึงข้อมูล AJAX ตามปกติ
+    fetch(`get_report.php?type=${type}&date=${selectedDate}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('val-daily').innerText = '฿' + data.daily_total;
+            document.getElementById('val-monthly').innerText = '฿' + data.monthly_total;
+            document.getElementById('val-yearly').innerText = '฿' + data.yearly_total;
+            document.getElementById('val-count').innerText = data.daily_orders + ' บิล';
+
+            document.getElementById('table-title').innerText = data.table_title;
+            document.getElementById('report-tbody').innerHTML = data.table_html;
+
+            if (document.getElementById('header-date-text')) {
+                const [y, m, d] = selectedDate.split('-');
+                document.getElementById('header-date-text').innerText = `${d}/${m}/${y}`;
+            }
+        })
+        .catch(error => console.error('Error fetching report:', error));
+}
+
+// ส่งออก excel
+document.getElementById('export-excel').addEventListener('click', function () {
+    const table = document.getElementById('report-table');
+    // แปลงตารางเป็น Workbook ไฟล์ Excel
+    const wb = XLSX.utils.table_to_book(table, { sheet: "สรุปยอดขาย" });
+    const selectedData = document.getElementById('date-report').value;
+    const fileName = "Sale_report_" + selectedData + ".xlsx";
+    XLSX.writeFile(wb, fileName);
+});
+

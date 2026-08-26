@@ -1,5 +1,6 @@
 /* ฟ้อน */
 @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -11,12 +12,14 @@ html,
 body {
     width: 100%;
     height: 100vh;
-    height: 100dvh; /* dvh รองรับ mobile/tablet browser ที่มี address bar ได้ดีกว่า vh */
-    
+    height: 100dvh;
+    /* dvh รองรับ mobile/tablet browser ที่มี address bar ได้ดีกว่า vh */
+
     margin: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* ป้องกันหน้าจอหลักเลื่อน (จอใหญ่) */
+    overflow: hidden;
+    /* ป้องกันหน้าจอหลักเลื่อน (จอใหญ่) */
     background: #e9e9e9;
     font-family: sans-serif;
 }
@@ -40,7 +43,8 @@ body {
     padding: 0;
     align-items: stretch;
     height: 100%;
-    overflow-x: auto; /* เลื่อนได้ถ้าเมนูเยอะเกินจอแคบ */
+    overflow-x: auto;
+    /* เลื่อนได้ถ้าเมนูเยอะเกินจอแคบ */
 }
 
 .nav-links button {
@@ -85,7 +89,7 @@ body {
 }
 
 .navbar a.active {
-    background-color: #dfdfdf;
+    background-color: oklch(96.7% 0.001 286.375);
     box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.25);
 }
 
@@ -111,8 +115,10 @@ body {
     padding: 10px;
     box-sizing: border-box;
     gap: 20px;
-    overflow: hidden; /* ป้องกันไม่ให้ทะลุ Container บนจอใหญ่ */
-    min-height: 0; /* สำคัญ: ทำให้ flex child ที่มี overflow ทำงานถูกต้อง */
+    overflow: hidden;
+    /* ป้องกันไม่ให้ทะลุ Container บนจอใหญ่ */
+    min-height: 0;
+    /* สำคัญ: ทำให้ flex child ที่มี overflow ทำงานถูกต้อง */
 }
 
 .left-content {
@@ -129,9 +135,11 @@ body {
     width: 100%;
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* การ์ดเรียงอัตโนมัติตามขนาดจอ */
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    /* การ์ดเรียงอัตโนมัติตามขนาดจอ */
     gap: 15px;
-    overflow-y: auto; /* เลื่อนดูสินค้าได้ */
+    overflow-y: auto;
+    /* เลื่อนดูสินค้าได้ */
     align-content: start;
     padding-right: 5px;
     min-height: 0;
@@ -177,7 +185,8 @@ body {
     align-items: stretch;
     overflow-x: auto;
     flex-shrink: 0;
-    -webkit-overflow-scrolling: touch; /* เลื่อนลื่นขึ้นบน iPad/iOS */
+    -webkit-overflow-scrolling: touch;
+    /* เลื่อนลื่นขึ้นบน iPad/iOS */
 }
 
 .side-bar-menu a {
@@ -192,7 +201,7 @@ body {
 }
 
 .side-bar-menu a.active {
-    background-color: #dfdfdf;
+    background-color: oklch(96.7% 0.001 286.375);
     box-shadow: inset 0px 3px 6px rgba(0, 0, 0, 0.25);
 }
 
@@ -220,7 +229,8 @@ body {
 
 .order-section {
     width: 320px;
-    max-width: 32%;  /* ไม่กินพื้นที่ตายตัว 320px จนบีบฝั่งเมนู */
+    max-width: 32%;
+    /* ไม่กินพื้นที่ตายตัว 320px จนบีบฝั่งเมนู */
     min-width: 260px;
     flex-shrink: 0;
     background-color: #ffffff;
@@ -297,7 +307,7 @@ body {
 }
 
 .dropbtn:hover {
-    background-color: #dfdfdf;
+    background-color: oklch(96.7% 0.001 286.375);
 }
 
 .dropdown-content {
@@ -318,7 +328,7 @@ body {
 }
 
 .dropdown-content a:hover {
-    background-color: #aaa;
+    background-color: oklch(96.7% 0.001 286.375);
 }
 
 .show {
@@ -651,6 +661,7 @@ body {
     right: 10px;
     padding-right: inherit;
 }
+
 /* ปุ่มปิดดูบิล */
 .btn-clear-panel {
     background: none;
@@ -700,6 +711,7 @@ body {
     border-radius: 5px;
     border: 1px solid #c6c6c6;
 }
+
 /* ========================= popup เพิ่มหมายเหตุ ===================*/
 .modal-over-lay {
     /* display: none; */
@@ -735,7 +747,7 @@ body {
     border-radius: 10px;
 
     cursor: pointer;
-    transition: all 0,1s ease;
+    transition: all 0, 1s ease;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
@@ -744,6 +756,7 @@ body {
     background: #d7d7d7;
     transform: scale(0.96);
 }
+
 .input-qty {
     width: 50px;
     text-align: center;
@@ -805,8 +818,8 @@ body {
 }
 
 .btn-confirm:active {
-    background: #1e7e34; 
-    transform: scale(0.96); 
+    background: #1e7e34;
+    transform: scale(0.96);
 }
 
 /* ========================= popup วิธีชำระเงิน ===================== */
@@ -868,36 +881,36 @@ body {
 }
 
 .custom-check {
-  width: 22px;
-  height: 22px;
-  border: 2px solid #d1d5db;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
 }
 
 .custom-check::after {
-  content: "✓";
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: bold;
-  display: none;
+    content: "✓";
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: bold;
+    display: none;
 }
 
 .payment-label:has(input[type="radio"]:checked) .custom-check {
-  background-color: #00a66c; 
-  border-color: #00a66c;
+    background-color: #00a66c;
+    border-color: #00a66c;
 }
 
 .payment-label:has(input[type="radio"]:checked) .custom-check::after {
-  display: block;
+    display: block;
 }
 
 .payment-label:has(input[type="radio"]:checked) {
-  border-color: #00a66c;
-  background-color: #f0fdf4; 
+    border-color: #00a66c;
+    background-color: #f0fdf4;
 }
 
 .payment-label {
@@ -1033,6 +1046,266 @@ body {
     font-weight: 500;
 }
 
+/* nav ของหน้ารายงานยอดขาย */
+.nav-report {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.nav-report-header {
+    display: flex;
+    align-items: center;
+}
+
+.btn-navreport {
+    margin-left: auto;
+    gap: 20px;
+}
+
+.btn-navreport button {
+    padding: 5px 10px;
+    font-size: small;
+    border: 1px solid #d2cdc9;
+    border-radius: 8px;
+    padding-inline: 2px;
+    padding-inline: 12px;
+}
+
+#export-excel {
+    background-color: oklch(62.7% 0.194 149.214);
+    color: white;
+}
+
+.nav-report span {
+    color: oklch(70.5% 0.015 286.067);
+    padding-right: 12px;
+}
+
+
+
+.d-m-y {
+    background-color: #251b6f;
+}
+
+/* หน้ารายงานยอดขาย */
+.report-page {
+    height: auto;
+    min-height: 100dvh;
+    overflow: auto;
+}
+
+.report-container {
+    width: min(1200px, calc(100% - 32px));
+    margin: 32px auto;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: end;
+    margin-bottom: 24px;
+}
+
+.report-header h1,
+.detail-report h2 {
+    color: #3f342d;
+}
+
+.report-header p {
+    color: #6b625d;
+    margin-top: 6px;
+}
+
+.report-filter {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #63554c;
+    font-size: 14px;
+}
+
+.report-buttons {
+    display: flex;
+    gap: 5px; 
+}
+
+.report-buttons button {
+    border: 1px solid #d2cdc9;
+    border-radius: 7px;
+    padding: 8px 10px;
+    font: inherit;
+}
+
+.report-buttons {
+    display: inline-flex;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.report-buttons button {
+    background-color: transparent;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px; 
+    color: #4b5563; 
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.report-buttons button:hover:not(.active) {
+    background-color: #f3f4f6;
+}
+
+.report-buttons button.active {
+    background-color: oklch(62.3% 0.214 259.815); 
+    color: #ffffff; 
+}
+
+.report-filter input {
+    border: 1px solid #d2cdc9;
+    border-radius: 7px;
+    padding: 8px 10px;
+    font: inherit;
+}
+
+.report-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.report-card,
+.detail-report {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+}
+
+.report-card {
+    padding: 20px;
+    display: grid;
+    gap: 10px;
+    color: #63554c;
+}
+
+.report-card span {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.report-card strong {
+    font-size: 1.45rem;
+    color: #251b6f;
+}
+
+.detail-report {
+    padding: 24px;
+}
+
+.detail-report h2 {
+    font-size: 1.15rem;
+    margin-bottom: 16px;
+}
+
+.report-table-wrap {
+    overflow-x: auto;
+}
+
+.detail-report table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+    text-align: left;
+}
+
+.detail-report th {
+    background: #f4f2f1;
+    color: #63554c;
+    font-weight: 600;
+}
+
+.detail-report th,
+.detail-report td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-report .amount {
+    text-align: right;
+}
+
+.detail-report .no-data {
+    padding: 28px;
+    text-align: center;
+    color: #777;
+}
+
+.report-buttons {
+    display: flex;
+    background-color: white;
+    padding: 5px;
+    border: 1px solid #d2cdc9;
+    border-radius: 10px;
+}
+
+/* การตั้งค่าการพิมพ์ */
+@media print {
+    navbar, 
+    .btn-navreport, 
+    .report-filter, 
+    .report-buttons {
+        display: none !important;
+    }
+
+body, .report-page, .report-container {
+        background-color: white !important;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .report-card, .report-table-wrap {
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+    }
+}
+
+/* ======================================= */
+@media (max-width: 800px) {
+    .report-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .report-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .report-container {
+        width: min(100% - 20px, 1200px);
+        margin: 20px auto;
+    }
+
+    .report-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-report {
+        padding: 16px;
+    }
+}
+
 /* ==================================================================================================================== */
 
 /* iPad แนวนอน / จอเล็กลงหน่อย: ลดขนาด order-section และ gap */
@@ -1059,7 +1332,9 @@ body {
 /* iPad แนวตั้ง / แท็บเล็ตแคบ / มือถือแนวนอน:
    สลับ layout จากซ้าย-ขวา เป็นบน-ล่าง เพื่อไม่ให้บีบกริดเมนู */
 @media (max-width: 900px) {
-    html, body {
+
+    html,
+    body {
         overflow: auto;
     }
 

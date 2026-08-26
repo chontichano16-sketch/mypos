@@ -9,12 +9,10 @@
 
 /* พื้นหลังหลัก */
 body {
-    background-image: url('img/88.jpg');
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-attachment: fixed;
-    background-size: cover;
-    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #ededed;
+    /* background-image: url(img/2.jpg); */
+    margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;

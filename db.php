@@ -1,4 +1,6 @@
 <?php
+
+date_default_timezone_set('Asia/Bangkok');
 // db.php - เชื่อมต่อฐานข้อมูล
  $servername = "localhost";
  $username = "root";
@@ -15,8 +17,6 @@
 
 //ตั้งค่าเป็นภาษาไทย
  $conn->set_charset("utf8");
-
-//ถ้าเชื่อมได้ จะขึ้นข้อความนี้
-// echo "เชื่อมต่อได้จ้า";
+ 
 ?>
 
