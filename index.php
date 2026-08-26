@@ -79,6 +79,7 @@
                     <label>โต๊ะ : </label>
                     <select name="tables" id="tables" style="font-size: 14px;">
                         <option value="" selected>ไม่ได้เลือก</option>
+                        <option value="0" id="Tackaway">กลับบ้าน</option>
                         <?php
                         $sql_tables = "SELECT * FROM tables";
                         $query_tabels = mysqli_query($conn, $sql_tables);
