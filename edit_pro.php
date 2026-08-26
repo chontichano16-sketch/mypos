@@ -1,62 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>แก้ไขสินค้า</title>
     <link rel="stylesheet" href="style2.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
-    <?php include "db.php";
+    <?php
     include "navbar.php";
+    include "db.php";
 
-    $p_id = $_REQUEST ['p_id'];
-    $sql_edit = "SELECT * FROM products where p_id='$p_id'";
-    $result_show = mysqli_query($conn,$sql_edit) or die(mysqli_error($conn));
-    $row_show = mysqli_fetch_array($result_show); //ดึงข้อมูลมาเก็บใน $row_show
+    // รับรหัสสินค้าจาก URL
+    $p_id = isset($_GET['p_id']) ? $_GET['p_id'] : '';
 
-    $sql_type = "SELECT * FROM type";
-    $objQuery = mysqli_query($conn,$sql_type) or die(mysqli_error($conn));
+    if (!empty($p_id)) {
+        $sql = "SELECT * FROM products WHERE p_id = '$p_id'";
+        $result = mysqli_query($conn, $sql);
+        $row = mysqli_fetch_array($result);
+    }
     ?>
 
-    <div class="container-edit-product">
-        <form action="update_pro.php" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="p_id" value="<?= $row_show['p_id']; ?>">
-            <input type="hidden" name="old_img" value="<?= $row_show['p_img']; ?>">
-
-            <div class="mb-3">
-                <label for="type_id" class="form-label">หมวดหมู่สินค้า</label>
-                <select name="type_id" id="type_id" class="form-control">
-                    <?php while ($objResult = mysqli_fetch_array($objQuery)) { ?>
-                        <option value="<?php echo $objResult["type_id"]; ?>"
-                            <?php if ($row_show["type_id"] == $objResult["type_id"]) {
-                                echo "selected";
-                            } ?>>
-                            <?php echo $objResult["type_name"]; ?>
-                        </option>
-                    <?php } ?>
-                </select>
+    <div class="edit-page-wrapper">
+        <div class="edit-card">
+            <div class="edit-header">
+                <h3>แก้ไขสินค้า</h3>
             </div>
 
-            <div class="form-group">
-                <label for="p_name">ชื่อสินค้า</label>
-                <input type="text" class="form-control" id="p_name" name="p_name" value="<?= $row_show['p_name']; ?>">
-            </div>
-            <div class="form-group">
-                <label for="p_price">ราคา</label>
-                <input type="text" class="form-control" id="p_price" name="p_price" value="<?= $row_show['p_price']; ?>">
-            </div>
-            <div class="mb-3">
-                <label for="file" class="form-label">ภาพสินค้า</label>
-                <input type="file" id="file" name="p_img" accept="upload/*" value="<?= $row_show['p_img']; ?>">
-            </div>
+            <form action="update_pro.php" method="POST" enctype="multipart/form-data">
+                <!-- เก็บ id ซ่อนไว้ส่งไปอัปเดต -->
+                <input type="hidden" name="p_id" value="<?php echo $row['p_id'] ?? ''; ?>">
+                <input type="hidden" name="old_img" value="<?php echo $row['p_img'] ?? ''; ?>">
 
-            <button type="submit" class="btn-submit">บันทึก</button>
-            <a href="show_pro.php" class="btn-cencel">ยกเลิก</a>
-        </form>
+                <div class="form-group-custom">
+                    <label>ชื่อเมนู</label>
+                    <input type="text" name="p_name" value="<?php echo htmlspecialchars($row['p_name'] ?? ''); ?>" required>
+                </div>
 
+                <div class="form-group-custom">
+                    <label>ราคา</label>
+                    <input type="number" step="0.01" name="p_price" value="<?php echo htmlspecialchars($row['p_price'] ?? ''); ?>" required>
+                </div>
+
+                <div class="form-group-custom">
+                    <label>รูปภาพ</label>
+                    <div class="file-upload-row">
+                        <input type="file" name="p_img" accept="image/*">
+                        <?php if (!empty($row['p_img'])): ?>
+                            <img src="upload/<?php echo $row['p_img']; ?>" class="preview-img" alt="รูปเดิม" onerror="this.style.display='none'">
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="form-group-custom">
+                    <label>ประเภทสินค้า</label>
+                    <select name="type_id" required>
+                        <option value="">-- เลือกประเภทสินค้า --</option>
+                        <?php
+                        $strSQL = "SELECT * FROM type";
+                        $objQuery = mysqli_query($conn, $strSQL);
+                        if ($objQuery) {
+                            while ($objResult = mysqli_fetch_array($objQuery)) {
+                                // เช็คว่า type_id ในสินค้า ตรงกับ type_id ในตาราง type หรือไม่ ถ้าใช่ให้เลือก (selected)
+                                $selected = (isset($row['type_id']) && $row['type_id'] == $objResult['type_id']) ? "selected" : "";
+                        ?>
+                                <option value="<?php echo $objResult['type_id']; ?>" <?php echo $selected; ?>>
+                                    <?php echo $objResult['type_name']; ?>
+                                </option>
+                        <?php 
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <a href="show_pro.php" class="btn-cancel">ยกเลิก</a>
+                    <button type="submit" class="btn-save">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 

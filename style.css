@@ -274,3 +274,276 @@ h2 {
         padding: 30px 20px;
     }
 }
+/* --- บังคับขยายฟอร์มใน Modal ให้เต็มสวยงาม --- */
+.modal-content .form-group {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 16px 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.modal-content .form-group input,
+.modal-content .form-group select {
+    width: 100% !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+    background-color: #faf9f8 !important;
+    border: 1px solid #dcd6d0 !important;
+    padding: 0 14px !important;
+    box-sizing: border-box !important;
+}
+
+.modal-content .form-group input[type="file"] {
+    height: auto !important;
+    padding: 6px !important;
+    background: #fff !important;
+}
+/* ========================================= */
+/* ดีไซน์ Modal แก้ไขสินค้า (ฉบับสมบูรณ์) */
+/* ========================================= */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeIn 0.25s ease-out;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    padding: 30px 30px 25px 30px;
+    border-radius: 20px;
+    width: 480px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    animation: scaleUp 0.25s ease-out;
+}
+
+/* หัวข้อ Modal */
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 22px;
+    font-weight: 600;
+    color: #4A3B32;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 12px;
+}
+
+/* ปุ่มปิด (X) */
+.close-btn-clean {
+    background: #f7f7f7;
+    border: none;
+    color: #888;
+    font-size: 24px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.close-btn-clean:hover {
+    background: #ffeeee;
+    color: #e53935;
+    transform: rotate(90deg);
+}
+
+/* บังคับขยายฟอร์มใน Modal ให้เต็ม 100% สวยงาม */
+.modal-content .form-group {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 16px 0 !important;
+    font-size: 15px !important;
+}
+
+.modal-content .form-group label {
+    padding-top: 0 !important;
+    margin-bottom: 6px !important;
+    color: #5c4f46 !important;
+    font-weight: 500 !important;
+}
+
+.modal-content .form-group input,
+.modal-content .form-group select {
+    width: 100% !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+    background-color: #faf9f8 !important;
+    border: 1px solid #dcd6d0 !important;
+    padding: 0 14px !important;
+    font-size: 15px !important;
+    color: #333 !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease;
+}
+
+.modal-content .form-group input:focus,
+.modal-content .form-group select:focus {
+    border-color: #251b6f !important;
+    background-color: #fff !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(37, 27, 111, 0.1) !important;
+}
+
+/* ส่วนตัวอย่างรูปภาพเดิม */
+.modal-content .form-group img {
+    width: 90px !important;
+    height: 90px !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+    border: 1px solid #ddd !important;
+    margin-bottom: 8px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* ปุ่มเลือกไฟล์ */
+.modal-content .form-group input[type="file"] {
+    height: auto !important;
+    padding: 6px !important;
+    background: #fff !important;
+    cursor: pointer;
+}
+
+/* ปุ่มควบคุมด้านล่าง (ยกเลิก / บันทึกข้อมูล) */
+.modal-content .form-buntons {
+    display: flex !important;
+    padding: 10px 0 0 0 !important;
+    gap: 12px !important;
+    height: auto !important;
+    margin-top: 25px !important;
+    width: 100% !important;
+}
+
+.modal-content .btn-reset {
+    flex: 1 !important;
+    background: #f1f1f1 !important;
+    border: 1px solid #dcd6d0 !important;
+    border-radius: 10px !important;
+    color: #5c4f46 !important;
+    font-weight: 500 !important;
+    height: 44px !important;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: none !important;
+}
+
+.modal-content .btn-reset:hover {
+    background: #e4e0dc !important;
+}
+
+.modal-content .btn-submit {
+    flex: 1 !important;
+    background-color: #251b6f !important;
+    border: none !important;
+    border-radius: 10px !important;
+    color: white !important;
+    font-weight: 500 !important;
+    height: 44px !important;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    box-shadow: 0 4px 10px rgba(37, 27, 111, 0.25) !important;
+}
+
+.modal-content .btn-submit:hover {
+    background-color: #1a1252 !important;
+}
+
+.modal-content .btn-submit:active {
+    transform: scale(0.98);
+}
+
+/* Animation เล็กน้อยตอนเปิด Modal */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+/* ========================================= */
+/* ปรับแต่งตารางบิล: ถังขยะสีแดง และจัดระเบียบตัวเลข/เวลา */
+/* ========================================= */
+
+#billListBody td {
+    color: #63554c;
+    vertical-align: middle;
+    padding: 12px 10px;
+}
+
+/* จัดกําหนดคอลัมน์ รหัสบิล และเบอร์โต๊ะให้อยู่กึ่งกลาง ตัวเลขชัดเจน */
+#billListBody td:nth-child(1),
+#billListBody td:nth-child(2) {
+    text-align: center;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums; /* จัดฟอนต์ตัวเลขให้เรียงตรงกันสวยงาม */
+}
+
+/* จัดคอลัมน์เวลาที่เปิดบิลให้อยู่กึ่งกลางและอ่านง่าย */
+#billListBody td:nth-child(3) {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: #555;
+}
+
+/* จัดคอลัมน์จัดการ (ปุ่มถังขยะ/ดู) ให้อยู่กึ่งกลาง */
+#billListBody td:nth-child(4) {
+    text-align: center;
+}
+
+/* เปลี่ยนไอคอนถังขยะให้เป็นสีแดงชัดเจน */
+#billListBody .bi-trash, 
+#billListBody td a i.bi-trash,
+#billListBody button i.bi-trash {
+    color: #dc3545 !important;
+    font-size: 18px;
+    transition: transform 0.15s ease;
+}
+
+#billListBody .bi-trash:hover {
+    transform: scale(1.15);
+}
+
+/* ตกแต่งหัวตาราง (TableHeader) ให้ดูสะอาดตา */
+.modal2-content table th {
+    background-color: #f8f9fa;
+    color: #4A3B32;
+    font-weight: 600;
+    text-align: center;
+    padding: 12px 10px;
+    border-bottom: 2px solid #e5e7eb;
+}
+/* --- บังคับไอคอนถังขยะคอลัมน์แรกให้เป็นสีแดง --- */
+#billListBody tr td:first-child i.bi-trash,
+#billListBody tr td:first-child .bi-trash {
+    color: #dc3545 !important;
+}
+
+#billListBody tr td:first-child:hover i.bi-trash {
+    color: #bd2130 !important;
+    transform: scale(1.15);
+}

@@ -7,6 +7,8 @@
     <title>The Story เรื่องเล่ากาแฟ</title>
     <link rel="stylesheet" href="style2.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- เพิ่ม FontAwesome เพื่อรองรับไอคอน fa-solid fa-trash -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
@@ -95,7 +97,7 @@
                         ?>
                     </select>
                 </div>
-                <button type="button" id="btnCloseBillView" class="btn-clear-panel" onclick="closeBillView()" title="ปิดการดูบิล" style="display:none;"><i class="bi bi-x-circle-fill" style="font-size: x-large; color: #251b6f;"></i></i></button>
+                <button type="button" id="btnCloseBillView" class="btn-clear-panel" onclick="closeBillView()" title="ปิดการดูบิล" style="display:none;"><i class="bi bi-x-circle-fill" style="font-size: x-large; color: #251b6f;"></i></button>
             </div>
 
             <div class="order-items-container">รายการที่สั่งจะแสดงที่นี่</div>
@@ -175,35 +177,36 @@
             </form>
         </div>
     </div>
-    <!-- ================================= popup เปิดบิล =================================== -->
-    <div id="openOrder" class="modal2-overlay" style="display: none;">
-        <div class="modal2-content">
-            <div class="modal2-header">
-                <h3 style=" color: #63554c;">บิลทั้งหมด</h3>
-                <button class="close-btn-clean" onclick="closeModal()">&times;</button>
-            </div>
+ <!-- ================================= popup เปิดบิล =================================== -->
+<div id="openOrder" class="modal2-overlay" style="display: none;">
+    <div class="modal2-content">
+        <div class="modal2-header">
+            <h3 style="color: #63554c; margin: 0;">บิลทั้งหมด</h3>
+            <button class="close-btn-clean" onclick="closeModal()">&times;</button>
+        </div>
 
-            <div class="form-openOrder">
-                <div class="table-responsive" style="padding: 15px;">
-                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                        <thead>
-                            <tr style="border-bottom: 2px solid #ddd;">
-                                <th style="padding: 10px; text-align: center; color: #63554c;">รหัสบิล</th>
-                                <th style="padding: 10px; text-align: center; color: #63554c;">เบอร์โต๊ะ</th>
-                                <th style="padding: 10px; text-align: center; color: #63554c;">เวลาที่เปิดบิล</th>
-                                <th style="padding: 10px; text-align: center; color: #63554c;">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="billListBody">
-                            <tr>
-                                <td colspan="5" style="text-align: center; padding: 20px;">กำลังโหลดข้อมูล...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="form-openOrder">
+            <div class="table-responsive" style="padding: 15px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #ddd;">
+                            <th style="padding: 10px; text-align: center; width: 40px; color: #63554c;"></th>
+                            <th style="padding: 10px; text-align: center; color: #63554c;">รหัสบิล</th>
+                            <th style="padding: 10px; text-align: center; color: #63554c;">เบอร์โต๊ะ</th>
+                            <th style="padding: 10px; text-align: center; color: #63554c;">เวลาที่เปิดบิล</th>
+                            <th style="padding: 10px; text-align: center; color: #63554c;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billListBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px; color: #63554c;">กำลังโหลดข้อมูล...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
     <!-- ================================= popup สำหรับเพิ่มหมายเหตุ ================================ -->
     <div id="orderModal" class="modal-over-lay" style="display: none;">
         <div class="order-modal-box">
@@ -282,9 +285,74 @@
         </div>
     </div>
 
-
-
     <script src="script.js"></script>
+    <script>
+        // แทนที่ไอคอนเดิมด้วย FontAwesome (fa-solid fa-trash) และปรับแต่งให้ไม่มีกรอบ/พื้นหลัง
+        const observer = new MutationObserver((mutations, obs) => {
+            const trashIcons = document.querySelectorAll('#billListBody .bi-trash, #billListBody .fa-trash');
+            if (trashIcons.length > 0) {
+                trashIcons.forEach(icon => {
+                    // หากยังเป็นไอคอนเก่า ให้แปลงร่างเป็น FontAwesome
+                    if (icon.classList.contains('bi-trash')) {
+                        icon.className = 'fa-solid fa-trash';
+                    }
+                    
+                    icon.style.setProperty('color', '#dc3545', 'important');
+                    icon.style.setProperty('font-size', '16px', 'important');
+                    
+                    let btn = icon.closest('button') || icon.parentElement;
+                    if (btn && btn.tagName === 'BUTTON') {
+                        btn.style.setProperty('background', 'transparent', 'important');
+                        btn.style.setProperty('background-color', 'transparent', 'important');
+                        btn.style.setProperty('border', 'none', 'important');
+                        btn.style.setProperty('box-shadow', 'none', 'important');
+                        btn.style.setProperty('padding', '4px 8px', 'important');
+                        btn.style.setProperty('cursor', 'pointer', 'important');
+                        
+                        btn.onmouseover = function() {
+                            icon.style.color = '#a71d2a';
+                        };
+                        btn.onmouseout = function() {
+                            icon.style.color = '#dc3545';
+                        };
+                    }
+                });
+            }
+        });
+
+        const billBody = document.querySelector('#billListBody');
+        if (billBody) {
+            observer.observe(billBody, { childList: true, subtree: true });
+        }
+
+        setTimeout(() => {
+            document.querySelectorAll('#billListBody .bi-trash, #billListBody .fa-trash').forEach(icon => {
+                if (icon.classList.contains('bi-trash')) {
+                    icon.className = 'fa-solid fa-trash';
+                }
+                
+                icon.style.setProperty('color', '#dc3545', 'important');
+                icon.style.setProperty('font-size', '16px', 'important');
+                
+                let btn = icon.closest('button') || icon.parentElement;
+                if (btn && btn.tagName === 'BUTTON') {
+                    btn.style.setProperty('background', 'transparent', 'important');
+                    btn.style.setProperty('background-color', 'transparent', 'important');
+                    btn.style.setProperty('border', 'none', 'important');
+                    btn.style.setProperty('box-shadow', 'none', 'important');
+                    btn.style.setProperty('padding', '4px 8px', 'important');
+                    btn.style.setProperty('cursor', 'pointer', 'important');
+                    
+                    btn.onmouseover = function() {
+                        icon.style.color = '#a71d2a';
+                    };
+                    btn.onmouseout = function() {
+                        icon.style.color = '#dc3545';
+                    };
+                }
+            });
+        }, 300);
+    </script>
 </body>
 
 </html>

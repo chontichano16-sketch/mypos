@@ -251,43 +251,85 @@ function saveProductAjax(event) {
 }
 
 // ============================================== ดูบิล ==================================================
+// ==========================================================================
+// ฟังก์ชันดึงรายการบิลมาแสดง (ถังขยะหน้าสุด + ปุ่มดูสีเทา)
+// ==========================================================================
 function fetchBillsData() {
     let tbody = document.getElementById('billListBody');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">กำลังโหลดข้อมูล...</td></tr>';
+    
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 15px;">กำลังโหลดข้อมูล...</td></tr>';
 
     fetch('get_bills.php')
         .then(response => response.json())
         .then(data => {
             tbody.innerHTML = '';
 
-            if (data.length > 0) {
+            if (Array.isArray(data) && data.length > 0) {
                 data.forEach(bill => {
                     let tableId = bill.table_id ? bill.table_id : '-';
 
                     let row = `
                     <tr style="border-bottom: 1px solid #eee;">
+                        <!-- 1. ปุ่มถังขยะอยู่หน้าสุด -->
+                        <td style="padding: 10px; text-align: center; width: 40px;">
+                            <button type="button" class="btn-delete-bill" onclick="deleteBill(${bill.order_id})" title="ลบบิล">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                        <!-- 2. รหัสบิล -->
                         <td style="padding: 10px; text-align: center;">${bill.order_id}</td>
+                        <!-- 3. เบอร์โต๊ะ -->
                         <td style="padding: 10px; text-align: center;">${tableId}</td>
+                        <!-- 4. เวลาที่เปิดบิล -->
                         <td style="padding: 10px; text-align: center;">${bill.formatted_date}</td>
+                        <!-- 5. ปุ่มดู (สีเทาเดิม) -->
                         <td style="padding: 10px; text-align: center;">
-                            <button class="btn-bill" onclick="viewBill(${bill.order_id})">ดู</button>
+                            <button type="button" class="btn-bill" onclick="viewBill(${bill.order_id})">
+                                ดู
+                            </button>
                         </td>
                     </tr>
-                `;
+                    `;
                     tbody.innerHTML += row;
                 });
             } else {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">ยังไม่มีข้อมูลบิลในระบบ</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">ยังไม่มีข้อมูลบิลในระบบ</td></tr>';
             }
         })
         .catch(error => {
             console.error('Error fetching bills:', error);
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">เกิดข้อผิดพลาดในการดึงข้อมูล (เช็คไฟล์ get_bills.php)</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red; padding: 15px;">เกิดข้อผิดพลาดในการดึงข้อมูล</td></tr>';
         });
-
 }
 
+// ==========================================================================
+// ฟังก์ชันส่งคำสั่งลบบิลไปยัง backend
+// ==========================================================================
+function deleteBill(orderId) {
+    if (confirm(`คุณต้องการลบบิลรหัส ${orderId} หรือไม่?`)) {
+        let formData = new FormData();
+        formData.append('order_id', orderId);
+
+        fetch('delete_bill.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('ลบบิลเรียบร้อยแล้ว');
+                fetchBillsData(); // รีโหลดรายการบิลใหม่ทันที
+            } else {
+                alert('เกิดข้อผิดพลาด: ' + (data.message || 'ไม่สามารถลบบิลได้'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+        });
+    }
+}
 function viewBill(orderId) {
     let modalOrder = document.getElementById('openOrder');
     if (modalOrder) modalOrder.style.display = 'none';
@@ -577,41 +619,23 @@ function confirmPayment() {
     formData.append("payment_method", paymentMethod);
     formData.append("total_amount", totalAmount);
 
-    let currentItems = JSON.parse(sessionStorage.getItem('orderItems')) || orderItems;
-    // ตรวจสอบเงื่อนไข
-    if (tableId === "10") {
-        if (!currentItems || currentItems.length === 0) {
-            alert("กรุณาเลือกรายการอาหารก่อนชำระเงิน");
-            return;
-        }
-        formData.append("is_takeaway", "yes");
-        formData.append("items", JSON.stringify(currentItems));
-    } else {
-        formData.append("is_takeaway", "no");
-    }
-
     fetch('save_payment.php', {
         method: 'POST',
         body: formData
     })
-        .then(response => response.json())
+        .then(response => response.text())
         .then(data => {
-            if (data.status === "success") {
-
-                let confirmPrint = confirm("ชำระเงินสำเร็จ!\nต้องการพิมพ์ใบเสร็จหรือไม่?");
-                if (confirmPrint) {
-                    window.open('print_receipt.php?id=' + data.order_id, '_blank');
-                }
-                sessionStorage.removeItem('orderItems');
+            if (data.trim() === "Success"){
+                alert("บันทึกการชำระเงินสำเร็จ!");
                 location.reload();
             } else {
-                alert("ไม่สามารถบันทึกได้: " + data.message);
+                alert("ไม่สามารถบันทึกได้: " + data);
             }
         })
         .catch(error => {
             console.error('Error:', error);
             alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-        });
+        })
 }
 
 function calculateChange() {
@@ -625,10 +649,9 @@ function calculateChange() {
 
     if (receiveAmount >= totalAmount) {
         let change = receiveAmount - totalAmount;
-        // แสดงทศนิยม 2 ตำแหน่ง
-        changeDisplay.innerText = change.toFixed(2);
+        changeDisplay.innerText = change.toFixed(2); 
     } else {
-        changeDisplay.innerText = "0";
+        changeDisplay.innerText = "0.00"; 
     }
 }
 

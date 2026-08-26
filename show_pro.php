@@ -79,7 +79,6 @@
 
     <!--========================================== popup เพิ่มสินค้า ===============================================-->
     <div id="addProductModal" class="modal-overlay" style="display: none;">
-
         <div class="modal-content">
             <div class="modal-header">
                 <h3 style="color: #63554c;">เพิ่มเมนูใหม่</h3>
@@ -138,6 +137,63 @@
 
                 <div class="form-buntons">
                     <button type="button" class="btn-reset" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =========================================== popup แก้ไขสินค้า =============================================== -->
+    <div id="editProductModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #63554c;">แก้ไขสินค้า</h3>
+                <button class="close-btn-clean" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form action="update_pro.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="p_id" id="edit_p_id">
+                <input type="hidden" name="old_img" id="edit_old_img">
+
+                <div class="form-group">
+                    <label for="edit_p_name">ชื่อเมนู</label>
+                    <input type="text" name="p_name" id="edit_p_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_p_price">ราคา</label>
+                    <input type="text" name="p_price" id="edit_p_price" required>
+                </div>
+
+                <!-- แสดงรูปภาพปัจจุบัน -->
+                <div class="form-group" style="text-align: center;">
+                    <label>รูปภาพ</label>
+                    <div>
+                        <img id="current_img_preview" src="" width="80" alt="รูปปัจจุบัน" style="border-radius: 5px; border: 1px solid #ddd; padding: 2px;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <input type="file" name="p_img" id="edit_file" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_type_id" class="form-label">ประเภทสินค้า</label>
+                    <select name="type_id" id="edit_type_id" required>
+                        <option value="">-- เลือกประเภทสินค้า --</option>
+                        <?php 
+                        $strSQL2 = "SELECT * FROM type";
+                        $objQuery2 = mysqli_query($conn, $strSQL2);
+                        while ($objResult2 = mysqli_fetch_array($objQuery2)) { 
+                        ?>
+                            <option value="<?php echo $objResult2["type_id"]; ?>">
+                                <?php echo $objResult2["type_name"]; ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                </div>
+
+                <div class="form-buntons">
+                    <button type="button" class="btn-reset" onclick="closeEditModal()">ยกเลิก</button>
                     <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
                 </div>
             </form>
