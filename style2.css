@@ -438,6 +438,20 @@ body {
     padding-inline: 10px;
 }
 
+/* หน้ารายการสินค้าทั้งหมด */
+.header-showpro {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+    margin-bottom: 12px;
+    padding: 20px 50px;
+    gap: 12px;
+    font-size: larger;
+    color: oklch(55.3% 0.013 58.071);
+    background-color: oklch(92.3% 0.003 48.717);
+    width: 100%;
+}
+
 .form-group select {
     font-size: 16px;
     border-radius: 5px;
@@ -597,12 +611,12 @@ body {
 }
 
 .container tr {
-    border: 1px solid oklch(86.9% 0.022 252.894);
+    border: 1px solid oklch(70.9% 0.01 56.259);
     color: #63554c;
 }
 
 .container th {
-    background-color: oklch(96.8% 0.007 247.896);
+    background-color: oklch(97% 0.001 106.424);
     padding: 10px;
 }
 
@@ -614,7 +628,7 @@ body {
 .container h2 {
     display: flex;
     justify-content: center;
-    padding-bottom: 10px;
+    padding: 10px;
 }
 
 .container td a {
@@ -622,13 +636,17 @@ body {
 }
 
 .btn-edit {
-    color: #251b6f;
-    padding-right: 10px;
+    color: #365388;
+    background: oklch(97% 0.014 254.604);
+    padding: 5px 8px;
+    border-radius: 10px;
 }
 
 .btn-delete {
-    color: #943535;
-    padding-left: 10px;
+    color: oklch(44.4% 0.177 26.899);
+    background: oklch(97.1% 0.013 17.38);
+    padding: 5px 8px;
+    border-radius: 10px;
 }
 
 .user-info {
@@ -668,7 +686,7 @@ body {
     border: none;
 }
 
-/* ================================== popup openorder ==================================== */
+/* ================================== popup open order ==================================== */
 .modal2-header {
     display: flex;
     justify-content: center;
@@ -727,12 +745,13 @@ body {
 }
 
 .order-modal-box {
-    background: #fff;
+    background: oklch(98.5% 0 none);
     width: 600px;
     text-align: center;
     padding: 30px;
+    color: oklch(37.4% 0.01 67.558);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    border-radius: 30px;
 }
 
 .modal-qty-control {
@@ -740,16 +759,15 @@ body {
 }
 
 .btn-qty {
-    padding: 5px 15px;
-    touch-action: manipulation;
+    padding: 10px;
     background: #f0f0f0;
     border: 1px solid #ccc;
-    border-radius: 10px;
+    border-radius: 15px;
 
     cursor: pointer;
-    transition: all 0, 1s ease;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    font-size: x-small;
 }
 
 .btn-qty:active {
@@ -763,7 +781,7 @@ body {
     margin: 0 5px;
     padding: 5px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 10px;
 }
 
 .modal-remark-section {
@@ -782,17 +800,18 @@ body {
 
 .modal-action {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     margin-top: 20px;
 }
 
 .btn-cancel {
-    background: #dc3545;
+    background: oklch(70.4% 0.191 22.216);
     color: white;
+    width: 20%;
     padding: 8px 15px;
     border: none;
-    border-radius: 4px;
-
+    font-size: medium;
+    border-radius: 20px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
@@ -807,10 +826,11 @@ body {
 .btn-confirm {
     background: #28a745;
     color: white;
+    width: 20%;
     padding: 8px 15px;
     border: none;
-    border-radius: 4px;
-
+    font-size: medium;
+    border-radius: 20px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;

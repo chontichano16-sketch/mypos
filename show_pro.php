@@ -7,51 +7,74 @@
     <title>รายการสินค้าทั้งหมด</title>
     <link rel="stylesheet" href="style2.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
-    <?php
+<?php
+    require_once "db.php";
     include "navbar.php";
-    include "db.php";
 
-
-    // คำสั่ง SQL ดึงข้อมูลสินค้าทั้งหมด
-    $sql = "SELECT * FROM products";
+    // ดึงข้อมูลสินค้าพร้อมชื่อประเภท (JOIN ตาราง products และ type)
+    $sql = "SELECT p.*, t.type_name 
+            FROM products p 
+            LEFT JOIN type t ON p.type_id = t.type_id 
+            ORDER BY t.type_id ASC, p.p_id DESC";
     $result = mysqli_query($conn, $sql);
+
+    // จัดกลุ่มสินค้าใส่ Array แยกตามประเภท
+    $products_by_category = [];
+    while ($row = mysqli_fetch_array($result)) {
+        $category_name = !empty($row['type_name']) ? $row['type_name'] : 'ทั่วไป / ไม่ระบุประเภท';
+        $products_by_category[$category_name][] = $row;
+    }
     ?>
 
     <div class="container">
-        <h2 style="color: #63554c;">รายการสินค้าทั้งหมด</h2>
-        <table border="1" width="95%" style="border-collapse: collapse; text-align: center;">
-            <thead>
-                <tr>
-                    <th>รหัส</th>
-                    <th>รูปภาพ</th>
-                    <th>ชื่อสินค้า</th>
-                    <th>ราคา</th>
-                    <th>จัดการ</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                // วนลูปดึงข้อมูลสินค้ามาแสดงทีละแถว
-                while ($row = mysqli_fetch_array($result)) {
-                ?>
-                    <tr>
-                        <td><?= $row['p_id']; ?></td>
-                        <td>
-                            <img src="upload/<?= $row['p_img']; ?>" width="50" alt="รูปสินค้า">
-                        </td>
-                        <td><?= $row['p_name']; ?></td>
-                        <td><?= number_format($row['p_price'], 2); ?> ฿</td>
-                        <td>
-                            <a href="edit_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-edit"><i class="bi bi-pencil-fill"></i>แก้ไข</a>
-                            <a href="delete_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-delete" onclick="return confirm('คุณแน่ใจแล้วหรือไม่ว่าต้องการลบรายการสินค้านี้?')"><i class="bi bi-trash3"></i>ลบ</a>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
+        <h2 style="color: #63554c; margin-bottom: 20px;">รายการสินค้าทั้งหมด</h2>
+
+        <?php if (!empty($products_by_category)): ?>
+            <!-- วนลูปแยกแสดงตารางตามประเภทสินค้า -->
+            <?php foreach ($products_by_category as $category_name => $items): ?>
+                
+                <h3 class="header-showpro">
+                   <i class="fa-solid fa-tag"></i><?= htmlspecialchars($category_name); ?>
+                </h3>
+
+                <table border="1" width="90%" style="border-collapse: collapse; text-align: center; margin-bottom: 12px;">
+                    <thead>
+                        <tr>
+                            <th>รหัส</th>
+                            <th>รูปภาพ</th>
+                            <th>ชื่อสินค้า</th>
+                            <th>ราคา</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($items as $row) { ?>
+                            <tr>
+                                <td><?= $row['p_id']; ?></td>
+                                <td>
+                                    <img src="upload/<?= $row['p_img']; ?>" width="50" alt="รูปสินค้า" style="object-fit: cover; border-radius: 4px;">
+                                </td>
+                                <td><?= $row['p_name']; ?></td>
+                                <td><?= number_format($row['p_price'], 2); ?> ฿</td>
+                                <td>
+                                    <a href="edit_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-edit">
+                                        <i class="fa-regular fa-pen-to-square"></i></a>
+                                    <a href="delete_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-delete" onclick="return confirm('คุณแน่ใจแล้วหรือไม่ว่าต้องการลบรายการสินค้านี้?')">
+                                        <i class="fa-solid fa-trash"></i></i></a>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p style="text-align: center;">ไม่มีรายการสินค้า</p>
+        <?php endif; ?>
     </div>
 
     <!--========================================== popup เพิ่มสินค้า ===============================================-->
@@ -79,8 +102,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="type_id" id="type_id" class="form-label">ประเภทสินค้า</label>
-                    <?php include "db.php";
+                    <label for="type_id" class="form-label">ประเภทสินค้า</label>
+                    <?php 
                     $strSQL = "SELECT * FROM type";
                     $objQuery = mysqli_query($conn, $strSQL);
                     ?>
@@ -99,9 +122,8 @@
             </form>
         </div>
 
-
     </div>
-    <!-- =========================================== popup เพิ่มประเภทสินค้า =============================================== -->
+    <!-- ============================= popup เพิ่มประเภทสินค้า ================================= -->
     <div id="addTypeModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -151,7 +173,6 @@
             </div>
         </div>
     </div>
-
 
     <script src="script.js"></script>
 </body>

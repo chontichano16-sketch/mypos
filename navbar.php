@@ -1,11 +1,16 @@
 <?php
-    session_start();
+session_start();
 
-    if (!isset($_SESSION["user_id"])) {
-        header("Location: login.php"); 
-        exit();
-    }
-    ?>
+if (!isset($_SESSION["user_id"])) {
+    header("Location: login.php");
+    exit();
+}
+?>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
 <!-- ปุ่มแฮมเบอร์เกอร์ -->
 <nav class="navbar">
     <div class="dropdown">
@@ -33,10 +38,10 @@
         <li><a href="neworder.php">ออเดอร์ใหม่</a></li>
         <li><button onclick="openModal('order')">เปิดบิล</button></li>
     </ul>
-    
-    <form action="search.php" method="get" class="search-box">
-        <input type="text" name="keyword" placeholder="ค้นหาเมนู...">
-        <button type="submit"><i class="bi bi-search"></i></button>
+
+    <form action="" method="get" class="search-box">
+        <input type="text" id="search-menu" onkeyup="filterMenu()" placeholder="ค้นหาเมนู...">
+        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
     </form>
-    <div class="user-info"><?php echo $_SESSION["fullname"]; ?><i class="bi bi-person-circle"></i></div>
+    <div class="user-info"><?php echo $_SESSION["fullname"]; ?><i class="fa-solid fa-circle-user"></i></div>
 </nav>

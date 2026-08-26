@@ -32,7 +32,7 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                 ?>
                     <!-- เมนูการ์ด -->
-                    <div class="menu-item"
+                    <div class="menu-item" 
                         data-id="<?php echo $row['p_id']; ?>"
                         data-name="<?php echo htmlspecialchars($row['p_name']) ?>"
                         data-price="<?php echo $row['p_price'] ?>"
@@ -52,7 +52,7 @@
                     </div>
                 <?php } ?>
             </div>
-            <!-- =============================================== หมวดหมู่ด้านล่าง ==================================================== -->
+            <!-- ======================================== หมวดหมู่ด้านล่าง ================================================ -->
             <div class="side-bar-menu">
                 <a href="index.php" class="<?php echo !isset($_GET['cate']) ? 'active' : ''; ?>">ทั้งหมด</a>
 
@@ -79,7 +79,6 @@
                     <label>โต๊ะ : </label>
                     <select name="tables" id="tables" style="font-size: 14px;">
                         <option value="" selected>ไม่ได้เลือก</option>
-                        <option value="0" id="Tackaway">กลับบ้าน</option>
                         <?php
                         $sql_tables = "SELECT * FROM tables";
                         $query_tabels = mysqli_query($conn, $sql_tables);
@@ -88,7 +87,7 @@
                             while ($row_table = mysqli_fetch_assoc($query_tabels)) {
                         ?>
                                 <option value="<?php echo $row_table['tables_id']; ?>">
-                                    T.<?php echo $row_table['tables_number']; ?>
+                                    <?php echo $row_table['tables_number']; ?>
                                 </option>
                         <?php
                             }
@@ -213,9 +212,9 @@
 
             <div class="modal-qty-control">
                 <label>จำนวน: </label><br>
-                <button type="button" class="btn-qty" onclick="changeModalQty(-1)">-</button>
+                <button type="button" class="btn-qty" onclick="changeModalQty(-1)"><i class="fa-solid fa-minus"></i></button>
                 <input type="number" id="modalQty" class="input-qty" value="1" min="1" readonly>
-                <button type="button" class="btn-qty" onclick="changeModalQty(1)">+</button>
+                <button type="button" class="btn-qty" onclick="changeModalQty(1)"><i class="fa-solid fa-plus"></i></button>
             </div>
 
             <div class="modal-remark-section">

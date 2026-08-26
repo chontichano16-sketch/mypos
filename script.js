@@ -668,12 +668,34 @@ function loadReport(type, btnElement) {
 }
 
 // ส่งออก excel
-document.getElementById('export-excel').addEventListener('click', function () {
-    const table = document.getElementById('report-table');
-    // แปลงตารางเป็น Workbook ไฟล์ Excel
-    const wb = XLSX.utils.table_to_book(table, { sheet: "สรุปยอดขาย" });
-    const selectedData = document.getElementById('date-report').value;
-    const fileName = "Sale_report_" + selectedData + ".xlsx";
-    XLSX.writeFile(wb, fileName);
-});
+const exportBtn = document.getElementById('export-excel');
 
+// เช็คว่ามีปุ่มนี้อยู่ในหน้าปัจจุบันหรือไม่ ถ้ามีค่อยทำงาน
+if (exportBtn) {
+    exportBtn.addEventListener('click', function() {
+        const table = document.getElementById("report-table");
+        const wb = XLSX.utils.table_to_book(table, {sheet: "สรุปยอดขาย"});
+        const selectedDate = document.getElementById('date-report').value;
+        const fileName = "Sale_Report_" + selectedDate + ".xlsx";
+        XLSX.writeFile(wb, fileName);
+    });
+}
+
+// =================== ช่องต้นหาเมนู =====================
+function filterMenu() {
+    //รับค่าคำที่พิมพ์เข้ามาและแปลงเป็นตัวพิมพ์เล็ก (เผื่อพิมพ์ภาษาอังกฤษจะได้ค้นหาเจอง่าย)
+    const searchInput = document.getElementById('search-menu').value.toLowerCase();
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    // วนลูปเช็คทีละเมนู
+    menuItems.forEach(function(item) {
+        const rawName = item.getAttribute('data-name') || '';
+        const menuName = rawName.toLowerCase();
+
+        if (menuName.includes(searchInput)) {
+            item.style.display = "";
+        } else {
+            item.style.display = "none";
+        }
+    });
+}
