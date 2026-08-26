@@ -15,6 +15,7 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #ededed;
+    /* background-image: url(img/2.jpg); */
     margin: 0;
     display: flex;
     justify-content: center;

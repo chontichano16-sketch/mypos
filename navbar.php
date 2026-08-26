@@ -23,7 +23,7 @@
                 <li><button onclick="openModal('type')">เพิ่มประเภทสินค้า</button></li>
             </ul>
             <a href="show_pro.php">รายการสินค้าทั้งหมด</a>
-            <a href="#">รายงานยอดขาย</a>
+            <a href="sale_report.php">รายงานยอดขาย</a>
             <a href="logout.php"><i class="bi bi-box-arrow-right" style="float: right;"></i> ออกจากระบบ</a>
         </div>
     </div>

@@ -48,7 +48,7 @@ try {
 
     // บันทึกลงตาราง order
     $last_sql = "INSERT INTO `order` (table_id, created_at, total_amount) 
-                 VALUES ('$table_id', UNIX_TIMESTAMP(), $total_amount)";
+                 VALUES ('$table_id', NOW(), $total_amount)";
     
     if (!mysqli_query($conn, $last_sql)) {
         throw new Exception('บันทึกตาราง order พลาด');
