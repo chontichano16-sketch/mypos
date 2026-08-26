@@ -1,11 +1,14 @@
 <?php
-    session_start();
+    // เช็กสภาวะ Session หากยังไม่เคยเริ่มถึงค่อยเรียก session_start() เพื่อป้องกัน Notice ซ้ำ
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
     if (!isset($_SESSION["user_id"])) {
         header("Location: login.php"); 
         exit();
     }
-    ?>
+?>
 <!-- ปุ่มแฮมเบอร์เกอร์ -->
 <nav class="navbar">
     <div class="dropdown">

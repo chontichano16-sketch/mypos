@@ -14,7 +14,6 @@
     include "navbar.php";
     include "db.php";
 
-
     // คำสั่ง SQL ดึงข้อมูลสินค้าทั้งหมด
     $sql = "SELECT * FROM products";
     $result = mysqli_query($conn, $sql);
@@ -45,8 +44,13 @@
                         <td><?= $row['p_name']; ?></td>
                         <td><?= number_format($row['p_price'], 2); ?> ฿</td>
                         <td>
-                            <a href="edit_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-edit"><i class="bi bi-pencil-fill"></i>แก้ไข</a>
-                            <a href="delete_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-delete" onclick="return confirm('คุณแน่ใจแล้วหรือไม่ว่าต้องการลบรายการสินค้านี้?')"><i class="bi bi-trash3"></i>ลบ</a>
+                            <!-- ปุ่มแก้ไขแบบเรียบ ไม่มีขอบ ไม่มีพื้นหลัง -->
+                            <a href="javascript:void(0);" onclick="openEditModal('<?= $row['p_id']; ?>', '<?= htmlspecialchars($row['p_name'], ENT_QUOTES); ?>', '<?= $row['p_price']; ?>', '<?= $row['type_id']; ?>', '<?= $row['p_img']; ?>')" class="btn-edit">
+                                <i class="bi bi-pencil-fill"></i>แก้ไข
+                            </a>
+                            <a href="delete_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-delete" onclick="return confirm('คุณแน่ใจแล้วหรือไม่ว่าต้องการลบรายการสินค้านี้?')">
+                                <i class="bi bi-trash3"></i>ลบ
+                            </a>
                         </td>
                     </tr>
                 <?php } ?>
@@ -56,7 +60,6 @@
 
     <!--========================================== popup เพิ่มสินค้า ===============================================-->
     <div id="addProductModal" class="modal-overlay" style="display: none;">
-
         <div class="modal-content">
             <div class="modal-header">
                 <h3 style="color: #63554c;">เพิ่มเมนูใหม่</h3>
@@ -80,7 +83,7 @@
 
                 <div class="form-group">
                     <label for="type_id" id="type_id" class="form-label">ประเภทสินค้า</label>
-                    <?php include "db.php";
+                    <?php 
                     $strSQL = "SELECT * FROM type";
                     $objQuery = mysqli_query($conn, $strSQL);
                     ?>
@@ -98,9 +101,8 @@
                 </div>
             </form>
         </div>
-
-
     </div>
+
     <!-- =========================================== popup เพิ่มประเภทสินค้า =============================================== -->
     <div id="addTypeModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
@@ -116,6 +118,63 @@
 
                 <div class="form-buntons">
                     <button type="button" class="btn-reset" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =========================================== popup แก้ไขสินค้า =============================================== -->
+    <div id="editProductModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #63554c;">แก้ไขสินค้า</h3>
+                <button class="close-btn-clean" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form action="update_pro.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="p_id" id="edit_p_id">
+                <input type="hidden" name="old_img" id="edit_old_img">
+
+                <div class="form-group">
+                    <label for="edit_p_name">ชื่อเมนู</label>
+                    <input type="text" name="p_name" id="edit_p_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_p_price">ราคา</label>
+                    <input type="text" name="p_price" id="edit_p_price" required>
+                </div>
+
+                <!-- แสดงรูปภาพปัจจุบัน -->
+                <div class="form-group" style="text-align: center;">
+                    <label>รูปภาพ</label>
+                    <div>
+                        <img id="current_img_preview" src="" width="80" alt="รูปปัจจุบัน" style="border-radius: 5px; border: 1px solid #ddd; padding: 2px;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <input type="file" name="p_img" id="edit_file" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_type_id" class="form-label">ประเภทสินค้า</label>
+                    <select name="type_id" id="edit_type_id" required>
+                        <option value="">-- เลือกประเภทสินค้า --</option>
+                        <?php 
+                        $strSQL2 = "SELECT * FROM type";
+                        $objQuery2 = mysqli_query($conn, $strSQL2);
+                        while ($objResult2 = mysqli_fetch_array($objQuery2)) { 
+                        ?>
+                            <option value="<?php echo $objResult2["type_id"]; ?>">
+                                <?php echo $objResult2["type_name"]; ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                </div>
+
+                <div class="form-buntons">
+                    <button type="button" class="btn-reset" onclick="closeEditModal()">ยกเลิก</button>
                     <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
                 </div>
             </form>
@@ -152,7 +211,25 @@
         </div>
     </div>
 
+    <script>
+        function openEditModal(id, name, price, typeId, img) {
+            document.getElementById('edit_p_id').value = id;
+            document.getElementById('edit_p_name').value = name;
+            document.getElementById('edit_p_price').value = price;
+            document.getElementById('edit_type_id').value = typeId;
+            document.getElementById('edit_old_img').value = img;
+            
+            // แสดงรูปภาพปัจจุบันในป๊อปอัพ
+            document.getElementById('current_img_preview').src = 'upload/' + img;
+            document.getElementById('edit_file').value = '';
 
+            document.getElementById('editProductModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editProductModal').style.display = 'none';
+        }
+    </script>
     <script src="script.js"></script>
 </body>
 
