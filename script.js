@@ -5,7 +5,6 @@ function toggleMenu(event) {
 }
 
 window.addEventListener('click', function (event) {
-
     const dropbtn = document.querySelector('.dropbtn');
     const dropdownContent = document.getElementById('myDropdown');
 
@@ -21,6 +20,8 @@ window.addEventListener('click', function (event) {
 
 // ตัวแปรเก็บตะกร้าสินค้า (ดึงจาก sessionStorage ถ้าเคยมีของอยู่)
 let orderItems = JSON.parse(sessionStorage.getItem('orderItems')) || [];
+let editingIndex = null; // เก็บ index ของรายการที่กำลังแก้ไข
+
 // เรียกให้แสดงผลตะกร้าทันทีตอนโหลดหน้าเว็บ
 renderOrder();
 
@@ -36,18 +37,25 @@ function renderOrder() {
         updateTotal();
         return;
     }
-    // อัปเดต HTML เพื่อเพิ่มปุ่มลบ และแสดงหมายเหตุ
-    container.innerHTML = orderItems.map(item => ` 
-        <div class="order-row" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid #eee;">
-            <div style="display:flex; flex-direction:column;">
-                <div>
-                    <button type="button" onclick="decreaseItem('${item.id}')" style="background-color: #ab1625; color: white; border: none; border-radius: 8px; padding: 2px 8px; margin-right: 8px; cursor: pointer;">-</button>
-                    <span class="order-name">${item.name} x${item.quantity}</span>
+    
+    // อัปเดต HTML: กดที่ตัวรายการ/ข้อความตรงไหนก็ได้เพื่อเปิดหน้าแก้ไข
+    container.innerHTML = orderItems.map((item, index) => ` 
+        <div class="order-row" style="display:flex; justify-content:space-between; align-items:flex-start; padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; border-radius: 4px; transition: background 0.2s;" 
+             onclick="editOrderItem(${index})" 
+             onmouseover="this.style.background='#f5f5f5'" 
+             onmouseout="this.style.background='transparent'">
+             
+            <div style="display:flex; flex-direction:column; gap: 2px; flex: 1;">
+                <div style="display:flex; align-items:center;">
+                    <!-- ปุ่มลบ (-) กั้นไม่ให้เกิด event การคลิกแก้ไข -->
+                    <button type="button" onclick="event.stopPropagation(); decreaseItem('${item.id}', '${item.remark || ''}')" 
+                            style="background-color: #ab1625; color: white; border: none; border-radius: 4px; padding: 2px 8px; margin-right: 8px; cursor: pointer; font-weight:bold;">-</button>
+                    
+                    <span class="order-name" style="font-weight: 500; color: #333;">${item.name} x${item.quantity}</span>
                 </div>
-                <!-- แสดงหมายเหตุ ถ้ามี -->
-                ${item.remark ? `<small style="color: gray; margin-left: 35px;">* ${item.remark}</small>` : ''}
+                ${item.remark ? `<small style="color: #666; margin-left: 32px; font-size: 12px;">* ${item.remark}</small>` : ''}
             </div>
-            <span class="order-price">${(item.price * item.quantity).toFixed(2)}</span>
+            <span class="order-price" style="font-weight: bold; white-space: nowrap; color: #333;">${(item.price * item.quantity).toFixed(2)}</span>
         </div>
     `).join('');
 
@@ -56,12 +64,11 @@ function renderOrder() {
 
 function updateTotal() {
     const total = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    // อัปเดตข้อความยอดรวมใน HTML
-    document.querySelector('.order-section strong').textContent =
-        // .toFixed(2) = แสดงทศนิยม 2 ตำแหน่ง
-        `รวมทั้งหมด ${total.toFixed(2)} บาท`;
+    const totalElement = document.querySelector('.order-section strong');
+    if (totalElement) {
+        totalElement.textContent = `รวมทั้งหมด ${total.toFixed(2)} บาท`;
+    }
 }
-
 
 // ปุ่มบันทึกออเดอร์
 function saveOrder() {
@@ -73,7 +80,6 @@ function saveOrder() {
     }
 
     const table = document.getElementById('tables').value;
-    console.log('table:', table); // เช็คค่า
 
     if (!table || table === 'T.0' || table === '' || table === 'ไม่ได้เลือก') {
         alert('กรุณาเลือกโต๊ะก่อนบันทึก');
@@ -106,14 +112,13 @@ function saveOrder() {
             console.error(err);
         });
 }
+
 // เมนูย่อย
 const menuBtn = document.querySelectorAll('.menu-btn');
 
 menuBtn.forEach(btn => {
     btn.addEventListener('click', () => {
-
         const submenu = btn.nextElementSibling;
-
         document.querySelectorAll('.submenu').forEach(menu => {
             if (menu !== submenu) {
                 menu.style.display = 'none';
@@ -127,7 +132,7 @@ menuBtn.forEach(btn => {
     });
 });
 
-//-==================================== popup  =========================================
+//-==================================== popup =========================================
 function openModal(type) {
     let modalProduct = document.getElementById('addProductModal');
     let modalType = document.getElementById('addTypeModal');
@@ -144,7 +149,6 @@ function openModal(type) {
     } else if (type === 'order') {
         if (modalOrder) {
             modalOrder.style.display = 'flex';
-
             fetchBillsData();
         } else {
             console.error('หา Popup id="openOrder" ไม่เจอ กรุณาตรวจสอบว่ามี HTML นี้ในหน้าปัจจุบันหรือไม่');
@@ -195,7 +199,7 @@ function render() {
             box.classList.remove("filled");
         }
     });
-    inputPin.value = pin;
+    if (inputPin) inputPin.value = pin;
 }
 
 if (keypad) {
@@ -261,7 +265,6 @@ function fetchBillsData() {
                 data.forEach(bill => {
                     let tableId = bill.table_id ? bill.table_id : '-';
 
-                    // สร้างแถว HTML ของตาราง
                     let row = `
                     <tr style="border-bottom: 1px solid #eee;">
                         <td style="padding: 10px; text-align: center;">${bill.order_id}</td>
@@ -272,7 +275,6 @@ function fetchBillsData() {
                         </td>
                     </tr>
                 `;
-                    // เติมแถวลงในตาราง
                     tbody.innerHTML += row;
                 });
             } else {
@@ -289,17 +291,14 @@ function fetchBillsData() {
 function viewBill(orderId) {
     let modalOrder = document.getElementById('openOrder');
     if (modalOrder) modalOrder.style.display = 'none';
-    console.log("พนักงานต้องการเปิดบิลรหัส: " + orderId);
 
     fetch(`get_order_detail.php?id=${orderId}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // เปลี่ยนค่าตัวเลือกเบอร์โต๊ะ
                 let tableSelect = document.getElementById('tables');
                 if (tableSelect) tableSelect.value = data.table_id;
 
-                // นำรายการอาหารมาแสดงผลฝั่งขวา
                 let orderContainer = document.querySelector('.order-items-container');
                 if (orderContainer) {
                     let html = '';
@@ -309,7 +308,6 @@ function viewBill(orderId) {
                         let sum = item.price * item.quantity;
                         grandTotal += sum;
 
-                        // เช็คว่ามีหมายเหตุไหม ถ้ามีให้แสดงเพิ่ม
                         let remarkHtml = item.remark ? `<small style="color: gray; margin-left: 10px;">* ${item.remark}</small>` : '';
 
                         html += `
@@ -324,7 +322,6 @@ function viewBill(orderId) {
                     orderContainer.innerHTML = html;
                 }
 
-                // แสดงราคารวม
                 let totalPriceElement = document.querySelector('.total-price');
                 if (totalPriceElement) {
                     totalPriceElement.innerHTML = `<strong>รวมทั้งหมด ${data.total} บาท</strong>`;
@@ -356,44 +353,38 @@ function closeBillView() {
     document.getElementById('btnCloseBillView').style.display = 'none';
 }
 
-function decreaseItem(productId) {
-    let index = orderItems.findIndex(item => item.id == productId);
+function decreaseItem(productId, remark) {
+    let index = orderItems.findIndex(item => item.id == productId && (item.remark || '') == remark);
 
     if (index !== -1) {
         if (orderItems[index].quantity > 1) {
-            // ถ้ามีมากกว่า 1 ชิ้น ให้ลดจำนวนลงทีละ 1
             orderItems[index].quantity--;
         } else {
-            // ถ้าเหลือแค่ 1 ชิ้น แล้วกดลบอีก ให้เอาออกจากตะกร้าไปเลย
             orderItems.splice(index, 1);
         }
-
         renderOrder();
     }
 }
 
 // =========================================================== ลูกศรเมนูย่อย ================================================================
-// รอให้หน้าเว็บโหลด HTML เสร็จก่อน
 document.addEventListener("DOMContentLoaded", function () {
     let menuButtons = document.querySelectorAll('.menu-btn');
 
     menuButtons.forEach(function (button) {
         button.addEventListener('click', function () {
-            // หาไอคอน <i> ที่อยู่ข้างในปุ่มนี้
             let icon = this.querySelector('i');
-            // ถ้าเจอไอคอน ให้สลับคลาสเพื่อหมุน
             if (icon) {
                 icon.classList.toggle('rotate-icon');
             }
         });
     });
-
 });
 
-// ================================================== popup เพิ่มหมายเหตุ ==========================================================
+// ================================================== popup เพิ่ม / แก้ไข หมายเหตุ ==========================================================
 let currentSelectedItem = null;
 
 function openOrderModal(id, name, price) {
+    editingIndex = null;
     currentSelectedItem = { id: id, name: name, price: price };
 
     document.getElementById('modalProductName').innerText = name;
@@ -402,13 +393,35 @@ function openOrderModal(id, name, price) {
     document.getElementById('modalQty').value = 1;
     document.getElementById('modalRemark').value = '';
 
-    // show popup
+    const confirmBtn = document.querySelector('#orderModal .btn-confirm');
+    if (confirmBtn) confirmBtn.innerText = 'เพิ่มลงบิล';
+
+    document.getElementById('orderModal').style.display = 'flex';
+}
+
+function editOrderItem(index) {
+    let item = orderItems[index];
+    if (!item) return;
+
+    editingIndex = index;
+    currentSelectedItem = { id: item.id, name: item.name, price: item.price };
+
+    document.getElementById('modalProductName').innerText = item.name;
+    document.getElementById('modalProductPrice').innerText = item.price;
+
+    document.getElementById('modalQty').value = item.quantity;
+    document.getElementById('modalRemark').value = item.remark || '';
+
+    const confirmBtn = document.querySelector('#orderModal .btn-confirm');
+    if (confirmBtn) confirmBtn.innerText = 'บันทึกการแก้ไข';
+
     document.getElementById('orderModal').style.display = 'flex';
 }
 
 function closeOrderModal() {
     document.getElementById('orderModal').style.display = 'none';
     currentSelectedItem = null;
+    editingIndex = null;
 }
 
 function changeModalQty(amount) {
@@ -424,21 +437,27 @@ function confirmAddToOrder() {
     if (!currentSelectedItem) return;
 
     let qty = parseInt(document.getElementById('modalQty').value);
-    let remark = document.getElementById('modalRemark').value;
+    let remark = document.getElementById('modalRemark').value.trim();
 
-    // เช็คว่ามีเมนูนี้และหมายเหตุนี้ในตะกร้าอยู่แล้วไหม 
-    let index = orderItems.findIndex(item => item.id == currentSelectedItem.id && item.remark == remark);
-
-    if (index !== -1) {
-        orderItems[index].quantity += qty;
+    if (editingIndex !== null) {
+        // อัปเดตรายการเดิม
+        orderItems[editingIndex].quantity = qty;
+        orderItems[editingIndex].remark = remark;
     } else {
-        orderItems.push({
-            id: currentSelectedItem.id,
-            name: currentSelectedItem.name,
-            price: currentSelectedItem.price,
-            quantity: qty,
-            remark: remark
-        });
+        // เพิ่มรายการใหม่
+        let index = orderItems.findIndex(item => item.id == currentSelectedItem.id && (item.remark || '') == remark);
+
+        if (index !== -1) {
+            orderItems[index].quantity += qty;
+        } else {
+            orderItems.push({
+                id: currentSelectedItem.id,
+                name: currentSelectedItem.name,
+                price: currentSelectedItem.price,
+                quantity: qty,
+                remark: remark
+            });
+        }
     }
 
     closeOrderModal();
@@ -446,7 +465,6 @@ function confirmAddToOrder() {
 }
 
 // ================================================== popup ชำระเงิน =================================
-// สลับหน้าจอตามวิธีการชำระเงิน
 function togglePaymentMode() {
     let isCash = document.getElementById('paymentCash').checked;
     let cashSection = document.getElementById('cashInputSection');
@@ -463,7 +481,7 @@ function togglePaymentMode() {
 
 // ========================================== Popup ชำระเงิน ==========================================
 function openPaymentModal() {
-    let totalElement = document.querySelector('.total-price strong');
+    let totalElement = document.querySelector('.total-price strong') || document.querySelector('.order-section strong');
     let totalText = totalElement ? totalElement.innerText : '0';
     let totalAmount = parseFloat(totalText.replace(/[^0-9.]/g, '')) || 0;
 
@@ -474,14 +492,12 @@ function openPaymentModal() {
 
     document.getElementById('payTotalAmount').innerText = totalAmount.toFixed(2);
 
-    // สร้าง QR Code จากยอดเงินจริง
     let promptpayNo = "0981833902";
     let payload = generatePromptPayPayload(promptpayNo, totalAmount);
     let qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payload)}`;
 
     document.getElementById('qrImage').src = qrImageUrl;
 
-    // เคลียร์ค่าและแสดง Pop-up
     document.getElementById('receiveMoney').value = '';
     document.getElementById('changeMoney').innerText = '0';
     document.getElementById('paymentCash').checked = true;
@@ -490,7 +506,6 @@ function openPaymentModal() {
     document.getElementById('paymentModal').style.display = 'flex';
 }
 
-// ===================================== PromptPay Payload (คำนวณ CRC16) ===============================
 function generatePromptPayPayload(promptpayID, amount) {
     let target = promptpayID.replace(/[^0-9]/g, '');
     let targetTag = '';
@@ -608,7 +623,6 @@ function calculateChange() {
 
     let changeDisplay = document.getElementById('changeMoney');
 
-    // คำนวณเงินทอน
     if (receiveAmount >= totalAmount) {
         let change = receiveAmount - totalAmount;
         // แสดงทศนิยม 2 ตำแหน่ง
