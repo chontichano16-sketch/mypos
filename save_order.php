@@ -4,10 +4,13 @@ ini_set('display_errors', 0);
 header('Content-Type: application/json; charset=utf-8');
 
 require_once "db.php";
+require_once "product_options_lib.php";
 
 $data = json_decode(file_get_contents('php://input'), true);
 $items = $data['items'] ?? [];
 $table_id = $data['table_id'] ?? '';
+
+ensureProductOptionsTable($conn);
 
 if (empty($items)) {
     echo json_encode(['success' => false, 'message' => 'ไม่มีรายการออเดอร์']);
@@ -26,13 +29,29 @@ try {
     foreach ($items as $item) {
         $prod_id = (int)$item['id'];
         $qty = (int)$item['quantity'];
-        $remark = mysqli_real_escape_string($conn, $item['remark'] ?? '');
+        $option_id = (int)($item['optionId'] ?? 0);
+        $option = getProductOption($conn, $prod_id, $option_id);
+        $option_label = $option['option_name'] ?? '';
+        $option_adjustment = (float)($option['price_adjustment'] ?? 0);
+
+        if ($prod_id <= 0 || $qty <= 0 || ($option_id > 0 && !$option)) {
+            throw new Exception('ตัวเลือกเมนูไม่ถูกต้อง');
+        }
+
+        $remark_parts = [];
+        if ($option_label !== '') {
+            $remark_parts[] = $option_label;
+        }
+        if (!empty($item['remark'])) {
+            $remark_parts[] = trim((string)$item['remark']);
+        }
+        $remark = mysqli_real_escape_string($conn, implode(' | ', $remark_parts));
 
         $last_sql = "SELECT p_price FROM products WHERE p_id = $prod_id";
         $res_price = mysqli_query($conn, $last_sql);
         
         if ($row = mysqli_fetch_assoc($res_price)) {
-            $price = (float)$row['p_price'];
+            $price = (float)$row['p_price'] + $option_adjustment;
             $total_amount += ($price * $qty); 
             
             $processed_items[] = [

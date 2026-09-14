@@ -418,7 +418,8 @@ body {
 }
 
 .form-group input {
-    font-size: 16px;
+    font-size: 18px;
+    padding-inline: 10px;
     border-radius: 8px;
     height: 30px;
     color: #63554c;
@@ -471,6 +472,7 @@ body {
     gap: 20px;
     height: 60px;
     margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .form-buntons button {
@@ -568,7 +570,7 @@ body {
     background-color: oklch(98.5% 0 none);
     padding: 20px;
     border-radius: 30px;
-    width: 500px;
+    width: 700px;
     max-width: 100%;
     max-height: 90vh;
     overflow-y: auto;
@@ -621,7 +623,7 @@ body {
 }
 
 .container td {
-    padding: 5px 0;
+    padding: 10px 0;
     background-color: #ffffff;
 }
 
@@ -826,7 +828,7 @@ body {
 .btn-confirm {
     background: #28a745;
     color: white;
-    width: 20%;
+    width: fit-content;
     padding: 8px 15px;
     border: none;
     font-size: medium;
@@ -840,6 +842,20 @@ body {
 .btn-confirm:active {
     background: #1e7e34;
     transform: scale(0.96);
+}
+
+.btn-option {
+    background: #fff;
+    border: 1px solid #63554c;
+    border-radius: 16px;
+    color: #63554c;
+    cursor: pointer;
+    padding: 7px 12px;
+}
+
+.btn-option.active {
+    background: #63554c;
+    color: #fff;
 }
 
 /* ========================= popup วิธีชำระเงิน ===================== */
@@ -1148,7 +1164,7 @@ body {
 
 .report-buttons {
     display: flex;
-    gap: 5px; 
+    gap: 5px;
 }
 
 .report-buttons button {
@@ -1171,8 +1187,8 @@ body {
     background-color: transparent;
     border: none;
     padding: 6px 16px;
-    border-radius: 6px; 
-    color: #4b5563; 
+    border-radius: 6px;
+    color: #4b5563;
     font-size: 14px;
     font-family: inherit;
     cursor: pointer;
@@ -1185,8 +1201,8 @@ body {
 }
 
 .report-buttons button.active {
-    background-color: oklch(62.3% 0.214 259.815); 
-    color: #ffffff; 
+    background-color: oklch(62.3% 0.214 259.815);
+    color: #ffffff;
 }
 
 .report-filter input {
@@ -1278,22 +1294,33 @@ body {
     border-radius: 10px;
 }
 
+.btn-delete-bill {
+    background: transparent;
+    border: none;
+    color: oklch(58.6% 0.253 17.585);
+    font-size: inherit;
+}
+
 /* การตั้งค่าการพิมพ์ */
 @media print {
-    navbar, 
-    .btn-navreport, 
-    .report-filter, 
+
+    navbar,
+    .btn-navreport,
+    .report-filter,
     .report-buttons {
         display: none !important;
     }
 
-body, .report-page, .report-container {
+    body,
+    .report-page,
+    .report-container {
         background-color: white !important;
         margin: 0;
         padding: 0;
     }
-    
-    .report-card, .report-table-wrap {
+
+    .report-card,
+    .report-table-wrap {
         box-shadow: none !important;
         border: 1px solid #ddd;
     }
@@ -1425,4 +1452,43 @@ body, .report-page, .report-container {
     .form-buntons {
         padding: 10px 5%;
     }
+}
+
+/* ตารางออเดอร์ใหม่ */
+.table-order thead {
+    background-color: #f1f3f5;
+}
+
+.table-order tbody tr {
+    transition: background 0.2s;
+}
+
+.table-order tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table-order tbody td {
+    padding: 0px 70px;
+    font-size: 14px;
+    color: #333;
+}
+
+.table-order tbody td:first-child {
+    font-weight: bold;
+    color: #1f8a45;
+}
+
+.modal-content h3 {
+    margin-bottom: 10px;
+}
+
+.btn-print {
+    width: max-content;
+    background-color: oklch(88.2% 0.059 254.128);
+    padding-inline: 10px;
+    border-radius: 10px;
+    border: 1px solid oklch(92.2% 0 none);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+    height: 30px;
+    font-size: 14px;
 }

@@ -11,7 +11,7 @@
 </head>
 
 <body>
-<?php
+    <?php
     require_once "db.php";
     include "navbar.php";
 
@@ -36,9 +36,9 @@
         <?php if (!empty($products_by_category)): ?>
             <!-- วนลูปแยกแสดงตารางตามประเภทสินค้า -->
             <?php foreach ($products_by_category as $category_name => $items): ?>
-                
+
                 <h3 class="header-showpro">
-                   <i class="fa-solid fa-tag"></i><?= htmlspecialchars($category_name); ?>
+                    <i class="fa-solid fa-tag"></i><?= htmlspecialchars($category_name); ?>
                 </h3>
 
                 <table border="1" width="90%" style="border-collapse: collapse; text-align: center; margin-bottom: 12px;">
@@ -61,7 +61,15 @@
                                 <td><?= $row['p_name']; ?></td>
                                 <td><?= number_format($row['p_price'], 2); ?> ฿</td>
                                 <td>
-                                    <a href="edit_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-edit">
+                                    <a href="edit_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-edit"
+                                        data-product='<?= htmlspecialchars(json_encode([
+                                                            'id' => $row['p_id'],
+                                                            'name' => $row['p_name'],
+                                                            'price' => $row['p_price'],
+                                                            'image' => $row['p_img'],
+                                                            'typeId' => $row['type_id'],
+                                                        ], JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>'
+                                        onclick="openEditModal(this); return false;">
                                         <i class="fa-regular fa-pen-to-square"></i></a>
                                     <a href="delete_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-delete" onclick="return confirm('คุณแน่ใจแล้วหรือไม่ว่าต้องการลบรายการสินค้านี้?')">
                                         <i class="fa-solid fa-trash"></i></i></a>
@@ -102,7 +110,7 @@
 
                 <div class="form-group">
                     <label for="type_id" class="form-label">ประเภทสินค้า</label>
-                    <?php 
+                    <?php
                     $strSQL = "SELECT * FROM type";
                     $objQuery = mysqli_query($conn, $strSQL);
                     ?>
@@ -126,7 +134,7 @@
     <div id="addTypeModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 style=" color: #63554c;">เพิ่มหมวดหมู่สินค้าใหม่</h3>
+                <h3 style=" color: #63554c;">เพิ่มประเภทสินค้าใหม่</h3>
                 <button class="close-btn-clean" onclick="closeModal()">&times;</button>
             </div>
             <form action="save_type.php" method="post" enctype="multipart/form-data">
@@ -180,16 +188,23 @@
                     <label for="edit_type_id" class="form-label">ประเภทสินค้า</label>
                     <select name="type_id" id="edit_type_id" required>
                         <option value="">-- เลือกประเภทสินค้า --</option>
-                        <?php 
+                        <?php
                         $strSQL2 = "SELECT * FROM type";
                         $objQuery2 = mysqli_query($conn, $strSQL2);
-                        while ($objResult2 = mysqli_fetch_array($objQuery2)) { 
+                        while ($objResult2 = mysqli_fetch_array($objQuery2)) {
                         ?>
                             <option value="<?php echo $objResult2["type_id"]; ?>">
                                 <?php echo $objResult2["type_name"]; ?>
                             </option>
                         <?php } ?>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label>ตัวเลือกเพิ่มเติมของเมนู</label>
+                    <small style="display:block; margin-bottom:8px; color:#666; font-size: small;">ตั้งชื่อและราคาเพิ่ม/ลด เช่น ร้อน 0, เย็น 10 — หากไม่เพิ่ม จะไม่แสดงตัวเลือกในหน้าขาย</small>
+                    <div id="editProductOptions"></div>
+                    <button type="button" class="btn-option" onclick="addProductOptionRow()">+ เพิ่มตัวเลือก</button>
                 </div>
 
                 <div class="form-buntons">
@@ -229,6 +244,19 @@
             </div>
         </div>
     </div>
+
+    <!-- ========================== popup ออเดอรืใหม่ =========================-->
+    <div id="newOrderModal" class="modal-overlay" style="display: none; ">
+        <div class="modal-content">
+            <div>
+                <h3>ออเดอร์ใหม่จากลูกค้า</h3>
+                <button class="close-btn-clean" onclick="closeModal()">&times;</button>
+            </div>
+            <hr>
+            <div id="newOrderList">กำลังโหลดข้อมูล...</div>
+        </div>
+    </div>
+
 
     <script src="script.js"></script>
 </body>

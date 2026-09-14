@@ -1,6 +1,7 @@
 
 <?php
 require_once 'db.php';
+require_once 'product_options_lib.php';
 // PHP ส่งค่ากลับเป็น JSON
 header('Content-Type: application/json; charset=utf-8');
 
@@ -12,8 +13,60 @@ $is_takeaway = $_POST['is_takeaway'] ?? 'no';
 if ($is_takeaway === 'yes') {
     $items = json_decode($_POST['items'], true);
 
+    if ($table_id !== 'Takeaway') {
+        echo json_encode(["status" => "error", "message" => "Invalid takeaway order"]);
+        exit;
+    }
+
+    if (!is_array($items) || count($items) === 0) {
+        echo json_encode(["status" => "error", "message" => "No order items provided"]);
+        exit;
+    }
+
+    ensureProductOptionsTable($conn);
     mysqli_begin_transaction($conn);
     try {
+        // ใช้ราคาจากฐานข้อมูล เพื่อไม่ให้ยอดชำระถูกแก้ไขจากหน้าเว็บ
+        $total_amount = 0;
+        $processed_items = [];
+        $stmt_product = $conn->prepare("SELECT p_price FROM products WHERE p_id = ?");
+
+        foreach ($items as $item) {
+            $pid = (int)($item['id'] ?? 0);
+            $qty = (int)($item['quantity'] ?? 0);
+            $option_id = (int)($item['optionId'] ?? 0);
+            $option = getProductOption($conn, $pid, $option_id);
+            $option_label = $option['option_name'] ?? '';
+            $option_adjustment = (float)($option['price_adjustment'] ?? 0);
+
+            if ($pid <= 0 || $qty <= 0 || ($option_id > 0 && !$option)) {
+                throw new Exception("Invalid order item");
+            }
+
+            $stmt_product->bind_param("i", $pid);
+            $stmt_product->execute();
+            $product = $stmt_product->get_result()->fetch_assoc();
+            if (!$product) {
+                throw new Exception("Product not found");
+            }
+
+            $price = (float)$product['p_price'] + $option_adjustment;
+            $total_amount += $price * $qty;
+            $remark_parts = [];
+            if ($option_label !== '') {
+                $remark_parts[] = $option_label;
+            }
+            if (!empty($item['remark'])) {
+                $remark_parts[] = trim((string)$item['remark']);
+            }
+            $processed_items[] = [
+                'id' => $pid,
+                'quantity' => $qty,
+                'price' => $price,
+                'remark' => implode(' | ', $remark_parts)
+            ];
+        }
+
         $stmt = $conn->prepare("INSERT INTO `order` (table_id, total_amount, status, payment_method, created_at) VALUES (?, ?, 'paid', ?, NOW())");
         $stmt->bind_param("sds", $table_id, $total_amount, $payment_method);
         $stmt->execute();
@@ -21,7 +74,7 @@ if ($is_takeaway === 'yes') {
         $order_id = $stmt->insert_id; // ดึงรหัสบิลที่เพิ่งสร้างใหม่
 
         $stmt_detail = $conn->prepare("INSERT INTO order_detail (order_id, product_id, quantity, price, remark) VALUES (?, ?, ?, ?, ?)");
-        foreach ($items as $item) {
+        foreach ($processed_items as $item) {
             $pid = $item['id'];
             $qty = $item['quantity'];
             $price = $item['price'];

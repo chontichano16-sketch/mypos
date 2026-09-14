@@ -12,9 +12,14 @@
 </head>
 
 <body>
+    <!-- แถบแจ้งเตือนออเดอร์ใหม่ -->
+    <div id="newOrderAlert" style="display:none; background:#ffb703; padding:10px; text-align:center; font-weight:bold; cursor:pointer;">
+        🔔 มีออเดอร์ใหม่เข้ามา! คลิกเพื่อดูรายละเอียด
+    </div>
+
     <?php include "navbar.php" ?>
     <!-- ปุ่มแฮมเบอร์เกอร์ -->
-     
+
     <div class="main-container">
 
         <div class="left-content">
@@ -26,15 +31,15 @@
                 if (isset($_GET['cate'])) {
                     $cate = $_GET['cate'];
 
-                    $sql = "SELECT * FROM products WHERE type_id = '$cate'";
+                    $sql = "SELECT * FROM products WHERE type_id = '$cate' ORDER BY p_name ASC";
                 } else {
-                    $sql = "SELECT * FROM products";
+                    $sql = "SELECT * FROM products ORDER BY sort_order ASC";
                 }
                 $result = mysqli_query($conn, $sql);
                 while ($row = mysqli_fetch_assoc($result)) {
                 ?>
                     <!-- เมนูการ์ด -->
-                    <div class="menu-item" 
+                    <div class="menu-item"
                         data-id="<?php echo $row['p_id']; ?>"
                         data-name="<?php echo htmlspecialchars($row['p_name']) ?>"
                         data-price="<?php echo $row['p_price'] ?>"
@@ -54,7 +59,7 @@
                     </div>
                 <?php } ?>
             </div>
-            <!-- ======================================== หมวดหมู่ด้านล่าง ================================================ -->
+            <!-- ================================= ประเภทสินค้าด้านล่าง ================================= -->
             <div class="side-bar-menu">
                 <a href="index.php" class="<?php echo !isset($_GET['cate']) ? 'active' : ''; ?>">ทั้งหมด</a>
 
@@ -73,7 +78,7 @@
             </div>
 
         </div>
-        <!--========================================== รายการออเดอร์ฝั่งขวา =========================================-->
+        <!--======================================= รายการออเดอร์ฝั่งขวา ====================================-->
         <aside class="order-section">
             <div class="headorder">
                 <h3>รายการออเดอร์</h3>
@@ -81,6 +86,7 @@
                     <label>โต๊ะ : </label>
                     <select name="tables" id="tables" style="font-size: 14px;">
                         <option value="" selected>ไม่ได้เลือก</option>
+                        <option value="Takeaway">กลับบ้าน</option>
                         <?php
                         $sql_tables = "SELECT * FROM tables";
                         $query_tabels = mysqli_query($conn, $sql_tables);
@@ -110,7 +116,7 @@
         </aside>
 
     </div>
-    <!--========================================== popup เพิ่มสินค้า ===============================================-->
+    <!--====================================== popup เพิ่มสินค้า ===========================================-->
     <div id="addProductModal" class="modal-overlay" style="display: none;">
 
         <div class="modal-content">
@@ -157,11 +163,11 @@
 
 
     </div>
-    <!-- ======================================= popup เพิ่มประเภทสินค้า ========================================== -->
+    <!-- ==================================== popup เพิ่มประเภทสินค้า ================================== -->
     <div id="addTypeModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 style=" color: #63554c;">เพิ่มหมวดหมู่สินค้าใหม่</h3>
+                <h3 style=" color: #63554c;">เพิ่มประเภทสินค้าใหม่</h3>
                 <button class="close-btn-clean" onclick="closeModal()">&times;</button>
             </div>
             <form action="save_type.php" method="post" enctype="multipart/form-data">
@@ -177,41 +183,57 @@
             </form>
         </div>
     </div>
- <!-- ================================= popup เปิดบิล =================================== -->
-<div id="openOrder" class="modal2-overlay" style="display: none;">
-    <div class="modal2-content">
-        <div class="modal2-header">
-            <h3 style="color: #63554c; margin: 0;">บิลทั้งหมด</h3>
-            <button class="close-btn-clean" onclick="closeModal()">&times;</button>
-        </div>
+    <!-- ================================= popup เปิดบิล =================================== -->
+    <div id="openOrder" class="modal2-overlay" style="display: none;">
+        <div class="modal2-content">
+            <div class="modal2-header">
+                <h3 style="color: #63554c; margin: 0;">บิลทั้งหมด</h3>
+                <button class="close-btn-clean" onclick="closeModal()">&times;</button>
+            </div>
 
-        <div class="form-openOrder">
-            <div class="table-responsive" style="padding: 15px;">
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead>
-                        <tr style="border-bottom: 2px solid #ddd;">
-                            <th style="padding: 10px; text-align: center; width: 40px; color: #63554c;"></th>
-                            <th style="padding: 10px; text-align: center; color: #63554c;">รหัสบิล</th>
-                            <th style="padding: 10px; text-align: center; color: #63554c;">เบอร์โต๊ะ</th>
-                            <th style="padding: 10px; text-align: center; color: #63554c;">เวลาที่เปิดบิล</th>
-                            <th style="padding: 10px; text-align: center; color: #63554c;">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="billListBody">
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 20px; color: #63554c;">กำลังโหลดข้อมูล...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="form-openOrder">
+                <div class="table-responsive" style="padding: 15px;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #ddd; background-color: #f1f3f5;">
+                                <th style="padding: 10px; text-align: center; width: 40px; color: #63554c;"></th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">รหัสบิล</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">เบอร์โต๊ะ</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">เวลาที่เปิดบิล</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billListBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 20px; color: #63554c;">กำลังโหลดข้อมูล...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- ========================== popup ออเดอรืใหม่ =========================-->
+    <div id="newOrderModal" class="modal-overlay" style="display: none; ">
+        <div class="modal-content" >
+            <div>
+                <h3>ออเดอร์ใหม่จากลูกค้า</h3>
+                <button class="close-btn-clean" onclick="closeModal()">&times;</button>
+            </div>
+            <hr>
+            <div id="newOrderList">กำลังโหลดข้อมูล...</div>
+        </div>
+    </div>
+
     <!-- ================================= popup สำหรับเพิ่มหมายเหตุ ================================ -->
     <div id="orderModal" class="modal-over-lay" style="display: none;">
         <div class="order-modal-box">
             <h3 id="modalProductName">ชื่อเมนู</h3>
             <p>ราคา: <span id="modalProductPrice">0</span>บาท</p>
+            <div id="modalOptionsContainer" style="display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; padding: 10px;">
+                <!-- ปุ่มตัวเลือกสร้างจาก script.js -->
+            </div>
 
             <div class="modal-qty-control">
                 <label>จำนวน: </label><br>
@@ -286,73 +308,6 @@
     </div>
 
     <script src="script.js"></script>
-    <script>
-        // แทนที่ไอคอนเดิมด้วย FontAwesome (fa-solid fa-trash) และปรับแต่งให้ไม่มีกรอบ/พื้นหลัง
-        const observer = new MutationObserver((mutations, obs) => {
-            const trashIcons = document.querySelectorAll('#billListBody .bi-trash, #billListBody .fa-trash');
-            if (trashIcons.length > 0) {
-                trashIcons.forEach(icon => {
-                    // หากยังเป็นไอคอนเก่า ให้แปลงร่างเป็น FontAwesome
-                    if (icon.classList.contains('bi-trash')) {
-                        icon.className = 'fa-solid fa-trash';
-                    }
-                    
-                    icon.style.setProperty('color', '#dc3545', 'important');
-                    icon.style.setProperty('font-size', '16px', 'important');
-                    
-                    let btn = icon.closest('button') || icon.parentElement;
-                    if (btn && btn.tagName === 'BUTTON') {
-                        btn.style.setProperty('background', 'transparent', 'important');
-                        btn.style.setProperty('background-color', 'transparent', 'important');
-                        btn.style.setProperty('border', 'none', 'important');
-                        btn.style.setProperty('box-shadow', 'none', 'important');
-                        btn.style.setProperty('padding', '4px 8px', 'important');
-                        btn.style.setProperty('cursor', 'pointer', 'important');
-                        
-                        btn.onmouseover = function() {
-                            icon.style.color = '#a71d2a';
-                        };
-                        btn.onmouseout = function() {
-                            icon.style.color = '#dc3545';
-                        };
-                    }
-                });
-            }
-        });
-
-        const billBody = document.querySelector('#billListBody');
-        if (billBody) {
-            observer.observe(billBody, { childList: true, subtree: true });
-        }
-
-        setTimeout(() => {
-            document.querySelectorAll('#billListBody .bi-trash, #billListBody .fa-trash').forEach(icon => {
-                if (icon.classList.contains('bi-trash')) {
-                    icon.className = 'fa-solid fa-trash';
-                }
-                
-                icon.style.setProperty('color', '#dc3545', 'important');
-                icon.style.setProperty('font-size', '16px', 'important');
-                
-                let btn = icon.closest('button') || icon.parentElement;
-                if (btn && btn.tagName === 'BUTTON') {
-                    btn.style.setProperty('background', 'transparent', 'important');
-                    btn.style.setProperty('background-color', 'transparent', 'important');
-                    btn.style.setProperty('border', 'none', 'important');
-                    btn.style.setProperty('box-shadow', 'none', 'important');
-                    btn.style.setProperty('padding', '4px 8px', 'important');
-                    btn.style.setProperty('cursor', 'pointer', 'important');
-                    
-                    btn.onmouseover = function() {
-                        icon.style.color = '#a71d2a';
-                    };
-                    btn.onmouseout = function() {
-                        icon.style.color = '#dc3545';
-                    };
-                }
-            });
-        }, 300);
-    </script>
 </body>
 
 </html>

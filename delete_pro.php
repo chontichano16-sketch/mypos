@@ -1,6 +1,7 @@
 <?php
 session_start();
 include "db.php";
+require_once "product_options_lib.php";
 
 $p_id = $_GET['p_id'];
 
@@ -15,6 +16,12 @@ if (isset($p_id) && $p_id != "") {
     $query_delete = mysqli_query($conn, $sql_delete);
 
     if ($query_delete) {
+        ensureProductOptionsTable($conn);
+        $delete_options = $conn->prepare('DELETE FROM product_options WHERE product_id = ?');
+        $product_id_int = (int)$p_id;
+        $delete_options->bind_param('i', $product_id_int);
+        $delete_options->execute();
+
         if ($old_img != "" && file_exists("upload/" . $old_img)) {
             unlink("upload/" . $old_img);
         }

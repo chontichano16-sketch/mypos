@@ -1,5 +1,6 @@
 <?php
 include "db.php";
+require_once "product_options_lib.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // รับค่าจากฟอร์มใน Modal
@@ -43,6 +44,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $result = mysqli_query($conn, $sql);
 
     if ($result) {
+        try {
+            ensureProductOptionsTable($conn);
+
+            $delete_options = $conn->prepare('DELETE FROM product_options WHERE product_id = ?');
+            $product_id_int = (int)$p_id;
+            $delete_options->bind_param('i', $product_id_int);
+            $delete_options->execute();
+
+            $option_names = $_POST['option_name'] ?? [];
+            $option_adjustments = $_POST['option_adjustment'] ?? [];
+            $insert_option = $conn->prepare(
+                'INSERT INTO product_options (product_id, option_name, price_adjustment, sort_order) VALUES (?, ?, ?, ?)'
+            );
+
+            foreach ($option_names as $index => $option_name) {
+                $option_name = trim((string)$option_name);
+                $adjustment = $option_adjustments[$index] ?? null;
+
+                if ($option_name === '' || !is_numeric($adjustment)) {
+                    continue;
+                }
+
+                $adjustment = (float)$adjustment;
+                $sort_order = (int)$index;
+                $insert_option->bind_param('isdi', $product_id_int, $option_name, $adjustment, $sort_order);
+                $insert_option->execute();
+            }
+        } catch (Exception $e) {
+            echo "<script>
+                alert('บันทึกสินค้าแล้ว แต่บันทึกตัวเลือกไม่สำเร็จ: " . addslashes($e->getMessage()) . "');
+                window.location.href = 'show_pro.php';
+            </script>";
+            exit;
+        }
+
         echo "<script>
             alert('อัปเดตข้อมูลสินค้าเรียบร้อยแล้ว');
             window.location.href = 'show_pro.php';

@@ -97,7 +97,8 @@ if (!isset($_SESSION["user_id"])) {
                 <h1>สรุปรายงานยอดขาย</h1>
                 <p>ภาพรวมรายได้และจำนวนออเดอร์ของร้าน ณ วันที่
                     <span id="header-date-text">
-                        <?= htmlspecialchars($selectedDate->format('d/m/Y'), ENT_QUOTES, 'UTF-8') ?></p>
+                        <?= htmlspecialchars($selectedDate->format('d/m/Y'), ENT_QUOTES, 'UTF-8') ?>
+                </p>
             </div>
 
 
@@ -162,7 +163,7 @@ if (!isset($_SESSION["user_id"])) {
                                             : date('H:i น.', strtotime($row['created_at'])) ?>
                                     </td>
                                     <td>#ORD-<?= str_pad((string) $row['order_id'], 4, '0', STR_PAD_LEFT) ?></td>
-                                    <td>โต๊ะ <?= htmlspecialchars((string) $row['table_id'], ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td> <?= htmlspecialchars((string) $row['table_id'], ENT_QUOTES, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars($row['payment_method'] ?: 'เงินสด', ENT_QUOTES, 'UTF-8') ?></td>
                                     <td class="amount"><strong><?= number_format((float) $row['total_amount'], 2) ?></strong></td>
                                 </tr>
@@ -178,6 +179,7 @@ if (!isset($_SESSION["user_id"])) {
 
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    
+
 </body>
+
 </html>

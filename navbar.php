@@ -35,7 +35,7 @@ if (!isset($_SESSION["user_id"])) {
 
     <ul class="nav-links" id="nav-links">
         <li><a href="index.php" class="active">หน้าร้าน</a></li>
-        <li><a href="neworder.php">ออเดอร์ใหม่</a></li>
+        <li><button onclick="openNewOrderModal()">ออเดอร์ใหม่</button></li>
         <li><button onclick="openModal('order')">เปิดบิล</button></li>
     </ul>
 
@@ -44,4 +44,5 @@ if (!isset($_SESSION["user_id"])) {
         <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
     </form>
     <div class="user-info"><?php echo $_SESSION["fullname"]; ?><i class="fa-solid fa-circle-user"></i></div>
+
 </nav>
