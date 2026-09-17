@@ -1,102 +1,87 @@
 <?php
-// ซ่อน Error HTML เพื่อไม่ให้ JSON พังเวลาเกิดปัญหา
-ini_set('display_errors', 0); 
+require 'db.php'; 
 header('Content-Type: application/json; charset=utf-8');
 
-require_once "db.php";
-require_once "product_options_lib.php";
-
 $data = json_decode(file_get_contents('php://input'), true);
+$tableId = trim((string)($data['table_id'] ?? $data['tables_id'] ?? ''));
 $items = $data['items'] ?? [];
-$table_id = $data['table_id'] ?? '';
 
-ensureProductOptionsTable($conn);
-
-if (empty($items)) {
-    echo json_encode(['success' => false, 'message' => 'ไม่มีรายการออเดอร์']);
+if ($tableId === '' || empty($items)) {
+    echo json_encode(['status' => 'error', 'message' => 'ข้อมูลไม่ครบ']);
     exit;
 }
 
-// เริ่ม Transaction
 mysqli_begin_transaction($conn);
-$last_sql = ""; //เก็บคำสั่ง SQL ล่าสุดไว้ดูตอนพัง
-
 try {
-    $total_amount = 0;
-    $processed_items = [];
+    // 1. เช็คว่าโต๊ะนี้มีบิลเดิมที่เปิดค้างอยู่หรือไม่
+    $st = mysqli_prepare($conn, "SELECT `order_id` FROM `order` WHERE `table_id` = ? AND `status` IN ('pending', 'cooking') ORDER BY `order_id` DESC LIMIT 1");
+    mysqli_stmt_bind_param($st, 's', $tableId);
+    mysqli_stmt_execute($st);
+    $open = mysqli_fetch_assoc(mysqli_stmt_get_result($st));
+    $existingOrderId = ($open && isset($open['order_id'])) ? (int)$open['order_id'] : 0;
 
-    // คำนวณยอดรวม
-    foreach ($items as $item) {
-        $prod_id = (int)$item['id'];
-        $qty = (int)$item['quantity'];
-        $option_id = (int)($item['optionId'] ?? 0);
-        $option = getProductOption($conn, $prod_id, $option_id);
-        $option_label = $option['option_name'] ?? '';
-        $option_adjustment = (float)($option['price_adjustment'] ?? 0);
+    // 2. ค้นหาราคาตั้งต้นของเมนู
+    $ids = array_values(array_unique(array_map(fn($i) => (int)($i['id'] ?? 0), $items)));
+    $ph = implode(',', array_fill(0, count($ids), '?'));
+    $st = mysqli_prepare($conn, "SELECT p_id, p_price FROM products WHERE p_id IN ($ph)");
+    mysqli_stmt_bind_param($st, str_repeat('i', count($ids)), ...$ids);
+    mysqli_stmt_execute($st);
+    $res = mysqli_stmt_get_result($st);
+    $priceMap = [];
+    while ($r = mysqli_fetch_assoc($res)) {
+        $priceMap[(int)$r['p_id']] = (float)$r['p_price'];
+    }
 
-        if ($prod_id <= 0 || $qty <= 0 || ($option_id > 0 && !$option)) {
-            throw new Exception('ตัวเลือกเมนูไม่ถูกต้อง');
-        }
-
-        $remark_parts = [];
-        if ($option_label !== '') {
-            $remark_parts[] = $option_label;
-        }
-        if (!empty($item['remark'])) {
-            $remark_parts[] = trim((string)$item['remark']);
-        }
-        $remark = mysqli_real_escape_string($conn, implode(' | ', $remark_parts));
-
-        $last_sql = "SELECT p_price FROM products WHERE p_id = $prod_id";
-        $res_price = mysqli_query($conn, $last_sql);
+    // 3. คำนวณยอดรวมและเตรียมข้อมูลให้สะอาด
+    $total = 0;
+    $clean = [];
+    foreach ($items as $it) {
+        $pid = (int)($it['id'] ?? 0);
+        $qty = max(1, (int)($it['qty'] ?? $it['quantity'] ?? 1)); // ดักรับ qty หรือ quantity
         
-        if ($row = mysqli_fetch_assoc($res_price)) {
-            $price = (float)$row['p_price'] + $option_adjustment;
-            $total_amount += ($price * $qty); 
-            
-            $processed_items[] = [
-                'id' => $prod_id,
-                'qty' => $qty,
-                'price' => $price,
-                'remark' => $remark
-            ];
-        } else {
-            throw new Exception("ไม่พบสินค้า ID: $prod_id");
-        }
+        if (!isset($priceMap[$pid])) throw new Exception("เมนู ID: $pid ไม่อยู่ในระบบ");
+        
+        // ถ้าระบบหน้าบ้านมีการส่งราคาที่บวก option มาแล้ว ให้ใช้ราคานั้น หากไม่มีให้ใช้ราคาพื้นฐาน
+        $unitPrice = isset($it['price']) ? (float)$it['price'] : $priceMap[$pid];
+        
+        $total += $unitPrice * $qty;
+        
+        $clean[] = [
+            'pid' => $pid, 
+            'qty' => $qty, 
+            'price' => $unitPrice, 
+            'remark' => mb_substr(trim($it['remark'] ?? ''), 0, 255),
+            'option_label' => mb_substr(trim($it['optionLabel'] ?? ''), 0, 255) // รับค่า optionLabel เข้ามา
+        ];
     }
 
-    // บันทึกลงตาราง order
-    $last_sql = "INSERT INTO `order` (table_id, created_at, total_amount) 
-                 VALUES ('$table_id', NOW(), $total_amount)";
-    
-    if (!mysqli_query($conn, $last_sql)) {
-        throw new Exception('บันทึกตาราง order พลาด');
-    }
-    
-    $order_id = mysqli_insert_id($conn);
-
-    // บันทึกลงตาราง order_detail
-    foreach ($processed_items as $p_item) {
-        $pid = $p_item['id'];
-        $qty = $p_item['qty'];
-        $item_price = $p_item['price'];
-        $item_remark = $p_item['remark']; 
-
-        $last_sql = "INSERT INTO order_detail (order_id, product_id, quantity, price, remark) 
-                     VALUES ($order_id, $pid, $qty, $item_price, '$item_remark')";
-
-        if (!mysqli_query($conn, $last_sql)) {
-            throw new Exception('บันทึกตาราง order_detail พลาด');
-        }
+    // 4. จัดการบิลหลัก (order)
+    if ($existingOrderId > 0) {
+        // มีบิลเปิดอยู่แล้ว -> ใช้บิลเดิม + บวกยอดเงินเพิ่ม
+        $orderId = $existingOrderId;
+        $st = mysqli_prepare($conn, "UPDATE `order` SET `total_amount` = `total_amount` + ? WHERE `order_id` = ?");
+        mysqli_stmt_bind_param($st, 'di', $total, $orderId);
+        mysqli_stmt_execute($st);
+    } else {
+        // ไม่มีบิลเดิม -> สร้างบิลใหม่
+        $st = mysqli_prepare($conn, "INSERT INTO `order` (`table_id`, `source`, `status`, `total_amount`, `parent_order_id`) VALUES (?, 'pos', 'pending', ?, 0)");
+        mysqli_stmt_bind_param($st, 'sd', $tableId, $total);
+        mysqli_stmt_execute($st);
+        $orderId = mysqli_insert_id($conn);
     }
 
-    // ยืนยันข้อมูล
+    // 5. บันทึกรายการอาหารลง order_detail (เพิ่มคอลัมน์ option_label)
+    $st = mysqli_prepare($conn, "INSERT INTO `order_detail` (`order_id`, `product_id`, `quantity`, `price`, `remark`, `option_label`) VALUES (?, ?, ?, ?, ?, ?)");
+    foreach ($clean as $c) {
+        // สังเกตตรง 'iiidss' -> i=integer, d=double, s=string (มี s เพิ่มมาอีก 1 ตัวสำหรับ option_label)
+        mysqli_stmt_bind_param($st, 'iiidss', $orderId, $c['pid'], $c['qty'], $c['price'], $c['remark'], $c['option_label']);
+        mysqli_stmt_execute($st);
+    }
+
     mysqli_commit($conn);
-    echo json_encode(['success' => true, 'order_id' => $order_id]);
+    echo json_encode(['status' => 'success', 'success' => true, 'order_id' => $orderId]);
 
 } catch (Exception $e) {
     mysqli_rollback($conn);
-    // ถ้าพังจะส่งประโยค SQL ออกไปโชว์ที่หน้าจอด้วยเลย จะได้รู้ว่าผิดตรงไหน
-    echo json_encode(['success' => false, 'message' => $e->getMessage() . " | คำสั่งที่พังคือ: " . $last_sql]);
+    echo json_encode(['status' => 'error', 'success' => false, 'message' => $e->getMessage()]);
 }
-?>

@@ -1,11 +1,12 @@
 /* ฟ้อน */
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap'); */
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Prompt', sans-serif;
+    /* font-family: 'Prompt', sans-serif; */
+    font-family: "Noto Sans Thai", sans-serif;
 }
 
 html,
@@ -27,7 +28,7 @@ body {
 .navbar {
     display: flex;
     justify-content: flex-start;
-    align-items: stretch;
+    align-items: center;
     width: 100%;
     height: 50px;
     box-sizing: border-box;
@@ -317,6 +318,7 @@ body {
     min-width: 250px;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
+    border-radius: 10px;
 }
 
 .dropdown-content a {
@@ -570,9 +572,7 @@ body {
     background-color: oklch(98.5% 0 none);
     padding: 20px;
     border-radius: 30px;
-    width: 700px;
-    max-width: 100%;
-    max-height: 90vh;
+    width: 700px;;
     overflow-y: auto;
     position: relative;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
@@ -605,7 +605,7 @@ body {
 
 .container {
     width: 100%;
-    padding: 10px;
+    padding: 30px;
     justify-items: center;
     overflow: auto;
     background: #fff;
@@ -714,9 +714,9 @@ body {
 }
 
 .modal2-content {
-    background-color: rgb(255, 255, 255);
+    background-color: oklch(98.5% 0 none);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 30px;
     width: 900px;
     max-width: 100%;
     max-height: 90vh;
@@ -846,7 +846,7 @@ body {
 
 .btn-option {
     background: #fff;
-    border: 1px solid #63554c;
+    border: 1px solid oklch(70.5% 0.015 286.067);
     border-radius: 16px;
     color: #63554c;
     cursor: pointer;
@@ -854,8 +854,8 @@ body {
 }
 
 .btn-option.active {
-    background: #63554c;
-    color: #fff;
+    background: oklch(87.1% 0.006 286.286);
+    color: oklch(36.7% 0.016 35.7);
 }
 
 /* ========================= popup วิธีชำระเงิน ===================== */
@@ -898,6 +898,7 @@ body {
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
+    padding-bottom: 30px;
 }
 
 .payment-modal-header {
@@ -1480,6 +1481,7 @@ body {
 
 .modal-content h3 {
     margin-bottom: 10px;
+    color: #63554c;
 }
 
 .btn-print {

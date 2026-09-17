@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="style2.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
+    
 </head>
 
 <body>
@@ -56,7 +61,7 @@
                             <tr>
                                 <td><?= $row['p_id']; ?></td>
                                 <td>
-                                    <img src="upload/<?= $row['p_img']; ?>" width="50" alt="รูปสินค้า" style="object-fit: cover; border-radius: 4px;">
+                                    <img src="upload/<?= $row['p_img']; ?>" width="50" height="50" alt="รูปสินค้า" style="object-fit: cover; border-radius: 4px;">
                                 </td>
                                 <td><?= $row['p_name']; ?></td>
                                 <td><?= number_format($row['p_price'], 2); ?> ฿</td>
@@ -153,7 +158,7 @@
 
     <!-- =========================================== popup แก้ไขสินค้า =============================================== -->
     <div id="editProductModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
+        <div class="modal-content" style="height: 90vh;">
             <div class="modal-header">
                 <h3 style="color: #63554c;">แก้ไขสินค้า</h3>
                 <button class="close-btn-clean" onclick="closeEditModal()">&times;</button>
@@ -247,7 +252,7 @@
 
     <!-- ========================== popup ออเดอรืใหม่ =========================-->
     <div id="newOrderModal" class="modal-overlay" style="display: none; ">
-        <div class="modal-content">
+        <div class="modal-content" style="height: 50vh;">
             <div>
                 <h3>ออเดอร์ใหม่จากลูกค้า</h3>
                 <button class="close-btn-clean" onclick="closeModal()">&times;</button>

@@ -8,7 +8,7 @@ if (!isset($_GET['id'])) {
 
 $order_id = intval($_GET['id']);
 
-// 1. ดึงข้อมูลหลักของบิล (ตาราง order)
+//  ดึงข้อมูลหลักของบิล (ตาราง order)
 $sql_order = "SELECT * FROM `order` WHERE order_id = $order_id";
 $result_order = mysqli_query($conn, $sql_order);
 if (mysqli_num_rows($result_order) == 0) {
@@ -16,8 +16,7 @@ if (mysqli_num_rows($result_order) == 0) {
 }
 $order = mysqli_fetch_assoc($result_order);
 
-// 2. ดึงรายการอาหารในบิล (เชื่อมตาราง order_detail กับตารางสินค้า)
-// *** หมายเหตุ: เปลี่ยนชื่อตาราง 'products' และคอลัมน์ 'name' ให้ตรงกับฐานข้อมูลจริงของคุณ ***
+//  ดึงรายการอาหารในบิล (เชื่อมตาราง order_detail กับตารางสินค้า)
 $sql_details = "
     SELECT od.*, p.p_name AS product_name 
     FROM order_detail od 
@@ -47,7 +46,8 @@ $result_details = mysqli_query($conn, $sql_details);
         /* จำลองกระดาษใบเสร็จ */
         .receipt-container {
             background-color: #fff;
-            width: 80mm; /* ขนาดมาตรฐานเครื่องพิมพ์ใบเสร็จ */
+            width: 80mm;
+            /* ขนาดมาตรฐานเครื่องพิมพ์ใบเสร็จ */
             max-width: 100%;
             margin: 0 auto;
             padding: 15px;
@@ -117,13 +117,15 @@ $result_details = mysqli_query($conn, $sql_details);
             }
 
             @page {
-                margin: 0; /* ตัดขอบกระดาษ */
+                margin: 0;
+                /* ตัดขอบกระดาษ */
             }
         }
 
         @media print {
             @page {
-                size: 80mm auto; /* บังคับขนาดกระดาษเป็นความกว้าง 80mm ตามความยาวเนื้อหา */
+                size: 80mm auto;
+                /* บังคับขนาดกระดาษเป็นความกว้าง 80mm ตามความยาวเนื้อหา */
                 margin: 0;
             }
 
@@ -160,7 +162,7 @@ $result_details = mysqli_query($conn, $sql_details);
         <div class="receipt-header">
             <strong>เลขที่บิล:</strong> #<?php echo str_pad($order_id, 5, '0', STR_PAD_LEFT); ?><br>
             <strong>วันที่:</strong> <?php echo date('d/m/Y H:i', strtotime($order['created_at'])); ?><br>
-            <strong>โต๊ะ:</strong> <?php echo ($order['table_id'] == '0' || $order['table_id'] == 'Takeaway') ? 'กลับบ้าน (Takeaway)' : $order['table_id']; ?>
+            <strong>โต๊ะ:</strong> <?php echo ($order['table_id'] == '0' || $order['table_id'] == 'Takeaway') ? 'กลับบ้าน' : $order['table_id']; ?>
         </div>
 
         <div class="divider"></div>
@@ -183,10 +185,13 @@ $result_details = mysqli_query($conn, $sql_details);
                             <td class="text-center"><?php echo $item['quantity']; ?></td>
                             <td>
                                 <?php echo htmlspecialchars($item['product_name']); ?>
-                                <?php if (!empty($item['remark'])) {
-                                    echo "<br><small>- " . $item['remark'] . "</small>";
+                                <?php if (!empty($item['option_label'])) {
+                                    echo "<br><small>* " . htmlspecialchars($item['option_label']) . "</small>";
                                 } ?>
-                            </td>
+                                <?php if (!empty($item['remark'])) {
+                                    echo "<br><small>- " . htmlspecialchars($item['remark']) . "</small>";
+                                } ?>
+                                </td>
                             <td class="text-right"><?php echo number_format($item_total, 2); ?></td>
                         </tr>
                 <?php
@@ -210,7 +215,7 @@ $result_details = mysqli_query($conn, $sql_details);
         </div>
 
         <div class="receipt-footer text-right" style="margin-top: 5px;">
-            ชำระโดย: <?php echo ($order['payment_method'] == 'Cash') ? 'เงินสด' : 'QR Code / พร้อมเพย์'; ?>
+            ชำระโดย: <?php echo ($order['payment_method'] == 'Cash') ? 'เงินสด' : 'พร้อมเพย์'; ?>
         </div>
 
         <div class="divider"></div>

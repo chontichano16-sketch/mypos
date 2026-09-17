@@ -9,12 +9,20 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- เพิ่ม FontAwesome เพื่อรองรับไอคอน fa-solid fa-trash -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <!-- แถบแจ้งเตือนออเดอร์ใหม่ -->
+    <audio id="orderSound" src="notify.mp3" preload="auto"></audio>
+
     <div id="newOrderAlert" style="display:none; background:#ffb703; padding:10px; text-align:center; font-weight:bold; cursor:pointer;">
-        🔔 มีออเดอร์ใหม่เข้ามา! คลิกเพื่อดูรายละเอียด
+        🔔 มีออเดอร์ใหม่เข้ามา!
+        <span id="orderBadge" style="background: #ff0000; color: #ffffff; border-radius: 50%; padding: 2px 8px; font-size: 14px; margin-left: 5px; margin-right: 5px; display: inline-block;">1</span>
+        คลิกที่ออเดอร์ใหม่เพื่อดูรายละเอียด
     </div>
 
     <?php include "navbar.php" ?>
@@ -53,7 +61,7 @@
                             alt="<?php echo $row['p_name'] ?>">
 
                         <div class="overlay">
-                            <h3><?php echo $row['p_name'] ?></h3>
+                            <h4><?php echo $row['p_name'] ?></h4>
                             <h5><?php echo $row['p_price'] ?> บาท</h5>
                         </div>
                     </div>
@@ -216,7 +224,7 @@
 
     <!-- ========================== popup ออเดอรืใหม่ =========================-->
     <div id="newOrderModal" class="modal-overlay" style="display: none; ">
-        <div class="modal-content" >
+        <div class="modal-content" style="height: 50vh;">
             <div>
                 <h3>ออเดอร์ใหม่จากลูกค้า</h3>
                 <button class="close-btn-clean" onclick="closeModal()">&times;</button>

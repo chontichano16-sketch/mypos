@@ -313,14 +313,14 @@ body.modal-open {
     left: 50%;
     transform: translateX(-50%);
     bottom: 16px;
-    width: min(92%, 430px);
+    width: min(50%, 200px);
     display: none;
     align-items: center;
     gap: 12px;
     background: #1f8a45;
     color: #fff;
     padding: 12px 18px;
-    border-radius: 14px;
+    border-radius: 30px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
     cursor: pointer;
     z-index: 900;
@@ -619,3 +619,194 @@ body.modal-open {
 .product-grid {
     padding-bottom: 90px;
 }
+
+.product-grid,
+.product-card,
+.btn-add {
+    z-index: 1 !important;
+}
+
+.category-menu-wrapper {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 200 !important; /* ดันให้อยู่เหนือรายการอาหาร */
+    background-color: #f9f9f9; 
+}
+
+.type-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    z-index: 10 !important;
+    margin-top: 8px;
+    overflow: hidden;
+}
+
+.type-dropdown-menu.show {
+    display: block;
+    animation: fadeInDown 0.2s ease-out;
+}
+
+.type-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    color: #334155;
+    text-decoration: none;
+    font-size: 15px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: #ffffff;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.type-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+/* ใช้สีโทนเดียวกับเมนูด้านบน */
+.type-dropdown-item:hover,
+.type-dropdown-item.active {
+    background-color: #f8fafc;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.type-dropdown-item.active {
+    border-left: 4px solid #1e293b;
+}
+
+/* กล่องขยายช่องค้นหาในแถบเมนู */
+.search-inline-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input-inline {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    border: none;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-inline-wrapper.active .search-input-inline {
+    width: 150px;
+    opacity: 1;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-left: 6px;
+}
+
+/* รายการผลลัพธ์เด้งสดใต้ช่องค้นหา */
+.live-search-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 250px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    z-index: 20 !important;
+    margin-top: 6px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.live-search-dropdown.show {
+    display: block;
+}
+
+.live-search-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+}
+
+.live-search-item:hover {
+    background-color: #f8fafc;
+}
+
+.live-search-item img {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.live-search-item .info {
+    flex: 1;
+}
+
+.live-search-item .title {
+    font-size: 13px;
+    color: #333;
+}
+
+.live-search-item .price {
+    font-size: 12px;
+    color: #1e293b;
+    font-weight: bold;
+}
+
+.order-modal,
+.cart-modal {
+    z-index: 999999 !important;
+}
+
+#noProductsMessage {
+    text-align: center;
+    width: 100%;
+    color: #888;
+    margin-top: 20px;
+    display: none;
+}
+
+/* ตกแต่งปุ่ม Option ที่ดึงมาจาก POS */
+.cust-opt-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+/* ตอนที่ลูกค้ากดเลือกปุ่มจะเปลี่ยนเป็นสีเขียว */
+.cust-opt-btn.active {
+    background-color: oklch(87.1% 0.006 286.286);
+    color: oklch(36.7% 0.016 35.7);
+    border-color: 1px solid oklch(70.5% 0.015 286.067);
+    font-weight: bold;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

@@ -5,6 +5,39 @@ const TABLE_ID = $('tablesId')?.value || '';
 const CART_KEY = 'cart_' + TABLE_ID;
 let cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
 let current = null;
+let selectedOption = null;
+
+/*  ส่วนจัดการ Option (แก้ไขให้ตรงกับร้านได้เลย)  */
+const menuOptions = {
+    // หมวดเครื่องดื่ม
+    "coffee": [
+        { id: "opt1", label: "ร้อน", adjustment: 0 },
+        { id: "opt2", label: "เย็น", adjustment: 5 }, 
+        { id: "opt3", label: "ปั่น", adjustment: 15 }  
+    ],
+    "drink": [
+        { id: "opt4", label: "เย็น", adjustment: 0 }, 
+        { id: "opt5", label: "ปั่น", adjustment: 10 } 
+    ]
+};
+
+// ฟังก์ชันเช็คว่าเมนูนี้ต้องโชว์ Option ไหน
+function getOptionsForProduct(productName) {
+    const name = productName.toLowerCase();
+    
+    // ถ้าชื่อเมนูมีคำพวกนี้ ให้แสดงตัวเลือก ร้อน/เย็น/ปั่น
+    if (name.includes('กาแฟดำ (') || name.includes('ลาเต้') || name.includes('คาปูชิโน่') || name.includes('มอคค่า') || name.includes('เอสเพรสโซ่') || name.includes('คาราเมล')) {
+        return menuOptions["coffee"];
+
+    } else if (name.includes('ชา') || name.includes('นม')) {
+        return menuOptions["drink"];
+    }
+    
+    
+    return []; // ถ้าไม่เข้าเงื่อนไขเลย ก็ไม่ต้องโชว์ Option
+}
+/*  สิ้นสุดส่วนจัดการ Option  */
+
 
 const money = n => Number(n).toLocaleString('th-TH');
 const save = () => localStorage.setItem(CART_KEY, JSON.stringify(cart));
@@ -15,7 +48,7 @@ function saveCart() {
 
 /* ---------- ตะกร้า ---------- */
 function addOrder(p, qty = 1, remark = '') {
-    const hit = cart.find(i => i.id === p.id && i.remark === remark);
+    const hit = cart.find(i => i.id === p.id && i.remark === remark && i.name === p.name);
     if (hit) hit.qty += qty;
     else cart.push({ ...p, qty, remark });
     save(); renderCart();
@@ -68,7 +101,6 @@ function lockScroll() {
 }
 
 function unlockScroll() {
-    // ปลดล็อกเฉพาะตอนไม่มี modal เปิดค้างอยู่
     if (document.querySelector('.cart-modal.show, .order-modal.show')) return;
     document.body.classList.remove('modal-open');
     document.body.style.top = '';
@@ -82,6 +114,52 @@ function openOrderModal(p) {
     $('omImg').src = p.img;
     $('omQty').value = 1;
     $('omNote').value = '';
+    
+    // แสดงราคาเริ่มต้น
+    if ($('omPrice')) {
+        $('omPrice').textContent = p.price + ' ฿';
+    }
+
+    selectedOption = null; 
+    
+    const optionsDiv = $('omOptions');
+    if (optionsDiv) {
+        optionsDiv.innerHTML = ''; 
+
+        //  ดึง Option จาก ฟังก์ชัน JavaScript ด้านบน 
+        const options = getOptionsForProduct(p.name);
+
+        if (options.length > 0) {
+            options.forEach(opt => {
+                let finalPrice = p.price + parseFloat(opt.adjustment);
+                
+                let btn = document.createElement('button');
+                btn.className = 'cust-opt-btn'; 
+                
+                // ถ้าราคาบวกเพิ่มเป็น 0 ไม่ต้องโชว์ราคาในปุ่ม
+                if(opt.adjustment > 0) {
+                    btn.textContent = `${opt.label} (+${opt.adjustment}฿)`;
+                } else {
+                    btn.textContent = opt.label;
+                }
+                
+                btn.onclick = () => {
+                    // เปลี่ยนสีปุ่มที่เลือก
+                    document.querySelectorAll('#omOptions .cust-opt-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    selectedOption = opt; // จำว่าลูกค้าเลือกอะไร
+                    
+                    // อัปเดตราคา
+                    if ($('omPrice')) {
+                        $('omPrice').textContent = finalPrice + ' ฿';
+                    }
+                };
+                optionsDiv.appendChild(btn);
+            });
+        }
+    }
+
     $('orderModal').classList.add('show');
     lockScroll();
 }
@@ -105,7 +183,7 @@ function closeCartModal() {
     const el = $(id);
     if (!el) return;
     el.addEventListener('click', e => {
-        if (e.target === el) {                      // กดโดนฉากหลังเท่านั้น
+        if (e.target === el) { 
             el.classList.remove('show');
             unlockScroll();
         }
@@ -189,7 +267,78 @@ function stepQty(d) {
 function confirmOrderModal() {
     if (!current) return;
     const qty = Math.max(1, +$('omQty').value || 1);
-    const remark = $('omNote').value.trim();
-    addOrder(current, qty, remark);
+    let remark = $('omNote').value.trim();
+    
+    let productToCart = { ...current }; 
+    
+    if (selectedOption) {
+        // อัปเดตราคารวม
+        productToCart.price = current.price + parseFloat(selectedOption.adjustment);
+        
+        // ส่งค่าชื่อ Option ไปตรงๆ ด้วย Key ชื่อ option_label
+        productToCart.option_label = selectedOption.label;
+        
+        // เอาไปต่อท้ายหมายเหตุด้วย เพื่อให้ชัวร์ว่าครัวเห็น
+        if (remark === '') {
+            remark = selectedOption.label;
+        } else {
+            remark = selectedOption.label + ", " + remark;
+        }
+    }
+
+    addOrder(productToCart, qty, remark);
     closeOrderModal();
+}
+
+function toggleTypeDropdown() {
+    var dropdown = document.getElementById('typeDropdown');
+    dropdown.classList.toggle('show');
+}
+
+function toggleInlineSearch() {
+    var wrapper = document.getElementById('searchWrapper');
+    var input = document.getElementById('searchInput');
+    wrapper.classList.toggle('active');
+    if (wrapper.classList.contains('active')) {
+        input.focus();
+    }
+}
+
+function handleLiveSearch(query) {
+    const filter = query.trim().toLowerCase();
+    const cards = document.querySelectorAll('#productGrid .product-card');
+    const noMsg = document.getElementById('noProductsMessage');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const name = card.getAttribute('data-name') ? card.getAttribute('data-name').toLowerCase() : '';
+        if (name.includes(filter)) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    if (visibleCount === 0) {
+        noMsg.style.display = 'block';
+    } else {
+        noMsg.style.display = 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const initialVal = document.getElementById('searchInput').value;
+    if (initialVal) {
+        handleLiveSearch(initialVal);
+    }
+});
+
+window.onclick = function (event) {
+    if (!event.target.closest('.list-menu') && !event.target.closest('#typeDropdown')) {
+        var dropdown = document.getElementById('typeDropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    }
 }

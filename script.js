@@ -46,14 +46,23 @@ function renderOrder() {
              onmouseout="this.style.background='transparent'">
              
             <div style="display:flex; flex-direction:column; gap: 2px; flex: 1;">
-                <div style="display:flex; align-items:center;">
-                    <!-- ปุ่มลบ (-) กั้นไม่ให้เกิด event การคลิกแก้ไข -->
-                    <button type="button" onclick="event.stopPropagation(); decreaseItem(${index})" 
-                            style="background-color: #ab1625; color: white; border: none; border-radius: 4px; padding: 2px 8px; margin-right: 8px; cursor: pointer; font-weight:bold;">-</button>
-                    
-                    <span class="order-name" style="font-weight: 500; color: #333;">${item.name} x${item.quantity}</span>
-                </div>
-                ${(item.optionLabel || item.remark) ? `<small style="color: #666; margin-left: 32px; font-size: 12px;">* ${[item.optionLabel, item.remark].filter(Boolean).join(' | ')}</small>` : ''}
+            <div style="display:flex; align-items:center;">
+                
+                <!-- เพิ่ม Checkbox สำหรับพิมพ์ใบครัวที่ปรับแต่งแล้ว -->
+                <label style="margin-right: 12px; cursor: pointer; display: flex; align-items: center;" onclick="event.stopPropagation();">
+                    <input type="checkbox" class="print-kitchen-cb" value="${item.id}" checked 
+                           style="cursor: pointer; width: 20px; height: 20px; accent-color: #28a745; margin: 0; border-radius: 20px;">
+                </label>
+
+                <!-- ปุ่มลบ (-) กันไม่ให้เกิด event การคลิกแก้ไข -->
+                <button type="button" onclick="event.stopPropagation(); decreaseItem(${index})"
+                    style="background-color: #ab1625; color: white; border: none; border-radius: 4px; padding: 2px 8px; margin-right: 8px; cursor: pointer; font-weight:bold;">-</button>
+                
+                <span class="order-name" style="font-weight: 500; color: #333;">${item.name} x${item.quantity}</span>
+            </div>
+            
+                ${item.optionLabel ? `<small style="color: #666; margin-left: 32px; font-size: 12px;">* ${item.optionLabel}</small>` : ''}
+                ${item.remark ? `<small style="color: #666; margin-left: 32px; font-size: 12px;">* ${item.remark}</small>` : ''}
             </div>
             <span class="order-price" style=" white-space: nowrap; color: #333;">${(item.price * item.quantity).toFixed(2)}</span>
         </div>
@@ -98,8 +107,24 @@ function saveOrder() {
     })
         .then(res => res.json())
         .then(result => {
-            if (result.success) {
+            if (result.success || result.status === 'success') {
                 alert('บันทึกออเดอร์สำเร็จ!');
+
+                // --- โค้ดที่เพิ่มเข้ามาสำหรับพิมพ์ครัว ---
+                // หา checkbox ทั้งหมดที่ถูกติ๊กเลือก
+                const printCheckboxes = document.querySelectorAll('.print-kitchen-cb:checked');
+                const itemsToPrint = Array.from(printCheckboxes).map(cb => cb.value);
+
+                // ถ้ามีรายการที่ต้องพิมพ์ ให้เปิดหน้าต่างใหม่ไปที่ไฟล์ print_kitchen.php
+                if (itemsToPrint.length > 0) {
+                    const printIds = itemsToPrint.join(','); // รวม ID เป็น 1,2,3
+                    const printUrl = `print_kitchen.php?order_id=${result.order_id}&pids=${printIds}`;
+
+                    // เปิดหน้าต่างใหม่เพื่อสั่งพิมพ์
+                    window.open(printUrl, '_blank', 'width=400,height=600');
+                }
+                // ------------------------------------
+
                 orderItems = [];
                 sessionStorage.removeItem('orderItems');
                 renderOrder();
@@ -107,10 +132,6 @@ function saveOrder() {
                 alert('เกิดข้อผิดพลาด: ' + result.message);
             }
         })
-        .catch(err => {
-            alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
-            console.error(err);
-        });
 }
 
 // เมนูย่อย
@@ -332,9 +353,7 @@ function fetchBillsData() {
                         <td style="padding: 10px; text-align: center;">${bill.formatted_date}</td>
                         <!-- 5. ปุ่มดู (สีเทาเดิม) -->
                         <td style="padding: 10px; text-align: center;">
-                            <button type="button" class="btn-bill" onclick="viewBill(${bill.order_id})">
-                                ดู
-                            </button>
+                            <button type="button" class="btn-bill" onclick="viewBill(${bill.order_id})">ดู</button>
                         </td>
                     </tr>
                     `;
@@ -376,6 +395,8 @@ function deleteBill(orderId) {
             });
     }
 }
+
+// ==================== ปุ่มดูบิล ====================
 function viewBill(orderId) {
     let modalOrder = document.getElementById('openOrder');
     if (modalOrder) modalOrder.style.display = 'none';
@@ -395,17 +416,22 @@ function viewBill(orderId) {
                     data.items.forEach(item => {
                         let sum = item.price * item.quantity;
                         grandTotal += sum;
-
+                        // ดึง option_label แยกต่างหาก
+                        let optionText = item.option_label || item.optionLabel || '';
+                        let optionHtml = optionText ? `<small style="color: gray; margin-left: 10px;">* ${optionText}</small>` : '';
+                        // ดึง remark
                         let remarkHtml = item.remark ? `<small style="color: gray; margin-left: 10px;">* ${item.remark}</small>` : '';
 
                         html += `
                             <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
                                 <div style="display:flex; flex-direction:column;">
                                     <div>${item.name} x ${item.quantity}</div>
+                                    ${optionHtml}
                                     ${remarkHtml}
                                 </div>
                                 <div>${sum} บาท</div>
-                            </div>`;
+                            </div>
+                        `;
                     });
                     orderContainer.innerHTML = html;
                 }
@@ -626,37 +652,49 @@ function changeModalQty(amount) {
 function confirmAddToOrder() {
     if (!currentSelectedItem) return;
 
-    let qty = parseInt(document.getElementById('modalQty').value);
-    let remark = document.getElementById('modalRemark').value.trim();
+    // 1. ดึงค่าจำนวนและหมายเหตุ (เอาแค่ที่ลูกค้าพิมพ์ในช่องจริงๆ)
+    const parsedQty = parseInt(document.getElementById('modalQty').value, 10);
+    const qty = (!isNaN(parsedQty) && parsedQty > 0) ? parsedQty : 1;
+    const userRemark = document.getElementById('modalRemark').value.trim();
+
+    // 2. ดึงข้อมูล Option แยกต่างหาก
     const option = selectedModalOption;
+    const optionId = option ? option.id : 0;
+    const optionLabel = option ? option.label : '';
     const optionAdjustment = option ? Number(option.adjustment) : 0;
+
     const unitPrice = Number(currentSelectedItem.basePrice) + optionAdjustment;
 
+    // 3. จัดการเพิ่มหรืออัปเดตออเดอร์
     if (editingIndex !== null) {
         // อัปเดตรายการเดิม
         orderItems[editingIndex].quantity = qty;
-        orderItems[editingIndex].remark = remark;
-        orderItems[editingIndex].optionId = option ? option.id : 0;
-        orderItems[editingIndex].optionLabel = option ? option.label : '';
+        orderItems[editingIndex].remark = userRemark; // เก็บแค่หมายเหตุเพียวๆ
+        orderItems[editingIndex].optionId = optionId;
+        orderItems[editingIndex].optionLabel = optionLabel;
         orderItems[editingIndex].optionAdjustment = optionAdjustment;
         orderItems[editingIndex].price = unitPrice;
     } else {
-        // เพิ่มรายการใหม่
-        let index = orderItems.findIndex(item => item.id == currentSelectedItem.id
-            && (item.remark || '') == remark
-            && Number(item.optionId || 0) == Number(option ? option.id : 0));
+        // ค้นหาว่ามีรายการที่เหมือนกันเป๊ะๆ อยู่แล้วหรือไม่
+        const index = orderItems.findIndex(item =>
+            item.id === currentSelectedItem.id &&
+            (item.remark || '') === userRemark && // เทียบเฉพาะหมายเหตุ
+            Number(item.optionId || 0) === Number(optionId)
+        );
 
         if (index !== -1) {
+            // ถัามีให้บวกจำนวนเพิ่ม
             orderItems[index].quantity += qty;
         } else {
+            // ถ้าไม่มีให้เพิ่มเป็นรายการใหม่
             orderItems.push({
                 id: currentSelectedItem.id,
                 name: currentSelectedItem.name,
                 price: unitPrice,
                 quantity: qty,
-                remark: remark,
-                optionId: option ? option.id : 0,
-                optionLabel: option ? option.label : '',
+                remark: userRemark, // เก็บแค่หมายเหตุเพียวๆ
+                optionId: optionId,
+                optionLabel: optionLabel,
                 optionAdjustment: optionAdjustment
             });
         }
@@ -757,16 +795,68 @@ function generatePromptPayPayload(promptpayID, amount) {
 
 // =================== popup ออเดอร์ใหม่ =====================
 // เปิด Modal และโหลดข้อมูล
-function openNewOrderModal() {
-    document.getElementById('newOrderModal').style.display = 'flex';
+// function openNewOrderModal() {
+//     document.getElementById('newOrderModal').style.display = 'flex';
 
-    // ดึงข้อมูลรายการจากไฟล์ PHP ที่จะทำใหม่
+//     // ดึงข้อมูลรายการจากไฟล์ PHP ที่จะทำใหม่
+//     fetch('get_new_order.php')
+//         .then(res => res.text())
+//         .then(html => {
+//             document.getElementById('newOrderList').innerHTML = html;
+//         });
+// }
+
+let previousOrderCount = 0;
+
+// เช็คออเดอร์ใหม่แบบอัตโนมัติ
+function checkNewOrders() {
+    fetch('check_new_order_count.php')
+        .then(res => res.json())
+        .then(data => {
+            const count = data.count || 0;
+            const alertBox = document.getElementById('newOrderAlert');
+            const badge = document.getElementById('orderBadge');
+            const sound = document.getElementById('orderSound');
+
+            if (count > 0) {
+                if (badge) badge.innerText = count;
+                if (alertBox) alertBox.style.display = 'block';
+
+                // เล่นเสียงเฉพาะเมื่อมีออเดอร์เพิ่มขึ้น
+                if (count > previousOrderCount) {
+                    if (sound) {
+                        sound.currentTime = 0;
+                        sound.play().catch(err => {
+                            console.log('แจ้งเตือน: คลิกบนหน้าเว็บก่อน 1 ครั้งเพื่อให้เสียงเล่นอัตโนมัติ');
+                        });
+                    }
+                }
+            } else {
+                if (alertBox) alertBox.style.display = 'none';
+            }
+
+            previousOrderCount = count;
+        })
+        .catch(err => console.error('Error checking order count:', err));
+}
+
+// เปิด Popup และโหลดตารางรายการออเดอร์ใหม่
+function openNewOrderModal() {
+    const modal = document.getElementById('newOrderModal');
+    if (modal) modal.style.display = 'flex';
+
     fetch('get_new_order.php')
         .then(res => res.text())
         .then(html => {
-            document.getElementById('newOrderList').innerHTML = html;
-        });
+            const listContainer = document.getElementById('newOrderList');
+            if (listContainer) listContainer.innerHTML = html;
+        })
+        .catch(err => console.error('Error fetching order list:', err));
 }
+
+// ตั้งเวลาให้เช็คออเดอร์ใหม่ทุกๆ 5 วินาที
+setInterval(checkNewOrders, 5000);
+document.addEventListener('DOMContentLoaded', checkNewOrders);
 
 function confirmPayment() {
     let tableId = document.getElementById('tables').value;
@@ -993,6 +1083,25 @@ setTimeout(() => {
 }, 300);
 
 // ปุ่มรับออเดอร์และสั่งปริ้น
+// function processOrder(orderId) {
+//     // เรียก API เพื่ออัปเดตสถานะในฐานข้อมูล
+
+//     fetch('api/accept_order_v2.php', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+//         body: 'order_id=' + orderId
+//     })
+//         .then(response => response.json())
+//         .then(data => {
+//             if (data.status === 'success') {
+//                 // window.open('print_kitchen.php?id=' + data.print_id, '_blank', 'width=300,height=500');
+//                 window.open('print_kitchen.php?order_id=' + data.print_id, '_blank', 'width=300,height=500');
+//                 location.reload();
+//             }
+//         });
+// }
+
+// ปุ่มรับออเดอร์และสั่งปริ้น
 function processOrder(orderId) {
     // เรียก API เพื่ออัปเดตสถานะในฐานข้อมูล
     fetch('api/accept_order_v2.php', {
@@ -1003,8 +1112,15 @@ function processOrder(orderId) {
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                window.open('print_kitchen.php?id=' + data.print_id, '_blank', 'width=300,height=500');
+                // เปลี่ยนจาก data.print_id เป็น data.order_id ให้ตรงกับที่ PHP ส่งมา
+                window.open('print_kitchen.php?order_id=' + data.order_id, '_blank', 'width=300,height=500');
                 location.reload();
+            } else {
+                // แนะนำให้เพิ่ม alert ไว้ด้วยครับ จะได้รู้ว่าถ้าไม่ success เกิดจากอะไร
+                alert('เกิดข้อผิดพลาด: ' + data.message);
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
         });
 }

@@ -1,43 +1,31 @@
-<!DOCTYPE html>
-<html lang="th">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style2.css">
-</head>
-
-<body>
-    <script src="script.js"></script>
-</body>
-
-</html>
-
-
 <?php
 require 'db.php';
-$res = mysqli_query($conn, "SELECT * FROM `order` WHERE source='qr' AND status IN ('pending', 'cooking', 'new_item') ORDER BY created_at DESC");
-
-if (mysqli_num_rows($res) == 0) {
-    echo "ไม่มีออเดอร์ใหม่";
+$res = mysqli_query($conn, "SELECT * FROM `order` WHERE source='qr' AND status IN ('new_item') ORDER BY created_at DESC");
+if (!$res || mysqli_num_rows($res) == 0) {
+    echo "<div style='text-align:center; padding: 20px; color: #666;'>ไม่มีออเดอร์ใหม่</div>";
     exit;
 }
+?>
 
-echo "<table class='table-order'>
-        <thead>
-            <tr>
-            <th>โต๊ะ</th>
-            <th>เวลา</th>
-            <th>จัดการ</th>
-            </tr>
-        </thead>
-        <tbody>";
-while ($row = mysqli_fetch_assoc($res)) {
-    echo "<tr>
-            <td>{$row['table_id']}</td>
-            <td>{$row['created_at']}</td>
-            <td><button class='btn-print' onclick='processOrder({$row['order_id']})'>รับออเดอร์/ปริ้น</button></td>
-          </tr>";
-}
-echo "</tbody></table>";
+<table class="table-order">
+    <thead>
+        <tr>
+            <th style="width: 20%;">โต๊ะ</th>
+            <th style="width: 40%;">เวลา</th>
+            <th style="width: 40%;">จัดการ</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php while ($row = mysqli_fetch_assoc($res)): ?>
+        <tr>
+            <td><?php echo htmlspecialchars($row['table_id']); ?></td>
+            <td style="display: flex; justify-content: center;"><?php echo date('H:i', strtotime($row['created_at'])); ?></td>
+            <td>
+                <button class="btn-print" onclick="processOrder(<?php echo $row['order_id']; ?>)">
+                    รับออเดอร์/ปริ้น
+                </button>
+            </td>
+        </tr>
+        <?php endwhile; ?>
+    </tbody>
+</table>

@@ -50,7 +50,87 @@ if (!isset($_SESSION["user_id"])) {
     <title>รายงานยอดขาย</title>
     <link rel="stylesheet" href="style2.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" crossorigin="anonymous" 
+    referrerpolicy="no-referrer">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: background .2s;
+        }
+
+        .user-info:hover {
+            background: #f0f0f0;
+        }
+
+        .user-info i {
+            font-size: 22px;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 180px;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
+            padding: 6px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: all .18s ease;
+        }
+
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: #333;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .user-dropdown a:hover {
+            background: #f5f5f5;
+        }
+
+        .user-dropdown a.logout {
+            color: #d9534f;
+        }
+
+        .user-dropdown a.logout:hover {
+            background: #fdecea;
+        }
+    </style>
 </head>
 
 <body class="report-page">
@@ -60,14 +140,15 @@ if (!isset($_SESSION["user_id"])) {
             <div id="myDropdown" class="dropdown-content">
                 <button type="button" class="menu-btn"><i class="bi bi-chevron-down" style="float: right;"></i>จัดการข้อมูลโต๊ะ</button>
                 <ul class="submenu">
-                    <li><a href="create_QR"><i class="bi bi-qr-code"></i> สร้าง QR Code โต๊ะ</a></li>
+                    <li><a href="print_qr.php"><i class="bi bi-qr-code"></i> พิมพ์ QR Code โต๊ะ</a></li>
                 </ul>
                 <button type="button" class="menu-btn"><i class="bi bi-chevron-down" style="float: right;"></i>จัดการข้อมูลเมนูอาหาร</button>
                 <ul class="submenu">
                     <li><button type="button" onclick="openModal('product')">เพิ่มสินค้า</button></li>
                     <li><button type="button" onclick="openModal('type')">เพิ่มประเภทสินค้า</button></li>
                 </ul>
-                <a href="show_pro.php">รายการสินค้าทั้งหมด</a><a href="sale_report.php">รายงานยอดขาย</a><a href="logout.php"><i class="bi bi-box-arrow-right" style="float: right;"></i> ออกจากระบบ</a>
+                <a href="show_pro.php">รายการสินค้าทั้งหมด</a>
+                <a href="sale_report.php">รายงานยอดขาย</a>
             </div>
         </div>
 
@@ -88,7 +169,19 @@ if (!isset($_SESSION["user_id"])) {
                 </button>
             </div>
         </div>
-        <div class="user-info"><?php echo $_SESSION["fullname"]; ?><i class="bi bi-person-circle"></i></div>
+
+        <div class="user-menu">
+            <button type="button" class="user-info" id="userInfoBtn" onclick="toggleUserMenu(event)">
+                <?php echo $_SESSION["fullname"]; ?>
+                <i class="fa-solid fa-circle-user"></i>
+            </button>
+
+            <div class="user-dropdown" id="userDropdown">
+                <!-- <a href="profile.php"><i class="fa-solid fa-user"></i> โปรไฟล์</a> -->
+                <a href="logout.php" class="logout"><i class="bi bi-box-arrow-right"></i> ออกจากระบบ</a>
+            </div>
+        </div>
+
     </nav>
 
     <main class="report-container">
@@ -179,6 +272,24 @@ if (!isset($_SESSION["user_id"])) {
 
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script>
+        function toggleUserMenu(e) {
+            e.stopPropagation();
+            document.getElementById('userDropdown').classList.toggle('show');
+        }
+
+        // คลิกที่อื่นแล้วปิดเมนู
+        document.addEventListener('click', function() {
+            document.getElementById('userDropdown').classList.remove('show');
+        });
+
+        // กด ESC ปิดเมนู
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+    </script>
 
 </body>
 

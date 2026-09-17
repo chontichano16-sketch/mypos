@@ -91,7 +91,7 @@ if ($is_takeaway === 'yes') {
         echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
 } else {
-    $stmt_find = $conn->prepare("SELECT order_id FROM `order` WHERE table_id = ? AND status = 'pending' LIMIT 1");
+    $stmt_find = $conn->prepare("SELECT order_id FROM `order` WHERE table_id = ? AND status IN ('pending', 'cooking') LIMIT 1");
     $stmt_find->bind_param("s", $table_id);
     $stmt_find->execute();
     $result = $stmt_find->get_result();
