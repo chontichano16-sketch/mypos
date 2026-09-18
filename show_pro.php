@@ -36,7 +36,7 @@
     ?>
 
     <div class="container">
-        <h2 style="color: #63554c; margin-bottom: 20px;">รายการสินค้าทั้งหมด</h2>
+        <h2 style="color: #3f342d; margin-bottom: 20px;">รายการสินค้าทั้งหมด</h2>
 
         <?php if (!empty($products_by_category)): ?>
             <!-- วนลูปแยกแสดงตารางตามประเภทสินค้า -->

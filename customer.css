@@ -52,6 +52,8 @@ body.modal-open {
     background: #fff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     padding: 10px;
+    margin: 5px 15px;
+    border-radius: 20px;
 }
 
 .product-card button {
@@ -131,8 +133,9 @@ body.modal-open {
     background: white;
     scrollbar-width: none;
     border-bottom: 1px solid oklch(97% 0 none);
-    margin-bottom: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin: 0px 15px 4px 15px;
+    border-radius: 20px;
 }
 
 .category-menu>* {

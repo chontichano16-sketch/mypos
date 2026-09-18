@@ -27,6 +27,7 @@ renderOrder();
 
 // วาด HTML ของรายการออเดอร์ใหม่ทุกครั้ง
 function renderOrder() {
+    
     sessionStorage.setItem('orderItems', JSON.stringify(orderItems));
     const container = document.querySelector('.order-items-container');
 
@@ -61,8 +62,11 @@ function renderOrder() {
                 <span class="order-name" style="font-weight: 500; color: #333;">${item.name} x${item.quantity}</span>
             </div>
             
+                
+
                 ${item.optionLabel ? `<small style="color: #666; margin-left: 32px; font-size: 12px;">* ${item.optionLabel}</small>` : ''}
-                ${item.remark ? `<small style="color: #666; margin-left: 32px; font-size: 12px;">* ${item.remark}</small>` : ''}
+                ${item.remark && item.remark !== item.optionLabel ? `<small style="color: #666; margin-left: 32px; font-size: 12px;"><br>* ${item.remark}</small>` : ''}
+                
             </div>
             <span class="order-price" style=" white-space: nowrap; color: #333;">${(item.price * item.quantity).toFixed(2)}</span>
         </div>
@@ -294,7 +298,7 @@ if (keypad) {
     });
 }
 
-// =============================== save menu ไม่เปลี่ยนหน้า ===============================
+// =============================== save menu/type ไม่เปลี่ยนหน้า ===============================
 function saveProductAjax(event) {
     event.preventDefault();
 
@@ -302,6 +306,31 @@ function saveProductAjax(event) {
     let formData = new FormData(form);
 
     fetch('save_pro.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.text())
+        .then(data => {
+            if (data.trim() === 'success') {
+                alert('บันทึกข้อมูลเรียบร้อยแล้ว ');
+                window.location.reload();
+            } else {
+                alert('เกิดข้อผิดพลาด: ' + data);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+        });
+}
+
+function saveTypeAjax(event) {
+    event.preventDefault();
+
+    let form = document.getElementById('formAddType');
+    let formData = new FormData(form);
+
+    fetch('save_type.php', {
         method: 'POST',
         body: formData
     })
@@ -420,7 +449,9 @@ function viewBill(orderId) {
                         let optionText = item.option_label || item.optionLabel || '';
                         let optionHtml = optionText ? `<small style="color: gray; margin-left: 10px;">* ${optionText}</small>` : '';
                         // ดึง remark
-                        let remarkHtml = item.remark ? `<small style="color: gray; margin-left: 10px;">* ${item.remark}</small>` : '';
+                        let remarkHtml = item.remark && item.remark !== optionText
+                            ? `<small style="color: gray; margin-left: 10px;">* ${item.remark}</small>`
+                            : '';
 
                         html += `
                             <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
@@ -652,12 +683,12 @@ function changeModalQty(amount) {
 function confirmAddToOrder() {
     if (!currentSelectedItem) return;
 
-    // 1. ดึงค่าจำนวนและหมายเหตุ (เอาแค่ที่ลูกค้าพิมพ์ในช่องจริงๆ)
+    //  ดึงค่าจำนวนและหมายเหตุ (เอาแค่ที่ลูกค้าพิมพ์ในช่องจริงๆ)
     const parsedQty = parseInt(document.getElementById('modalQty').value, 10);
     const qty = (!isNaN(parsedQty) && parsedQty > 0) ? parsedQty : 1;
     const userRemark = document.getElementById('modalRemark').value.trim();
 
-    // 2. ดึงข้อมูล Option แยกต่างหาก
+    // ดึงข้อมูล Option แยกต่างหาก
     const option = selectedModalOption;
     const optionId = option ? option.id : 0;
     const optionLabel = option ? option.label : '';
@@ -665,7 +696,7 @@ function confirmAddToOrder() {
 
     const unitPrice = Number(currentSelectedItem.basePrice) + optionAdjustment;
 
-    // 3. จัดการเพิ่มหรืออัปเดตออเดอร์
+    //  จัดการเพิ่มหรืออัปเดตออเดอร์
     if (editingIndex !== null) {
         // อัปเดตรายการเดิม
         orderItems[editingIndex].quantity = qty;

@@ -20,6 +20,9 @@ if (!empty($pids)) {
     $where .= " AND od.printed = 0";
 }
 
+//  ดักกรองหมวดหมู่เครื่องดื่มออกจากการพิมพ์
+$where .= " AND p.type_id NOT IN ('5', '6', '7')"; 
+
 $sql = "SELECT od.*, p.p_name
         FROM order_detail od
         JOIN products p ON od.product_id = p.p_id
@@ -33,8 +36,11 @@ $rows = [];
 while ($r = mysqli_fetch_assoc($result)) {
     $rows[] = $r;
 }
+
 if (count($rows) === 0) {
-    die("ไม่มีรายการใหม่ให้พิมพ์ (order_id = $orderId)");
+    // ถ้าในบิลมีแค่เครื่องดื่มล้วนๆ (กรองแล้วไม่เหลือรายการอาหาร) ให้สั่งปิดหน้าต่างอัตโนมัติ
+    echo "<script>window.close();</script>";
+    exit;
 }
 
 // ดึงเลขโต๊ะ

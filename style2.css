@@ -256,7 +256,7 @@ body {
 .headorder h3 {
     margin: 0;
     font-size: 18px;
-    color: #63554c;
+    color: #3f342d;
 }
 
 .action-buttons {
@@ -349,7 +349,7 @@ body {
     border-top: 1px dashed #ccc;
     padding-top: 10px;
     margin-top: 6px;
-    color: #63554c;
+    color: #3f342d;
 }
 
 .order-name {
@@ -572,7 +572,8 @@ body {
     background-color: oklch(98.5% 0 none);
     padding: 20px;
     border-radius: 30px;
-    width: 700px;;
+    width: 700px;
+    ;
     overflow-y: auto;
     position: relative;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
@@ -1105,8 +1106,13 @@ body {
     font-size: small;
     border: 1px solid #d2cdc9;
     border-radius: 8px;
-    padding-inline: 2px;
     padding-inline: 12px;
+    margin: 0 10px 0 0;
+    color: #63554c;
+}
+
+.btn-navreport a {
+    all: unset;
 }
 
 #export-excel {
@@ -1275,6 +1281,7 @@ body {
 .detail-report td {
     padding: 12px;
     border-bottom: 1px solid #eee;
+    color: #3f342d;
 }
 
 .detail-report .amount {

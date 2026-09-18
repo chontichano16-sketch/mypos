@@ -57,10 +57,18 @@ try {
 
         //  ตรวจสอบ Option ที่ลูกค้าส่งมาว่ามีในระบบไหม และต้องบวกเพิ่มเท่าไหร่
         $optionLabel = trim($it['option_label'] ?? '');
+        $remark = trim($it['remark'] ?? '');
         $adjustmentPrice = 0;
 
         if ($optionLabel !== '' && array_key_exists($optionLabel, $validOptions)) {
             $adjustmentPrice = (float)$validOptions[$optionLabel];
+
+            // รองรับตะกร้าจาก JavaScript เวอร์ชันเก่าที่เคยใส่ option ไว้ใน remark ด้วย
+            if ($remark === $optionLabel) {
+                $remark = '';
+            } elseif (str_starts_with($remark, $optionLabel . ', ')) {
+                $remark = substr($remark, strlen($optionLabel . ', '));
+            }
         }
 
         // ให้ PHP คำนวณราคาสุทธิเองเลย (ลูกค้าหลอกไม่ได้แน่นอน)
@@ -72,7 +80,7 @@ try {
             'pid' => $pid,
             'qty' => $qty,
             'price' => $finalPrice,
-            'remark' => mb_substr(trim($it['remark'] ?? ''), 0, 255),
+            'remark' => mb_substr($remark, 0, 255),
             'option_label' => mb_substr($optionLabel, 0, 255)
         ];
     }

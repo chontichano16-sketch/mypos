@@ -278,12 +278,8 @@ function confirmOrderModal() {
         // ส่งค่าชื่อ Option ไปตรงๆ ด้วย Key ชื่อ option_label
         productToCart.option_label = selectedOption.label;
         
-        // เอาไปต่อท้ายหมายเหตุด้วย เพื่อให้ชัวร์ว่าครัวเห็น
-        if (remark === '') {
-            remark = selectedOption.label;
-        } else {
-            remark = selectedOption.label + ", " + remark;
-        }
+        // เก็บตัวเลือกแยกใน option_label; remark เก็บเฉพาะข้อความที่ลูกค้าพิมพ์
+        // เพื่อไม่ให้หน้ารับออเดอร์แสดง option ซ้ำสองบรรทัด
     }
 
     addOrder(productToCart, qty, remark);

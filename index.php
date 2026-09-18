@@ -178,7 +178,7 @@
                 <h3 style=" color: #63554c;">เพิ่มประเภทสินค้าใหม่</h3>
                 <button class="close-btn-clean" onclick="closeModal()">&times;</button>
             </div>
-            <form action="save_type.php" method="post" enctype="multipart/form-data">
+            <form id="formAddType" onsubmit="saveTypeAjax(event)" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="type_name">ชื่อประเภทสินค้า</label>
                     <input type="text" name="type_name" id="type_name">

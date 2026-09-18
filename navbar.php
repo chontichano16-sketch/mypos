@@ -92,7 +92,7 @@ if (!isset($_SESSION["user_id"])) {
         <button onclick="toggleMenu(event)" class="dropbtn"> &#9776; </button>
 
         <div id="myDropdown" class="dropdown-content" style="border: none;">
-            <button class="menu-btn"><i class="bi bi-chevron-down" style="float: right;"></i></i>จัดการข้อมูลโต๊ะ</button>
+            <button class="menu-btn"> <i class="bi bi-chevron-down" style="float: right;"></i></i>จัดการข้อมูลโต๊ะ</button>
             <ul class="submenu">
                 <li><a href="print_qr.php"><i class="bi bi-qr-code"></i> พิมพ์ QR Code โต๊ะ</a></li>
             </ul>

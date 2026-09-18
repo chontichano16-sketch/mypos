@@ -161,6 +161,9 @@ if (!isset($_SESSION["user_id"])) {
             </div>
 
             <div class="btn-navreport">
+                <button type="button" id="history-report">
+                    <a href="sales_history.php"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการขาย</a>
+                </button>
                 <button type="button" onclick="window.print()">
                     <i class="fa-solid fa-print"></i> พิมพ์รายงาน
                 </button>
