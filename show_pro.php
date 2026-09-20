@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
-    
+
 </head>
 
 <body>
@@ -264,6 +264,55 @@
 
 
     <script src="script.js"></script>
+    <script>
+window.addEventListener('DOMContentLoaded', (event) => {
+    let navSearch = document.querySelector('input[placeholder="ค้นหาเมนู..."]');
+    
+    if (navSearch) {
+        navSearch.placeholder = "ค้นหารหัส หรือ ชื่อสินค้า...";
+        
+        navSearch.addEventListener('keyup', function() {
+            let input = this.value.toLowerCase();
+            let tables = document.querySelectorAll("table");
+
+            tables.forEach(table => {
+                let rows = table.querySelectorAll("tbody tr");
+                let hasVisibleRow = false;
+
+                // 1. ตรวจสอบข้อมูลในแต่ละแถว
+                rows.forEach(row => {
+                    let rowText = row.textContent.toLowerCase();
+                    if (rowText.includes(input)) {
+                        row.style.display = "";
+                        hasVisibleRow = true;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+
+                // 2. ซ่อน/แสดง ตัวตาราง
+                table.style.display = hasVisibleRow ? "" : "none";
+
+                // 3. จัดการหัวข้อหมวดหมู่
+                let wrapper = table.parentElement;
+                
+                // เช็คว่าตัวครอบต้องไม่ใช่โครงสร้างหลักของหน้าเว็บ (เพื่อป้องกันหน้าขาว)
+                if (wrapper && wrapper.tagName === 'DIV' && !wrapper.className.includes('container') && !wrapper.className.includes('col') && !wrapper.className.includes('card')) {
+                    wrapper.style.display = hasVisibleRow ? "" : "none";
+                    if (wrapper.previousElementSibling) {
+                        wrapper.previousElementSibling.style.display = hasVisibleRow ? "" : "none";
+                    }
+                } else {
+                    // กรณีตารางไม่ได้ถูกหุ้มไว้ ให้ซ่อนหัวข้อที่อยู่ติดกันด้านบน
+                    if (table.previousElementSibling) {
+                        table.previousElementSibling.style.display = hasVisibleRow ? "" : "none";
+                    }
+                }
+            });
+        });
+    }
+});
+</script>
 </body>
 
 </html>

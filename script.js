@@ -27,7 +27,7 @@ renderOrder();
 
 // วาด HTML ของรายการออเดอร์ใหม่ทุกครั้ง
 function renderOrder() {
-    
+
     sessionStorage.setItem('orderItems', JSON.stringify(orderItems));
     const container = document.querySelector('.order-items-container');
 
@@ -445,24 +445,33 @@ function viewBill(orderId) {
                     data.items.forEach(item => {
                         let sum = item.price * item.quantity;
                         grandTotal += sum;
-                        // ดึง option_label แยกต่างหาก
+                        // ดึง option_label แยกต่างหาก พร้อมจัด margin-left ให้ตรงกับชื่อเมนู
                         let optionText = item.option_label || item.optionLabel || '';
-                        let optionHtml = optionText ? `<small style="color: gray; margin-left: 10px;">* ${optionText}</small>` : '';
+                        let optionHtml = optionText ? `<small style="color: gray; margin-left: 32px; font-size: 12px;">* ${optionText}</small>` : '';
+
                         // ดึง remark
                         let remarkHtml = item.remark && item.remark !== optionText
-                            ? `<small style="color: gray; margin-left: 10px;">* ${item.remark}</small>`
+                            ? `<small style="color: gray; margin-left: 32px; font-size: 12px;">* ${item.remark}</small>`
                             : '';
 
                         html += `
-                            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #eee;">
-                                <div style="display:flex; flex-direction:column;">
-                                    <div>${item.name} x ${item.quantity}</div>
-                                    ${optionHtml}
-                                    ${remarkHtml}
-                                </div>
-                                <div>${sum} บาท</div>
+                                <div class="order-row" style="display:flex; justify-content:space-between; align-items:flex-start; padding: 8px; border-bottom: 1px solid #eee; border-radius: 4px;">
+            
+                                 <div style="display:flex; flex-direction:column; gap: 2px; flex: 1;">
+                                <div style="display:flex; align-items:center;">
+                                <!-- ใส่ Checkbox หลอกไว้เพื่อให้ Layout ตรงกับหน้าตะกร้า (ตั้ง disabled ไว้ไม่ให้กด) -->
+                                <label style="margin-right: 12px; display: flex; align-items: center; cursor: default;">
+
+                             <span class="order-name" style="font-weight: 500; color: #333;">${item.name} x${item.quantity}</span>
                             </div>
-                        `;
+
+                ${optionHtml}
+                ${remarkHtml}
+            </div>
+
+            <span class="order-price" style="white-space: nowrap; color: #333; margin-top: 2px;">${sum.toFixed(2)}</span>
+        </div>
+        `;
                     });
                     orderContainer.innerHTML = html;
                 }
