@@ -65,9 +65,9 @@
                 <div class="status" id="status"></div>
 
                 <!-- ลิงก์ลืมรหัสผ่าน -->
-                <div class="forgot-password">
+                <!-- <div class="forgot-password">
                     <a href="forgot-password.php">ลืมรหัสผ่าน?</a>
-                </div>
+                </div> -->
             </div>
         </form>
     </div>

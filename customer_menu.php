@@ -73,7 +73,7 @@ $result = mysqli_query($conn, $sql);
 
 <body>
     <div class="header-c">
-        <img src="img/3.jpg" alt="logo">
+        <img src="img/โลโก้สี_n.jpg" alt="logo">
         <p>The Story เรื่องเล่าร้านกาแฟ</p>
     </div>
     <h3 class="menu-title">รายการเมนู <i class="fa-solid fa-mug-hot"></i></h3>

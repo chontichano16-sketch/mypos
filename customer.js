@@ -18,23 +18,63 @@ const menuOptions = {
     "drink": [
         { id: "opt4", label: "เย็น", adjustment: 0 }, 
         { id: "opt5", label: "ปั่น", adjustment: 10 } 
+    ],
+    "cofee2": [
+        { id: "opt6", label: "ร้อน", adjustment: 0 },
+        { id: "opt7", label: "เย็น", adjustment: 10 }
+    ],
+    "ice": [
+        { id: "opt8", label: "วนิลา", adjustment: 0 },
+        { id: "opt9", label: "ช็อคชิพ", adjustment: 0 },
+        { id: "opt10", label: "ช็อกโกแลต", adjustment: 0 },
+        { id: "opt11", label: "สตรอเบอร์รี่ทวิสต์", adjustment: 0 },
+        { id: "opt12", label: "มะนาว", adjustment: 0 },
+        { id: "opt13", label: "โยเกิร์ต", adjustment: 0 },
+        { id: "opt14", label: "ลิ้นจี่", adjustment: 0 }
     ]
 };
 
 // ฟังก์ชันเช็คว่าเมนูนี้ต้องโชว์ Option ไหน
 function getOptionsForProduct(productName) {
     const name = productName.toLowerCase();
-    
-    // ถ้าชื่อเมนูมีคำพวกนี้ ให้แสดงตัวเลือก ร้อน/เย็น/ปั่น
-    if (name.includes('กาแฟดำ (') || name.includes('ลาเต้') || name.includes('คาปูชิโน่') || name.includes('มอคค่า') || name.includes('เอสเพรสโซ่') || name.includes('คาราเมล')) {
-        return menuOptions["coffee"];
 
-    } else if (name.includes('ชา') || name.includes('นม')) {
+    //  เมนูข้อยกเว้น 
+    const exceptionItems = [
+        // 'โกโก้ดำ เอสเพรสโซ่',
+        // 'ชาไทย เอสเพรสโซ่',
+        // 'มัทฉะ เอสเพรสโซ่'
+        'เอสเพรสโซ่ เสาวรส มะนาว',
+        'เอสเพรสโซ่ สตอเบอร์รี่ มะนาว',
+        'โกโก้ดำ เอสเพรสโซ่',
+        'ขาเย็น',
+        'ขนมปังสังขยา',
+        'ขนมปังปิ้งเนยนม (2 แผ่น)'
+    ];
+
+    if (exceptionItems.some(item => name.includes(item.toLowerCase()))) {
+        return null;
+    }
+
+    const coffeeItems = ['คาปูชิโน่', 'ม็อคค่า', 'เอสเพรสโซ่', 'คาเฟ่ ลาเต้', 'มอคค่า ลาเต้', 'มัคคิอาโต้'];
+    if (coffeeItems.some(item => name.includes(item.toLowerCase()))) {
+        return menuOptions["coffee"];
+    }
+
+    const drinkItems = [ 'นม', 'ช็อคโกแลต บานาน่า' ];
+    if (drinkItems.some(item => name.includes(item.toLowerCase()))) {
         return menuOptions["drink"];
     }
-    
-    
-    return []; // ถ้าไม่เข้าเงื่อนไขเลย ก็ไม่ต้องโชว์ Option
+
+    const iceItems = [ 'บัตเตอร์โทส', 'ครอฟเฟิล', 'สกูป' ];
+    if (iceItems.some(item => name.includes(item.toLowerCase()))) {
+        return menuOptions["ice"];
+    }
+
+    if (name.includes('กาแฟดำ (คั่วกลางเมล็ดพิเศษ)')) {
+        return menuOptions["cofee2"];
+    }
+
+    return null;
 }
 /*  สิ้นสุดส่วนจัดการ Option  */
 
@@ -129,7 +169,7 @@ function openOrderModal(p) {
         //  ดึง Option จาก ฟังก์ชัน JavaScript ด้านบน 
         const options = getOptionsForProduct(p.name);
 
-        if (options.length > 0) {
+        if (options && options.length > 0) {
             options.forEach(opt => {
                 let finalPrice = p.price + parseFloat(opt.adjustment);
                 
@@ -138,7 +178,7 @@ function openOrderModal(p) {
                 
                 // ถ้าราคาบวกเพิ่มเป็น 0 ไม่ต้องโชว์ราคาในปุ่ม
                 if(opt.adjustment > 0) {
-                    btn.textContent = `${opt.label} (+${opt.adjustment}฿)`;
+                    btn.textContent = `${opt.label} (+${opt.adjustment})`;
                 } else {
                     btn.textContent = opt.label;
                 }
