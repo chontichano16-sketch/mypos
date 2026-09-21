@@ -10,6 +10,20 @@ if ($selectedDate === false) {
     $selectedDate = new DateTimeImmutable('today');
 }
 
+// Use the dedicated selector for non-daily reports. Invalid values safely
+// retain the date-based default.
+if ($type === 'monthly') {
+    $requestedMonth = $_GET['month'] ?? '';
+    if (preg_match('/^(0[1-9]|1[0-2])$/', $requestedMonth)) {
+        $selectedDate = $selectedDate->setDate((int) $selectedDate->format('Y'), (int) $requestedMonth, 1);
+    }
+} elseif ($type === 'yearly') {
+    $requestedYear = $_GET['year'] ?? '';
+    if (preg_match('/^\d{4}$/', $requestedYear) && (int) $requestedYear >= 2000 && (int) $requestedYear <= 2100) {
+        $selectedDate = $selectedDate->setDate((int) $requestedYear, 1, 1);
+    }
+}
+
 // กำหนดขอบเขตวันที่ (อิงจากโค้ดเดิมของคุณ)
 $dayStart = $selectedDate->format('Y-m-d 00:00:00');
 $dayEnd = $selectedDate->modify('+1 day')->format('Y-m-d 00:00:00');

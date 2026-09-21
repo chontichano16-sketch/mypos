@@ -16,6 +16,18 @@ $monthEnd = $selectedDate->modify('first day of next month')->format('Y-m-d 00:0
 $yearStart = $selectedDate->setDate((int) $selectedDate->format('Y'), 1, 1)->format('Y-m-d 00:00:00');
 $yearEnd = $selectedDate->setDate((int) $selectedDate->format('Y') + 1, 1, 1)->format('Y-m-d 00:00:00');
 
+$reportYears = [(int) $selectedDate->format('Y')];
+$yearsResult = $conn->query("SELECT DISTINCT YEAR(created_at) AS report_year FROM `order` WHERE status = 'paid' AND created_at IS NOT NULL ORDER BY report_year DESC");
+if ($yearsResult) {
+    while ($yearRow = $yearsResult->fetch_assoc()) {
+        if ($yearRow['report_year'] !== null) {
+            $reportYears[] = (int) $yearRow['report_year'];
+        }
+    }
+}
+$reportYears = array_values(array_unique($reportYears));
+rsort($reportYears);
+
 function salesSummary(mysqli $conn, string $start, string $end): array
 {
     $statement = $conn->prepare("SELECT COALESCE(SUM(total_amount), 0) AS total_amount, COUNT(order_id) AS total_orders FROM `order` WHERE status = 'paid' AND created_at >= ? AND created_at < ?");
@@ -239,9 +251,45 @@ if (!isset($_SESSION["user_id"])) {
         </section>
 
         <section class="detail-report">
-            <h2 id="table-title">รายละเอียดการขายประจำวัน</h2>
+            <!-- จัด Layout ให้อยู่บรรทัดเดียวกัน -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                
+                <h2 id="table-title" style="margin: 0;">รายละเอียดการขายประจำวัน</h2>
+                
+                <!-- ส่วน Dropdown เดือนและปี (ซ่อนเป็นค่าเริ่มต้น) -->
+                <div id="date-filter-wrap" style="display: none; gap: 10px; align-items: center;">
+                    
+                    <!-- Dropdown เลือกเดือน -->
+                    <select id="filterMonth" aria-label="เลือกเดือน" onchange="loadReport('monthly')" style="display: none; padding: 6px 12px; border-radius: 10px; border: 1px solid #ccc; outline: none; cursor: pointer;">
+                        <option value="">-- เลือกเดือน --</option>
+                        <option value="01">มกราคม</option>
+                        <option value="02">กุมภาพันธ์</option>
+                        <option value="03">มีนาคม</option>
+                        <option value="04">เมษายน</option>
+                        <option value="05">พฤษภาคม</option>
+                        <option value="06">มิถุนายน</option>
+                        <option value="07">กรกฎาคม</option>
+                        <option value="08">สิงหาคม</option>
+                        <option value="09">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
+
+                    <!-- Dropdown เลือกปี -->
+                    <select id="filterYear" aria-label="เลือกปี" onchange="loadReport('yearly')" style="display: none; padding: 6px 12px; border-radius: 10px; border: 1px solid #ccc; outline: none; cursor: pointer;">
+                        <option value="">-- เลือกปี --</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+            </div>
+            
             <div class="report-table-wrap">
                 <table id="report-table">
+                   <!-- ส่วน thead และ tbody เหมือนเดิม -->
                     <thead>
                         <tr>
                             <th>วัน/เวลา</th>
@@ -276,6 +324,17 @@ if (!isset($_SESSION["user_id"])) {
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script>
+        // Keep the selector values aligned with the date used when this page opens.
+        const reportDateParts = document.getElementById('date-report').value.split('-');
+        const monthSelector = document.getElementById('filterMonth');
+        const yearSelector = document.getElementById('filterYear');
+        monthSelector.value = reportDateParts[1];
+        yearSelector.innerHTML = '';
+        <?= json_encode($reportYears, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>.forEach(function(year) {
+            const option = new Option(year, year, false, String(year) === reportDateParts[0]);
+            yearSelector.add(option);
+        });
+
         function toggleUserMenu(e) {
             e.stopPropagation();
             document.getElementById('userDropdown').classList.toggle('show');
@@ -292,6 +351,7 @@ if (!isset($_SESSION["user_id"])) {
                 document.getElementById('userDropdown').classList.remove('show');
             }
         });
+        
     </script>
 
 </body>

@@ -12,11 +12,11 @@ body {
     width: 100%;
     height: 100vh;
     height: 100dvh;
-    
+
     font-family: Arial, sans-serif;
     background-image: url(img/ภาพร้าน3.jpg);
     background-size: cover;
-    
+
     margin: 0;
     display: flex;
     justify-content: center;
@@ -274,6 +274,7 @@ h2 {
         padding: 30px 20px;
     }
 }
+
 /* --- บังคับขยายฟอร์มใน Modal ให้เต็มสวยงาม --- */
 .modal-content .form-group {
     width: 100% !important;
@@ -299,6 +300,7 @@ h2 {
     padding: 6px !important;
     background: #fff !important;
 }
+
 /* ========================================= */
 /* ดีไซน์ Modal แก้ไขสินค้า (ฉบับสมบูรณ์) */
 /* ========================================= */
@@ -416,7 +418,7 @@ h2 {
     border-radius: 12px !important;
     border: 1px solid #ddd !important;
     margin-bottom: 8px !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 /* ปุ่มเลือกไฟล์ */
@@ -477,14 +479,27 @@ h2 {
 
 /* Animation เล็กน้อยตอนเปิด Modal */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes scaleUp {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
+
 /* ========================================= */
 /* ปรับแต่งตารางบิล: ถังขยะสีแดง และจัดระเบียบตัวเลข/เวลา */
 /* ========================================= */
@@ -500,7 +515,8 @@ h2 {
 #billListBody td:nth-child(2) {
     text-align: center;
     font-weight: 500;
-    font-variant-numeric: tabular-nums; /* จัดฟอนต์ตัวเลขให้เรียงตรงกันสวยงาม */
+    font-variant-numeric: tabular-nums;
+    /* จัดฟอนต์ตัวเลขให้เรียงตรงกันสวยงาม */
 }
 
 /* จัดคอลัมน์เวลาที่เปิดบิลให้อยู่กึ่งกลางและอ่านง่าย */
@@ -516,7 +532,7 @@ h2 {
 }
 
 /* เปลี่ยนไอคอนถังขยะให้เป็นสีแดงชัดเจน */
-#billListBody .bi-trash, 
+#billListBody .bi-trash,
 #billListBody td a i.bi-trash,
 #billListBody button i.bi-trash {
     color: #dc3545 !important;
@@ -537,6 +553,7 @@ h2 {
     padding: 12px 10px;
     border-bottom: 2px solid #e5e7eb;
 }
+
 /* --- บังคับไอคอนถังขยะคอลัมน์แรกให้เป็นสีแดง --- */
 #billListBody tr td:first-child i.bi-trash,
 #billListBody tr td:first-child .bi-trash {
@@ -547,3 +564,58 @@ h2 {
     color: #bd2130 !important;
     transform: scale(1.15);
 }
+
+/* ================= SweetAlert Custom Theme  ================= */
+
+.swal2-popup {
+    background-color: #FFFFFF !important;
+    border-radius: 15px !important;
+    width: 400px !important;
+    height: 200px !important;
+    padding: 15px !important;
+    box-sizing: border-box !important;
+    
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.swal2-icon.swal2-error {
+    border-color: #D9534F !important;
+    color: #D9534F !important;
+    margin: 0 0 8px 0 !important;
+    transform: scale(0.75) !important; /* ปรับย่อขนาดไอคอน */
+}
+
+.swal2-title {
+    color: #4A3B32 !important;       
+    font-size: 18px !important;     
+    font-weight: 500 !important;
+    margin: 0 0 10px 0 !important;
+    padding: 0 !important;
+}
+
+.swal2-html-container {
+    display: none !important;
+}
+
+.swal2-actions {
+    margin: 0 !important;
+}
+
+.swal2-confirm {
+    background-color: #6F4E37 !important; 
+    color: #FFFFFF !important;
+    font-size: 13px !important;     
+    padding: 6px 20px !important;  
+    border-radius: 6px !important;   
+    box-shadow: none !important;     
+}
+
+/* ป้องกันหน้าจอด้านหลังขยับ */
+body.swal2-shown {
+    padding-right: 0 !important;
+}
+

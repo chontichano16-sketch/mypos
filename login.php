@@ -18,7 +18,7 @@
     <div class="card">
         <!-- ฝั่งซ้าย: Welcome Banner -->
         <div class="left">
-           <img src="img/Logogogo.png" alt="The Story Logo" class="welcome-logo" style="width: 140px; max-width: 140px; height: auto; display: block; margin: 0 auto 15px auto; filter: brightness(0) invert(1);">
+            <img src="img/Logogogo.png" alt="The Story Logo" class="welcome-logo" style="width: 140px; max-width: 140px; height: auto; display: block; margin: 0 auto 15px auto; filter: brightness(0) invert(1);">
 
             <div class="welcome-block">
                 <h1>Welcome</h1>
@@ -73,6 +73,25 @@
     </div>
 
     <script src="script.js"></script>
+    <!-- ไลบรารี SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <?php if (isset($_GET['error']) && $_GET['error'] == 'invalid_pin'): ?>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'เข้าสู่ระบบไม่สำเร็จ',
+                text: 'รหัส PIN ไม่ถูกต้อง',
+                confirmButtonText: 'ลองใหม่อีกครั้ง',
+
+                // คำสั่งกันหน้าจอขยับ
+                heightAuto: false,
+                scrollbarPadding: false
+            }).then(() => {
+                window.history.replaceState(null, null, window.location.pathname);
+            });
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>

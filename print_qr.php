@@ -1,5 +1,5 @@
 <?php
-$server_ip = "10.5.50.195";
+$server_ip = "172.21.68.126";
 $total_tables = 9;
 $shop_name = "The Story เรื่องเล่าร้านกาแฟ";
 ?>

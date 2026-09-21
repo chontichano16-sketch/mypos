@@ -995,6 +995,18 @@ let currentType = 'daily';
 function loadReport(type, btnElement) {
     currentType = type;
     const selectedDate = document.getElementById('date-report').value;
+    const selectedMonth = document.getElementById('filterMonth').value;
+    const selectedYear = document.getElementById('filterYear').value;
+    const dateInput = document.getElementById('date-report');
+    const dateFilterWrap = document.getElementById('date-filter-wrap');
+    const monthFilter = document.getElementById('filterMonth');
+    const yearFilter = document.getElementById('filterYear');
+
+    // Show only the control that applies to the selected report type.
+    dateInput.parentElement.style.display = type === 'daily' ? 'flex' : 'none';
+    dateFilterWrap.style.display = type === 'daily' ? 'none' : 'flex';
+    monthFilter.style.display = type === 'monthly' ? 'block' : 'none';
+    yearFilter.style.display = type === 'yearly' ? 'block' : 'none';
 
     // สลับคลาส active ไปที่ปุ่มที่ถูกกด
     if (btnElement && btnElement.tagName === 'BUTTON') {
@@ -1005,7 +1017,11 @@ function loadReport(type, btnElement) {
     }
 
     // ดึงข้อมูล AJAX ตามปกติ
-    fetch(`get_report.php?type=${type}&date=${selectedDate}`)
+    const params = new URLSearchParams({ type, date: selectedDate });
+    if (type === 'monthly') params.set('month', selectedMonth);
+    if (type === 'yearly') params.set('year', selectedYear);
+
+    fetch(`get_report.php?${params.toString()}`)
         .then(response => response.json())
         .then(data => {
             document.getElementById('val-daily').innerText = '฿' + data.daily_total;
