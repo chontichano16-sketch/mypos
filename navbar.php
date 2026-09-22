@@ -89,7 +89,7 @@ if (!isset($_SESSION["user_id"])) {
 <!-- ปุ่มแฮมเบอร์เกอร์ -->
 <nav class="navbar">
     <div class="dropdown">
-        <button onclick="toggleMenu(event)" class="dropbtn"> &#9776; </button>
+        <button onclick="toggleMenu(event)" class="dropbtn"><i class="fa-solid fa-bars"></i></button>
 
         <div id="myDropdown" class="dropdown-content" style="border: none;">
             <button class="menu-btn"> <i class="bi bi-chevron-down" style="float: right;"></i></i>จัดการข้อมูลโต๊ะ</button>
@@ -101,8 +101,10 @@ if (!isset($_SESSION["user_id"])) {
             <ul class="submenu">
                 <li><button onclick="openModal('product')">เพิ่มสินค้า</button></li>
                 <li><button onclick="openModal('type')">เพิ่มประเภทสินค้า</button></li>
+                <li><a href="show_pro.php" style="border-bottom: 1px solid #63554c1f;">รายการสินค้าทั้งหมด</a></li>
+                <li><a href="show_type.php" style="border-bottom: 1px solid #63554c1f;">ประเภทสินค้าทั้งหมด</a></li>
             </ul>
-            <a href="show_pro.php" style="border-bottom: 1px solid #63554c1f;">รายการสินค้าทั้งหมด</a>
+
             <a href="sale_report.php">รายงานยอดขาย</a>
         </div>
     </div>

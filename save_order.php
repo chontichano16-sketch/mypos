@@ -1,5 +1,5 @@
 <?php
-require 'db.php'; 
+require 'db.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $data = json_decode(file_get_contents('php://input'), true);
@@ -38,18 +38,18 @@ try {
     foreach ($items as $it) {
         $pid = (int)($it['id'] ?? 0);
         $qty = max(1, (int)($it['qty'] ?? $it['quantity'] ?? 1)); // ดักรับ qty หรือ quantity
-        
+
         if (!isset($priceMap[$pid])) throw new Exception("เมนู ID: $pid ไม่อยู่ในระบบ");
-        
+
         // ถ้าระบบหน้าบ้านมีการส่งราคาที่บวก option มาแล้ว ให้ใช้ราคานั้น หากไม่มีให้ใช้ราคาพื้นฐาน
         $unitPrice = isset($it['price']) ? (float)$it['price'] : $priceMap[$pid];
-        
+
         $total += $unitPrice * $qty;
-        
+
         $clean[] = [
-            'pid' => $pid, 
-            'qty' => $qty, 
-            'price' => $unitPrice, 
+            'pid' => $pid,
+            'qty' => $qty,
+            'price' => $unitPrice,
             'remark' => mb_substr(trim($it['remark'] ?? ''), 0, 255),
             'option_label' => mb_substr(trim($it['optionLabel'] ?? ''), 0, 255) // รับค่า optionLabel เข้ามา
         ];
@@ -70,17 +70,24 @@ try {
         $orderId = mysqli_insert_id($conn);
     }
 
-    // 5. บันทึกรายการอาหารลง order_detail (เพิ่มคอลัมน์ option_label)
+    // 5. บันทึกรายการอาหารลง order_detail และ อัปเดตยอดขายสินค้า
     $st = mysqli_prepare($conn, "INSERT INTO `order_detail` (`order_id`, `product_id`, `quantity`, `price`, `remark`, `option_label`) VALUES (?, ?, ?, ?, ?, ?)");
+
+    // เพิ่ม: เตรียมคำสั่งอัปเดตยอดขายในตาราง products
+    $st_sales = mysqli_prepare($conn, "UPDATE `products` SET `sales_count` = `sales_count` + ? WHERE `p_id` = ?");
+
     foreach ($clean as $c) {
-        // สังเกตตรง 'iiidss' -> i=integer, d=double, s=string (มี s เพิ่มมาอีก 1 ตัวสำหรับ option_label)
+        // 5.1 บันทึกรายการลง order_detail
         mysqli_stmt_bind_param($st, 'iiidss', $orderId, $c['pid'], $c['qty'], $c['price'], $c['remark'], $c['option_label']);
         mysqli_stmt_execute($st);
+
+        // 5.2 เพิ่มบรรทัดนี้: บวกเพิ่ม sales_count ตามจำนวน (qty) ที่สั่งซื้อ
+        mysqli_stmt_bind_param($st_sales, 'ii', $c['qty'], $c['pid']);
+        mysqli_stmt_execute($st_sales);
     }
 
     mysqli_commit($conn);
     echo json_encode(['status' => 'success', 'success' => true, 'order_id' => $orderId]);
-
 } catch (Exception $e) {
     mysqli_rollback($conn);
     echo json_encode(['status' => 'error', 'success' => false, 'message' => $e->getMessage()]);

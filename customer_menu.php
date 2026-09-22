@@ -76,7 +76,14 @@ $result = mysqli_query($conn, $sql);
         <img src="img/โลโก้สี_n.jpg" alt="logo">
         <p>The Story เรื่องเล่าร้านกาแฟ</p>
     </div>
-    <h3 class="menu-title">รายการเมนู <i class="fa-solid fa-mug-hot"></i></h3>
+    <h3 class="menu-title">
+        <span>รายการเมนู <i class="fa-solid fa-mug-hot"></i></span>
+        <!-- แสดงเลขโต๊ะ -->
+        <div class="table-info-badge">
+            <i class="fa-solid fa-chair"></i> โต๊ะ : <span id="displayTableNo"><?php echo isset($table_no) ? $table_no : '-'; ?></span>
+        </div>
+    </h3>
+
 
     <div class="category-menu-wrapper">
         <div class="category-menu">
@@ -213,8 +220,7 @@ $result = mysqli_query($conn, $sql);
         </div>
     </div>
 
-
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="customer.js"></script>
 
 </body>

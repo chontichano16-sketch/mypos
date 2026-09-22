@@ -12,7 +12,7 @@ if (!empty($search)) {
     $where = "WHERE order_id = '$searchEscaped' OR table_id = '$searchEscaped'";
 }
 
-$sql = "SELECT * FROM `order` $where ORDER BY order_id DESC LIMIT 50";
+$sql = "SELECT * FROM `order` $where ORDER BY order_id DESC LIMIT 500";
 $result = mysqli_query($conn, $sql);
 ?>
 <?php

@@ -12,12 +12,12 @@ const menuOptions = {
     // หมวดเครื่องดื่ม
     "coffee": [
         { id: "opt1", label: "ร้อน", adjustment: 0 },
-        { id: "opt2", label: "เย็น", adjustment: 5 }, 
-        { id: "opt3", label: "ปั่น", adjustment: 15 }  
+        { id: "opt2", label: "เย็น", adjustment: 5 },
+        { id: "opt3", label: "ปั่น", adjustment: 15 }
     ],
     "drink": [
-        { id: "opt4", label: "เย็น", adjustment: 0 }, 
-        { id: "opt5", label: "ปั่น", adjustment: 10 } 
+        { id: "opt4", label: "เย็น", adjustment: 0 },
+        { id: "opt5", label: "ปั่น", adjustment: 10 }
     ],
     "cofee2": [
         { id: "opt6", label: "ร้อน", adjustment: 0 },
@@ -60,12 +60,12 @@ function getOptionsForProduct(productName) {
         return menuOptions["coffee"];
     }
 
-    const drinkItems = [ 'นม', 'ช็อคโกแลต บานาน่า' ];
+    const drinkItems = ['นม', 'ช็อคโกแลต บานาน่า'];
     if (drinkItems.some(item => name.includes(item.toLowerCase()))) {
         return menuOptions["drink"];
     }
 
-    const iceItems = [ 'บัตเตอร์โทส', 'ครอฟเฟิล', 'สกูป' ];
+    const iceItems = ['บัตเตอร์โทส', 'ครอฟเฟิล', 'สกูป'];
     if (iceItems.some(item => name.includes(item.toLowerCase()))) {
         return menuOptions["ice"];
     }
@@ -154,17 +154,17 @@ function openOrderModal(p) {
     $('omImg').src = p.img;
     $('omQty').value = 1;
     $('omNote').value = '';
-    
+
     // แสดงราคาเริ่มต้น
     if ($('omPrice')) {
         $('omPrice').textContent = p.price + ' ฿';
     }
 
-    selectedOption = null; 
-    
+    selectedOption = null;
+
     const optionsDiv = $('omOptions');
     if (optionsDiv) {
-        optionsDiv.innerHTML = ''; 
+        optionsDiv.innerHTML = '';
 
         //  ดึง Option จาก ฟังก์ชัน JavaScript ด้านบน 
         const options = getOptionsForProduct(p.name);
@@ -172,24 +172,24 @@ function openOrderModal(p) {
         if (options && options.length > 0) {
             options.forEach(opt => {
                 let finalPrice = p.price + parseFloat(opt.adjustment);
-                
+
                 let btn = document.createElement('button');
-                btn.className = 'cust-opt-btn'; 
-                
+                btn.className = 'cust-opt-btn';
+
                 // ถ้าราคาบวกเพิ่มเป็น 0 ไม่ต้องโชว์ราคาในปุ่ม
-                if(opt.adjustment > 0) {
+                if (opt.adjustment > 0) {
                     btn.textContent = `${opt.label} (+${opt.adjustment})`;
                 } else {
                     btn.textContent = opt.label;
                 }
-                
+
                 btn.onclick = () => {
                     // เปลี่ยนสีปุ่มที่เลือก
                     document.querySelectorAll('#omOptions .cust-opt-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    
+
                     selectedOption = opt; // จำว่าลูกค้าเลือกอะไร
-                    
+
                     // อัปเดตราคา
                     if ($('omPrice')) {
                         $('omPrice').textContent = finalPrice + ' ฿';
@@ -223,18 +223,36 @@ function closeCartModal() {
     const el = $(id);
     if (!el) return;
     el.addEventListener('click', e => {
-        if (e.target === el) { 
+        if (e.target === el) {
             el.classList.remove('show');
             unlockScroll();
         }
     });
 });
 
-/* ---------- ส่งออเดอร์ ---------- */
+// ฟังก์ชันเรียกแจ้งเตือนสไตล์ธีมร้าน
+function showAlert(title, text = '', icon = 'info') {
+    return Swal.fire({
+        title: title,
+        text: text,
+        icon: icon, // 'success', 'error', 'warning', 'info'
+        confirmButtonText: 'ตกลง',
+        customClass: {
+            popup: 'theme-story-popup',
+            title: 'theme-story-title',
+            confirmButton: 'theme-story-confirm-btn'
+        },
+        buttonsStyling: false
+    });
+}
+
+/* --------- ส่งออเดอร์ --------- */
 async function submitOrder() {
-    if (!cart.length) return alert('ยังไม่มีรายการอาหาร');
+    if (!cart.length) return showAlert('แจ้งเตือน', 'ยังไม่มีรายการอาหาร', 'warning');
+
     const btn = document.querySelector('#cartModal .btn-send-order');
-    btn.disabled = true; btn.textContent = 'กำลังส่ง...';
+    btn.disabled = true;
+    btn.textContent = 'กำลังส่ง...';
 
     try {
         const res = await fetch('api/submit_order.php', {
@@ -250,23 +268,28 @@ async function submitOrder() {
         try {
             data = JSON.parse(raw);
         } catch (err) {
-            alert('เซิร์ฟเวอร์ตอบกลับผิดรูปแบบ:\n' + (raw || '(ว่างเปล่า)'));
+            showAlert('ข้อผิดพลาด', 'เซิร์ฟเวอร์ตอบกลับผิดรูปแบบ:\n' + (raw || '(ว่างเปล่า)'), 'error');
             return;
         }
 
         if (data.status === 'success') {
-            cart = []; saveCart(); renderCart(); closeCartModal();
-            alert(data.is_new
-                ? `ส่งออเดอร์เรียบร้อย! หมายเลขบิล #${data.order_id}`
-                : `เพิ่มรายการลงบิล #${data.order_id} เรียบร้อย!`);
+            cart = [];
+            saveCart();
+            renderCart();
+            closeCartModal();
 
+            const msg = data.is_new
+                ? `ส่งออเดอร์เรียบร้อย! หมายเลขบิล #${data.order_id}`
+                : `เพิ่มรายการลงบิล #${data.order_id} เรียบร้อย!`;
+
+            showAlert('สำเร็จ!', msg, 'success');
         } else {
-            alert('เกิดข้อผิดพลาด: ' + data.message);
+            showAlert('เกิดข้อผิดพลาด', data.message, 'error');
         }
 
     } catch (e) {
         console.error(e);
-        alert('เชื่อมต่อไม่ได้ กรุณาลองใหม่');
+        showAlert('เชื่อมต่อไม่ได้', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง', 'error');
     } finally {
         btn.disabled = false;
         btn.textContent = 'ยืนยันสั่งอาหาร';
@@ -308,16 +331,16 @@ function confirmOrderModal() {
     if (!current) return;
     const qty = Math.max(1, +$('omQty').value || 1);
     let remark = $('omNote').value.trim();
-    
-    let productToCart = { ...current }; 
-    
+
+    let productToCart = { ...current };
+
     if (selectedOption) {
         // อัปเดตราคารวม
         productToCart.price = current.price + parseFloat(selectedOption.adjustment);
-        
+
         // ส่งค่าชื่อ Option ไปตรงๆ ด้วย Key ชื่อ option_label
         productToCart.option_label = selectedOption.label;
-        
+
         // เก็บตัวเลือกแยกใน option_label; remark เก็บเฉพาะข้อความที่ลูกค้าพิมพ์
         // เพื่อไม่ให้หน้ารับออเดอร์แสดง option ซ้ำสองบรรทัด
     }
@@ -378,3 +401,10 @@ window.onclick = function (event) {
         }
     }
 }
+
+// อัปเดตเลขโต๊ะบนหน้าจอตามตัวแปร TABLE_ID
+document.addEventListener("DOMContentLoaded", function() {
+    if (typeof TABLE_ID !== 'undefined' && TABLE_ID) {
+        document.getElementById('displayTableNo').textContent = TABLE_ID;
+    }
+});

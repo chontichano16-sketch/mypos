@@ -35,6 +35,9 @@ body.modal-open {
     font-size: 18px;
     color: #333;
     padding: 0 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .product-grid {
@@ -633,8 +636,9 @@ body.modal-open {
     position: sticky;
     top: 0;
     width: 100%;
-    z-index: 200 !important; /* ดันให้อยู่เหนือรายการอาหาร */
-    background-color: #f9f9f9; 
+    z-index: 200 !important;
+    /* ดันให้อยู่เหนือรายการอาหาร */
+    background-color: #f9f9f9;
 }
 
 .type-dropdown-menu {
@@ -813,3 +817,51 @@ body.modal-open {
     }
 }
 
+/* ปรับแต่ง SweetAlert2 ให้เข้ากับธีม The Story Café */
+.theme-story-popup {
+    border-radius: 20px !important;
+    font-family: 'Noto Sans Thai', sans-serif !important;
+    padding: 24px !important;
+}
+
+.theme-story-title {
+    color: #3f342d !important;
+    font-weight: 600 !important;
+    font-size: 1.25rem !important;
+}
+
+.theme-story-confirm-btn {
+    background-color: #008556 !important;
+    /* สีเขียวปุ่มสั่งอาหาร */
+    color: #ffffff !important;
+    border-radius: 25px !important;
+    padding: 10px 30px !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(0, 133, 86, 0.2) !important;
+    cursor: pointer;
+}
+
+.theme-story-confirm-btn:hover {
+    background-color: #006c46 !important;
+}
+
+.table-info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: oklch(96% 0.002 17.2);
+    color: oklch(36.7% 0.016 35.7);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 8px;
+    border: 1px solid oklch(71.4% 0.014 41.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.table-info-badge i {
+    font-size: 0.85rem;
+}

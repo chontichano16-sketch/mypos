@@ -300,27 +300,71 @@ if (keypad) {
 
 // =============================== save menu/type ไม่เปลี่ยนหน้า ===============================
 function saveProductAjax(event) {
-    event.preventDefault();
+    event.preventDefault(); 
 
-    let form = document.getElementById('formAddProduct');
-    let formData = new FormData(form);
+    let form = document.getElementById('formAddProduct'); 
+    let formData = new FormData(form); 
 
-    fetch('save_pro.php', {
+    fetch('save_pro.php', { 
         method: 'POST',
         body: formData
     })
-        .then(response => response.text())
+        .then(response => response.text()) 
         .then(data => {
-            if (data.trim() === 'success') {
-                alert('บันทึกข้อมูลเรียบร้อยแล้ว ');
-                window.location.reload();
+            let result = data.trim(); 
+
+            if (result === 'success' || result.includes('บันทึกข้อมูลเรียบร้อย')) { 
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: 'บันทึกข้อมูลเรียบร้อยแล้ว',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    // ดัน Alert ให้อยู่หน้าสุด
+                    didOpen: () => {
+                        document.querySelector('.swal2-container').style.zIndex = '10000';
+                    }
+                }).then(() => {
+                    window.location.reload(); 
+                });
+
+            } else if (result.includes('Duplicate entry')) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ซ้ำ!',
+                    text: 'มีชื่อสินค้านี้ในระบบแล้ว กรุณาใช้ชื่ออื่น',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'ตกลง',
+                    didOpen: () => {
+                        document.querySelector('.swal2-container').style.zIndex = '10000';
+                    }
+                });
+
             } else {
-                alert('เกิดข้อผิดพลาด: ' + data);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: data, 
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'ปิด',
+                    didOpen: () => {
+                        document.querySelector('.swal2-container').style.zIndex = '10000';
+                    }
+                });
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+            console.error('Error:', error); 
+            Swal.fire({
+                icon: 'error',
+                title: 'เชื่อมต่อล้มเหลว',
+                text: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'ปิด',
+                didOpen: () => {
+                    document.querySelector('.swal2-container').style.zIndex = '10000';
+                }
+            });
         });
 }
 
@@ -336,16 +380,63 @@ function saveTypeAjax(event) {
     })
         .then(response => response.text())
         .then(data => {
-            if (data.trim() === 'success') {
-                alert('บันทึกข้อมูลเรียบร้อยแล้ว ');
-                window.location.reload();
+            let result = data.trim();
+
+            if (result === 'success' || result.includes('บันทึกข้อมูลเรียบร้อย')) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: 'บันทึกข้อมูลเรียบร้อยแล้ว',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    // ดัน Alert ให้อยู่หน้าสุด
+                    didOpen: () => {
+                        document.querySelector('.swal2-container').style.zIndex = '10000';
+                    }
+                }).then(() => {
+                    window.location.reload();
+                });
+
+            } else if (result.includes('Duplicate entry')) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ซ้ำ!',
+                    text: 'ใส่ประเภทซ้ำไม่ได้ กรุณาใช้ชื่ออื่น',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'ตกลง',
+                    // ดัน Alert ให้อยู่หน้าสุด
+                    didOpen: () => {
+                        document.querySelector('.swal2-container').style.zIndex = '10000';
+                    }
+                });
+
             } else {
-                alert('เกิดข้อผิดพลาด: ' + data);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด!',
+                    text: data,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'ปิด',
+                    // ดัน Alert ให้อยู่หน้าสุด
+                    didOpen: () => {
+                        document.querySelector('.swal2-container').style.zIndex = '10000';
+                    }
+                });
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+            Swal.fire({
+                icon: 'error',
+                title: 'เชื่อมต่อล้มเหลว',
+                text: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'ปิด',
+                // ดัน Alert ให้อยู่หน้าสุด
+                didOpen: () => {
+                    document.querySelector('.swal2-container').style.zIndex = '10000';
+                }
+            });
         });
 }
 

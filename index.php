@@ -41,7 +41,8 @@
 
                     $sql = "SELECT * FROM products WHERE type_id = '$cate' ORDER BY p_name ASC";
                 } else {
-                    $sql = "SELECT * FROM products ORDER BY sort_order ASC";
+                    #$sql = "SELECT * FROM products ORDER BY sort_order ASC";
+                    $sql = "SELECT * FROM products ORDER BY sales_count DESC, p_id ASC";
                 }
                 $result = mysqli_query($conn, $sql);
                 while ($row = mysqli_fetch_assoc($result)) {
@@ -316,6 +317,7 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>
