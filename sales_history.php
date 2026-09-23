@@ -1,18 +1,15 @@
 <?php
 require 'db.php';
 
-// ดึงรายการบิลล่าสุด 50 รายการ (สามารถค้นหาตามเลขบิลได้)
 $search = $_GET['search'] ?? '';
-$where = "";
+$where = "WHERE status = 'paid'";
 
 if (!empty($search)) {
-    $searchInt = (int)$search;
     $searchEscaped = mysqli_real_escape_string($conn, $search);
-    // $where = "WHERE order_id = $searchInt OR table_id = '$search'";
-    $where = "WHERE order_id = '$searchEscaped' OR table_id = '$searchEscaped'";
+    $where .= " AND (order_id = '$searchEscaped' OR table_id = '$searchEscaped')";
 }
 
-$sql = "SELECT * FROM `order` $where ORDER BY order_id DESC LIMIT 500";
+$sql = "SELECT * FROM `order` $where ORDER BY order_id DESC LIMIT 300";
 $result = mysqli_query($conn, $sql);
 ?>
 <?php
@@ -199,7 +196,7 @@ if (!isset($_SESSION["user_id"])) {
 <body>
     <nav class="navbar">
         <div class="dropdown">
-            <button type="button" onclick="toggleMenu(event)" class="dropbtn" aria-label="เปิดเมนู">&#9776;</button>
+            <button type="button" onclick="toggleMenu(event)" class="dropbtn" aria-label="เปิดเมนู"><i class="fa-solid fa-bars"></i></button>
             <div id="myDropdown" class="dropdown-content">
                 <button type="button" class="menu-btn"><i class="bi bi-chevron-down" style="float: right;"></i>จัดการข้อมูลโต๊ะ</button>
                 <ul class="submenu">
@@ -209,8 +206,9 @@ if (!isset($_SESSION["user_id"])) {
                 <ul class="submenu">
                     <li><button type="button" onclick="openModal('product')">เพิ่มสินค้า</button></li>
                     <li><button type="button" onclick="openModal('type')">เพิ่มประเภทสินค้า</button></li>
+                    <li><a href="show_pro.php" style="border-bottom: 1px solid #63554c1f;">รายการสินค้าทั้งหมด</a></li>
+                    <li><a href="show_type.php" style="border-bottom: 1px solid #63554c1f;">ประเภทสินค้าทั้งหมด</a></li>
                 </ul>
-                <a href="show_pro.php">รายการสินค้าทั้งหมด</a>
                 <a href="sale_report.php">รายงานยอดขาย</a>
             </div>
         </div>

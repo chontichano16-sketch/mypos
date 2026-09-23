@@ -62,13 +62,13 @@ if (!isset($_SESSION["user_id"])) {
     <title>รายงานยอดขาย</title>
     <link rel="stylesheet" href="style2.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" crossorigin="anonymous" 
-    referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" crossorigin="anonymous"
+        referrerpolicy="no-referrer">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
-    
+
     <style>
         .user-menu {
             position: relative;
@@ -148,7 +148,7 @@ if (!isset($_SESSION["user_id"])) {
 <body class="report-page">
     <nav class="navbar">
         <div class="dropdown">
-            <button type="button" onclick="toggleMenu(event)" class="dropbtn" aria-label="เปิดเมนู">&#9776;</button>
+            <button type="button" onclick="toggleMenu(event)" class="dropbtn" aria-label="เปิดเมนู"><i class="fa-solid fa-bars"></i></button>
             <div id="myDropdown" class="dropdown-content">
                 <button type="button" class="menu-btn"><i class="bi bi-chevron-down" style="float: right;"></i>จัดการข้อมูลโต๊ะ</button>
                 <ul class="submenu">
@@ -158,8 +158,9 @@ if (!isset($_SESSION["user_id"])) {
                 <ul class="submenu">
                     <li><button type="button" onclick="openModal('product')">เพิ่มสินค้า</button></li>
                     <li><button type="button" onclick="openModal('type')">เพิ่มประเภทสินค้า</button></li>
+                    <li><a href="show_pro.php" style="border-bottom: 1px solid #63554c1f;">รายการสินค้าทั้งหมด</a></li>
+                    <li><a href="show_type.php" style="border-bottom: 1px solid #63554c1f;">ประเภทสินค้าทั้งหมด</a></li>
                 </ul>
-                <a href="show_pro.php">รายการสินค้าทั้งหมด</a>
                 <a href="sale_report.php">รายงานยอดขาย</a>
             </div>
         </div>
@@ -253,12 +254,12 @@ if (!isset($_SESSION["user_id"])) {
         <section class="detail-report">
             <!-- จัด Layout ให้อยู่บรรทัดเดียวกัน -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                
+
                 <h2 id="table-title" style="margin: 0;">รายละเอียดการขายประจำวัน</h2>
-                
+
                 <!-- ส่วน Dropdown เดือนและปี (ซ่อนเป็นค่าเริ่มต้น) -->
                 <div id="date-filter-wrap" style="display: none; gap: 10px; align-items: center;">
-                    
+
                     <!-- Dropdown เลือกเดือน -->
                     <select id="filterMonth" aria-label="เลือกเดือน" onchange="loadReport('monthly')" style="display: none; padding: 6px 12px; border-radius: 10px; border: 1px solid #ccc; outline: none; cursor: pointer;">
                         <option value="">-- เลือกเดือน --</option>
@@ -286,10 +287,10 @@ if (!isset($_SESSION["user_id"])) {
                     </select>
                 </div>
             </div>
-            
+
             <div class="report-table-wrap">
                 <table id="report-table">
-                   <!-- ส่วน thead และ tbody เหมือนเดิม -->
+                    <!-- ส่วน thead และ tbody เหมือนเดิม -->
                     <thead>
                         <tr>
                             <th>วัน/เวลา</th>
@@ -351,7 +352,6 @@ if (!isset($_SESSION["user_id"])) {
                 document.getElementById('userDropdown').classList.remove('show');
             }
         });
-        
     </script>
 
 </body>

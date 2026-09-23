@@ -28,8 +28,16 @@ renderOrder();
 // วาด HTML ของรายการออเดอร์ใหม่ทุกครั้ง
 function renderOrder() {
 
+    let savedTable = sessionStorage.getItem('selectedTable');
+    if (savedTable && document.getElementById('tables')) {
+        document.getElementById('tables').value = savedTable;
+    }
+
     sessionStorage.setItem('orderItems', JSON.stringify(orderItems));
     const container = document.querySelector('.order-items-container');
+
+    const saveBtn = document.getElementById('save-order');
+    if (saveBtn) saveBtn.disabled = false;
 
     if (!container) return;
 
@@ -41,7 +49,7 @@ function renderOrder() {
 
     // อัปเดต HTML: กดที่ตัวรายการ/ข้อความตรงไหนก็ได้เพื่อเปิดหน้าแก้ไข
     container.innerHTML = orderItems.map((item, index) => ` 
-        <div class="order-row" style="display:flex; justify-content:space-between; align-items:flex-start; padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; border-radius: 4px; transition: background 0.2s;" 
+        <div class="order-row" style="display:flex; justify-content:space-between; align-items:center; padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; border-radius: 4px; transition: background 0.2s;" 
              onclick="editOrderItem(${index})" 
              onmouseover="this.style.background='#f5f5f5'" 
              onmouseout="this.style.background='transparent'">
@@ -52,12 +60,12 @@ function renderOrder() {
                 <!-- เพิ่ม Checkbox สำหรับพิมพ์ใบครัวที่ปรับแต่งแล้ว -->
                 <label style="margin-right: 12px; cursor: pointer; display: flex; align-items: center;" onclick="event.stopPropagation();">
                     <input type="checkbox" class="print-kitchen-cb" value="${item.id}" checked 
-                           style="cursor: pointer; width: 20px; height: 20px; accent-color: #28a745; margin: 0; border-radius: 20px;">
+                           style="cursor: pointer; width: 20px; height: 20px; accent-color: #28a745; margin: 0;">
                 </label>
 
                 <!-- ปุ่มลบ (-) กันไม่ให้เกิด event การคลิกแก้ไข -->
                 <button type="button" onclick="event.stopPropagation(); decreaseItem(${index})"
-                    style="background-color: #ab1625; color: white; border: none; border-radius: 4px; padding: 2px 8px; margin-right: 8px; cursor: pointer; font-weight:bold;">-</button>
+                    style="background: transparent; color: #ab0b0b; border: none; padding: 2px 8px 2px 0;margin-right: 8px; cursor: pointer; font-size: 20px;"><i class="fa-solid fa-circle-minus"></i></button>
                 
                 <span class="order-name" style="font-weight: 500; color: #333;">${item.name} x${item.quantity}</span>
             </div>
@@ -136,6 +144,8 @@ function saveOrder() {
                 alert('เกิดข้อผิดพลาด: ' + result.message);
             }
         })
+    sessionStorage.removeItem('selectedTable');
+    document.getElementById('tables').value = "";
 }
 
 // เมนูย่อย
@@ -300,20 +310,20 @@ if (keypad) {
 
 // =============================== save menu/type ไม่เปลี่ยนหน้า ===============================
 function saveProductAjax(event) {
-    event.preventDefault(); 
+    event.preventDefault();
 
-    let form = document.getElementById('formAddProduct'); 
-    let formData = new FormData(form); 
+    let form = document.getElementById('formAddProduct');
+    let formData = new FormData(form);
 
-    fetch('save_pro.php', { 
+    fetch('save_pro.php', {
         method: 'POST',
         body: formData
     })
-        .then(response => response.text()) 
+        .then(response => response.text())
         .then(data => {
-            let result = data.trim(); 
+            let result = data.trim();
 
-            if (result === 'success' || result.includes('บันทึกข้อมูลเรียบร้อย')) { 
+            if (result === 'success' || result.includes('บันทึกข้อมูลเรียบร้อย')) {
                 Swal.fire({
                     icon: 'success',
                     title: 'สำเร็จ!',
@@ -325,7 +335,7 @@ function saveProductAjax(event) {
                         document.querySelector('.swal2-container').style.zIndex = '10000';
                     }
                 }).then(() => {
-                    window.location.reload(); 
+                    window.location.reload();
                 });
 
             } else if (result.includes('Duplicate entry')) {
@@ -344,7 +354,7 @@ function saveProductAjax(event) {
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด!',
-                    text: data, 
+                    text: data,
                     confirmButtonColor: '#d33',
                     confirmButtonText: 'ปิด',
                     didOpen: () => {
@@ -354,7 +364,7 @@ function saveProductAjax(event) {
             }
         })
         .catch(error => {
-            console.error('Error:', error); 
+            console.error('Error:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'เชื่อมต่อล้มเหลว',
@@ -443,6 +453,9 @@ function saveTypeAjax(event) {
 // ============================================== ดูบิล ==================================================
 // ฟังก์ชันดึงรายการบิลมาแสดง (ถังขยะหน้าสุด + ปุ่มดูสีเทา)
 function fetchBillsData() {
+    const saveBtn = document.getElementById('save-order'); // ใส่ id ของปุ่มบันทึกของคุณ
+    saveBtn.disabled = true;
+
     let tbody = document.getElementById('billListBody');
     if (!tbody) return;
 
@@ -459,28 +472,30 @@ function fetchBillsData() {
 
                     let row = `
                     <tr style="border-bottom: 1px solid #eee;">
-                        <!-- 1. ปุ่มถังขยะอยู่หน้าสุด -->
+                        <!--  ปุ่มถังขยะอยู่หน้าสุด -->
                         <td style="padding: 10px; text-align: center; width: 40px;">
                             <button type="button" class="btn-delete-bill" onclick="deleteBill(${bill.order_id})" title="ลบบิล">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
-                        <!-- 2. รหัสบิล -->
+                        <!--  รหัสบิล -->
                         <td style="padding: 10px; text-align: center;">${bill.order_id}</td>
-                        <!-- 3. เบอร์โต๊ะ -->
+                        <!--  เบอร์โต๊ะ -->
                         <td style="padding: 10px; text-align: center;">${tableId}</td>
-                        <!-- 4. เวลาที่เปิดบิล -->
+                        <!--  เวลาที่เปิดบิล -->
                         <td style="padding: 10px; text-align: center;">${bill.formatted_date}</td>
-                        <!-- 5. ปุ่มดู (สีเทาเดิม) -->
+                        <!--  ยอดรวม (เพิ่มคอลัมน์นี้) -->
+                        <td style="color: #63554c; padding: 10px; text-align: center;">${Number(bill.total_amount || 0).toLocaleString()} บาท</td>
+                        <!--  ปุ่มดู (สีเทาเดิม) -->
                         <td style="padding: 10px; text-align: center;">
-                            <button type="button" class="btn-bill" onclick="viewBill(${bill.order_id})">ดู</button>
+                            <button type="button" class="btn-bill" onclick="viewBill(${bill.order_id})">ดูบิล</button>
                         </td>
                     </tr>
                     `;
                     tbody.innerHTML += row;
                 });
             } else {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">ยังไม่มีข้อมูลบิลในระบบ</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">ยังไม่มีข้อมูลบิลในระบบ</td></tr>';
             }
         })
         .catch(error => {
@@ -520,6 +535,9 @@ function deleteBill(orderId) {
 function viewBill(orderId) {
     let modalOrder = document.getElementById('openOrder');
     if (modalOrder) modalOrder.style.display = 'none';
+
+    const saveBtn = document.getElementById('save-order');
+    if (saveBtn) saveBtn.disabled = true;
 
     fetch(`get_order_detail.php?id=${orderId}`)
         .then(response => response.json())
@@ -596,6 +614,12 @@ function closeBillView() {
         totalElement.innerHTML = '<strong>รวมทั้งหมด 0 บาท</strong>';
     }
     document.getElementById('btnCloseBillView').style.display = 'none';
+
+    const saveBtn = document.getElementById('save-order');
+    if (saveBtn) saveBtn.disabled = false;
+
+    sessionStorage.removeItem('selectedTable');
+    document.getElementById('tables').value = "";
 }
 
 function decreaseItem(index) {
@@ -857,7 +881,7 @@ function openPaymentModal() {
     let totalAmount = parseFloat(totalText.replace(/[^0-9.]/g, '')) || 0;
 
     if (totalAmount <= 0) {
-        alert('กรุณาเลือกรายการอาหารก่อนชำระเงินครับ');
+        alert('กรุณาเลือกรายการอาหารก่อนชำระเงิน');
         return;
     }
 
@@ -924,21 +948,8 @@ function generatePromptPayPayload(promptpayID, amount) {
     return payload + crcHex;
 }
 
-// =================== popup ออเดอร์ใหม่ =====================
-// เปิด Modal และโหลดข้อมูล
-// function openNewOrderModal() {
-//     document.getElementById('newOrderModal').style.display = 'flex';
-
-//     // ดึงข้อมูลรายการจากไฟล์ PHP ที่จะทำใหม่
-//     fetch('get_new_order.php')
-//         .then(res => res.text())
-//         .then(html => {
-//             document.getElementById('newOrderList').innerHTML = html;
-//         });
-// }
-
-let previousOrderCount = 0;
-
+// ================================= เช็ดออเดอร๋ใหม่และเล่นเสียง ===================================
+let previousOrderCount = null; 
 // เช็คออเดอร์ใหม่แบบอัตโนมัติ
 function checkNewOrders() {
     fetch('check_new_order_count.php')
@@ -953,8 +964,8 @@ function checkNewOrders() {
                 if (badge) badge.innerText = count;
                 if (alertBox) alertBox.style.display = 'block';
 
-                // เล่นเสียงเฉพาะเมื่อมีออเดอร์เพิ่มขึ้น
-                if (count > previousOrderCount) {
+                //เล่นเสียงเฉพาะเมื่อเคยเช็คไปแล้ว (null ไม่ใช่ครั้งแรก) และจำนวนเพิ่มขึ้นจริงเท่านั้น
+                if (previousOrderCount !== null && count > previousOrderCount) {
                     if (sound) {
                         sound.currentTime = 0;
                         sound.play().catch(err => {
@@ -966,6 +977,7 @@ function checkNewOrders() {
                 if (alertBox) alertBox.style.display = 'none';
             }
 
+            // บันทึกจำนวนออเดอร์ล่าสุดไว้เสมอ
             previousOrderCount = count;
         })
         .catch(err => console.error('Error checking order count:', err));
@@ -996,15 +1008,17 @@ function confirmPayment() {
         return;
     }
 
+    let totalAmount = document.getElementById('payTotalAmount').innerText;
     const isTakeaway = tableId === 'Takeaway';
-    if (isTakeaway && orderItems.length === 0) {
+
+    if (isTakeaway && orderItems.length === 0 && parseFloat(totalAmount) <= 0) {
         alert("กรุณาเลือกรายการอาหารก่อนชำระเงิน");
         return;
     }
 
     let isCash = document.getElementById('paymentCash').checked;
     let paymentMethod = isCash ? "Cash" : "Transfer";
-    let totalAmount = document.getElementById('payTotalAmount').innerText;
+
 
     if (isCash) {
         let receiveMoney = document.getElementById('receiveMoney').value;

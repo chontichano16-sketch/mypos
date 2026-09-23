@@ -10,23 +10,23 @@ $payment_method = $_POST['payment_method'] ?? '';
 $total_amount = $_POST['total_amount'] ?? 0;
 $is_takeaway = $_POST['is_takeaway'] ?? 'no';
 
-if ($is_takeaway === 'yes') {
+// ถอดรหัสรายการอาหารออกมาก่อน เพื่อเช็คว่าตะกร้าว่างหรือไม่
+$items = [];
+if (isset($_POST['items']) && !empty($_POST['items'])) {
     $items = json_decode($_POST['items'], true);
+}
+
+// กรณีที่ 1: เป็นบิล Takeaway ที่ "สั่งและจ่ายทันที" (มีรายการอาหารส่งมาด้วย) -> สร้างบิลใหม่
+if ($is_takeaway === 'yes' && is_array($items) && count($items) > 0) {
 
     if ($table_id !== 'Takeaway') {
         echo json_encode(["status" => "error", "message" => "Invalid takeaway order"]);
         exit;
     }
-
-    if (!is_array($items) || count($items) === 0) {
-        echo json_encode(["status" => "error", "message" => "No order items provided"]);
-        exit;
-    }
-
+    
     ensureProductOptionsTable($conn);
     mysqli_begin_transaction($conn);
-    try {
-        // ใช้ราคาจากฐานข้อมูล เพื่อไม่ให้ยอดชำระถูกแก้ไขจากหน้าเว็บ
+    try {       
         $total_amount = 0;
         $processed_items = [];
         $stmt_product = $conn->prepare("SELECT p_price FROM products WHERE p_id = ?");
@@ -71,7 +71,7 @@ if ($is_takeaway === 'yes') {
         $stmt->bind_param("sds", $table_id, $total_amount, $payment_method);
         $stmt->execute();
 
-        $order_id = $stmt->insert_id; // ดึงรหัสบิลที่เพิ่งสร้างใหม่
+        $order_id = $stmt->insert_id;
 
         $stmt_detail = $conn->prepare("INSERT INTO order_detail (order_id, product_id, quantity, price, remark) VALUES (?, ?, ?, ?, ?)");
         foreach ($processed_items as $item) {
@@ -83,14 +83,15 @@ if ($is_takeaway === 'yes') {
             $stmt_detail->execute();
         }
         mysqli_commit($conn);
-
-        // ส่งรหัสบิลกลับไปให้ JavaScript
+        
         echo json_encode(["status" => "success", "order_id" => $order_id]);
     } catch (Exception $e) {
         mysqli_rollback($conn);
         echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
-} else {
+}
+// กรณีที่ 2: เป็นการชำระเงินบิลที่ค้างอยู่ (ตะกร้าว่าง แต่มียอดในระบบ -> ใช้อัปเดตบิล pending)
+else {
     $stmt_find = $conn->prepare("SELECT order_id FROM `order` WHERE table_id = ? AND status IN ('pending', 'cooking') LIMIT 1");
     $stmt_find->bind_param("s", $table_id);
     $stmt_find->execute();
@@ -103,7 +104,7 @@ if ($is_takeaway === 'yes') {
         $stmt_update->bind_param("sdi", $payment_method, $total_amount, $order_id);
 
         if ($stmt_update->execute()) {
-            // ส่งรหัสบิลกลับไปให้ JavaScript
+
             echo json_encode(["status" => "success", "order_id" => $order_id]);
         } else {
             echo json_encode(["status" => "error", "message" => "อัปเดตบิลไม่สำเร็จ"]);
@@ -112,4 +113,4 @@ if ($is_takeaway === 'yes') {
         echo json_encode(["status" => "error", "message" => "No pending bill found (ไม่พบบิลค้างชำระ)"]);
     }
 }
-?>
+

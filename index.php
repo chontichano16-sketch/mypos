@@ -93,7 +93,7 @@
                 <h3>รายการออเดอร์</h3>
                 <div>
                     <label>โต๊ะ : </label>
-                    <select name="tables" id="tables" style="font-size: 14px;">
+                    <select name="tables" id="tables" style="font-size: 14px; cursor: pointer;">
                         <option value="" selected>ไม่ได้เลือก</option>
                         <option value="Takeaway">กลับบ้าน</option>
                         <?php
@@ -119,7 +119,7 @@
 
             <p class="total-price" style="text-align: right; font-size: 18px; padding-bottom: 10px;"><strong>รวมทั้งหมด 0 บาท</strong></p>
             <div class="action-buttons">
-                <button type="submit" class="btn-save" onclick="saveOrder()">บันทึก</button>
+                <button type="submit" class="btn-save" onclick="saveOrder()" id="save-order">บันทึก</button>
                 <button type="button" class="btn-pay" onclick="openPaymentModal()">ชำระเงิน</button>
             </div>
         </aside>
@@ -209,12 +209,13 @@
                                 <th style="padding: 10px; text-align: center; color: #63554c;">รหัสบิล</th>
                                 <th style="padding: 10px; text-align: center; color: #63554c;">เบอร์โต๊ะ</th>
                                 <th style="padding: 10px; text-align: center; color: #63554c;">เวลาที่เปิดบิล</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">ยอดรวม</th>
                                 <th style="padding: 10px; text-align: center; color: #63554c;">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody id="billListBody">
                             <tr>
-                                <td colspan="5" style="text-align: center; padding: 20px; color: #63554c;">กำลังโหลดข้อมูล...</td>
+                                <td colspan="6" style="text-align: center; padding: 20px; color: #63554c;">กำลังโหลดข้อมูล...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -225,7 +226,7 @@
 
     <!-- ========================== popup ออเดอรืใหม่ =========================-->
     <div id="newOrderModal" class="modal-overlay" style="display: none; ">
-        <div class="modal-content" style="height: 50vh;">
+        <div class="modal-content" style="height: 40vh;">
             <div>
                 <h3>ออเดอร์ใหม่จากลูกค้า</h3>
                 <button class="close-btn-clean" onclick="closeModal()">&times;</button>
@@ -318,6 +319,23 @@
 
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // 1. ดักจับเมื่อเปลี่ยนโต๊ะ ให้บันทึกค่าไว้
+        const tableSelect = document.getElementById('tables');
+        if (tableSelect) {
+            tableSelect.addEventListener('change', function() {
+                sessionStorage.setItem('selectedTable', this.value);
+            });
+        }
+
+        // 2. ดึงค่าโต๊ะกลับมาใส่เมื่อเปิดหน้าเว็บขึ้นมาใหม่
+        window.addEventListener('DOMContentLoaded', () => {
+            let savedTable = sessionStorage.getItem('selectedTable');
+            if (savedTable && tableSelect) {
+                tableSelect.value = savedTable;
+            }
+        });
+    </script>
 </body>
 
 </html>
