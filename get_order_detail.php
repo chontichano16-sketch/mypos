@@ -13,13 +13,13 @@ if ($order_id > 0) {
         $order_id = (int)$order_data['parent_order_id'];
     }
 
-    // เพิ่ม od.option_label ในคำสั่ง SELECT
-    $sql_details = "SELECT od.quantity, od.price, p.p_name AS name, od.remark, od.option_label
+    // ดึง od.id (Primary Key) เพิ่มเข้ามาเพื่อใช้เป็น detail_id ในการแก้ไข/ลบ
+    $sql_details = "SELECT od.id AS detail_id, od.quantity, od.price, p.p_name AS name, od.remark, od.option_label
                     FROM order_detail od
                     JOIN products p ON od.product_id = p.p_id
                     WHERE od.order_id IN (
                         SELECT order_id FROM `order`
-                        WHERE order_id = $order_id OR parent_order_id = $order_id
+                        WHERE order_id = $order_id OR parent_order_id =$order_id
                     )";
     $query_details = mysqli_query($conn, $sql_details);
     if (!$query_details) {
@@ -29,7 +29,7 @@ if ($order_id > 0) {
 
     $items = [];
     $total_amount = 0;
-    
+
     while ($row = mysqli_fetch_assoc($query_details)) {
         $items[] = $row;
         $total_amount += ($row['price'] * $row['quantity']);

@@ -50,7 +50,7 @@ function renderOrder() {
     // อัปเดต HTML: กดที่ตัวรายการ/ข้อความตรงไหนก็ได้เพื่อเปิดหน้าแก้ไข
     container.innerHTML = orderItems.map((item, index) => ` 
         <div class="order-row" style="display:flex; justify-content:space-between; align-items:center; padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; border-radius: 4px; transition: background 0.2s;" 
-             onclick="editOrderItem(${index})" 
+             onclick="editCartItem(${index})" 
              onmouseover="this.style.background='#f5f5f5'" 
              onmouseout="this.style.background='transparent'">
              
@@ -82,6 +82,79 @@ function renderOrder() {
 
     updateTotal();
 }
+
+// popup แก้ไขสินค้าในตะกร้าที่ยังไม่ได้บันทึก 
+function editCartItem(index) {
+    const item = orderItems[index];
+    if (!item) return;
+
+    Swal.fire({
+        html: `
+            <style>
+                .swal2-actions {
+                    gap: 80px !important; 
+                }
+                .swal2-actions button {
+                    border-radius: 25px !important;
+                    padding: 10px 30px !important;
+                    font-size: 16px !important;
+                    margin: 5px !important;
+                }
+
+                .swal2-deny { order: 1 !important; }     
+                .swal2-confirm { order: 2 !important; }
+
+                input[type="number"]::-webkit-inner-spin-button, 
+                input[type="number"]::-webkit-outer-spin-button { 
+                    -webkit-appearance: none; margin: 0; 
+                }
+            </style>
+            <div style="font-family: inherit; text-align: center; color: #333;">
+                <h2 style="margin: 0 0 5px 0; font-size: 20px; font-weight: bold; color: #4a4a4a;">${item.name}</h2>
+
+                <div style="margin-top: 20px;">
+                    <div style="font-size: 16px; margin-bottom: 10px; color: #555;">จำนวน:</div>
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+                        <button type="button" onclick="document.getElementById('cart-qty').stepDown()" style="width: 45px; height: 45px; border-radius: 50%; border: 1px solid #ddd; background: #f8f9fa; font-size: 24px; cursor: pointer;">-</button>
+                        <input type="number" id="cart-qty" value="${item.quantity}" min="1" style="width: 70px; height: 45px; text-align: center; border: 1px solid #ddd; border-radius: 10px; font-size: 18px;">
+                        <button type="button" onclick="document.getElementById('cart-qty').stepUp()" style="width: 45px; height: 45px; border-radius: 50%; border: 1px solid #ddd; background: #f8f9fa; font-size: 24px; cursor: pointer;">+</button>
+                    </div>
+                </div>
+                <div style="margin-top: 25px; text-align: left;">
+                    <div style="font-size: 16px; margin-bottom: 10px; color: #555;">หมายเหตุ (ถ้ามี):</div>
+                    <textarea id="cart-remark" style="width: 100%; height: 90px; border: 1px solid #ddd; border-radius: 10px; padding: 12px; font-size: 15px; box-sizing: border-box; resize: none; font-family: inherit;" placeholder="เช่น เผ็ดน้อย, ไม่ใส่ผัก">${item.remark || ''}</textarea>
+                </div>
+            </div>
+        `,
+        // showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'บันทึก',
+        cancelButtonText: 'ยกเลิก',
+        denyButtonText: 'ลบรายการ',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#dc3545',
+        denyButtonColor: '#dc3545',
+        width: '600px',
+        background: 'oklch(98.5% 0 none)',
+        padding: '2em',
+        preConfirm: () => {
+            return {
+                qty: parseInt(document.getElementById('cart-qty').value) || 1,
+                remark: document.getElementById('cart-remark').value
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            orderItems[index].quantity = result.value.qty;
+            orderItems[index].remark = result.value.remark;
+            renderOrder();
+        } else if (result.isDenied) {
+            orderItems.splice(index, 1);
+            renderOrder();
+        }
+    });
+}
+// end
 
 function updateTotal() {
     const total = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
@@ -167,15 +240,17 @@ menuBtn.forEach(btn => {
     });
 });
 
-//-==================================== popup =========================================
+// ฟังก์ชันเปิด popup ทั้งหมด
 function openModal(type) {
     let modalProduct = document.getElementById('addProductModal');
     let modalType = document.getElementById('addTypeModal');
     let modalOrder = document.getElementById('openOrder');
 
+
     if (modalProduct) modalProduct.style.display = 'none';
     if (modalType) modalType.style.display = 'none';
     if (modalOrder) modalOrder.style.display = 'none';
+
 
     if (type === 'product') {
         if (modalProduct) modalProduct.style.display = 'flex';
@@ -190,19 +265,23 @@ function openModal(type) {
         }
     }
 }
+// end
 
+// ปุ่มปิดและปุ่มยกเลิก popup
 function closeModal() {
     const addProductModal = document.getElementById('addProductModal');
     const addTypeModal = document.getElementById('addTypeModal');
     const openOrder = document.getElementById('openOrder');
     const paymentModal = document.getElementById('paymentModal');
     const openNewOrderModal = document.getElementById('newOrderModal')
+    const addTableModal = document.getElementById('addTableModal');
 
     if (addProductModal) addProductModal.style.display = 'none';
     if (addTypeModal) addTypeModal.style.display = 'none';
     if (openOrder) openOrder.style.display = 'none';
     if (paymentModal) paymentModal.style.display = 'none';
     if (newOrderModal) openNewOrderModal.style.display = 'none';
+    if (addTableModal) addTableModal.style.display = 'none';
 
     const allInputs = document.querySelectorAll('#addProductModal input, #addTypeModal input');
     allInputs.forEach(input => {
@@ -214,6 +293,7 @@ function closeModal() {
     if (receiveMoney) receiveMoney.value = '';
     if (changeMoney) changeMoney.innerText = '0';
 }
+// end
 
 // ================================= popup แก้ไขสินค้า =================================
 function openEditModal(button) {
@@ -472,11 +552,6 @@ function fetchBillsData() {
 
                     let row = `
                     <tr style="border-bottom: 1px solid #eee;">
-                        <!--  ปุ่มถังขยะอยู่หน้าสุด -->
-                        <td style="padding: 10px; text-align: center; width: 40px;">
-                            <button type="button" class="btn-delete-bill" onclick="deleteBill(${bill.order_id})" title="ลบบิล">
-                                <i class="bi bi-trash"></i>
-                            </button>
                         </td>
                         <!--  รหัสบิล -->
                         <td style="padding: 10px; text-align: center;">${bill.order_id}</td>
@@ -484,11 +559,14 @@ function fetchBillsData() {
                         <td style="padding: 10px; text-align: center;">${tableId}</td>
                         <!--  เวลาที่เปิดบิล -->
                         <td style="padding: 10px; text-align: center;">${bill.formatted_date}</td>
-                        <!--  ยอดรวม (เพิ่มคอลัมน์นี้) -->
+                        <!--  ยอดรวม -->
                         <td style="color: #63554c; padding: 10px; text-align: center;">${Number(bill.total_amount || 0).toLocaleString()} บาท</td>
-                        <!--  ปุ่มดู (สีเทาเดิม) -->
+                        <!--  ปุ่มดู  -->
                         <td style="padding: 10px; text-align: center;">
-                            <button type="button" class="btn-bill" onclick="viewBill(${bill.order_id})">ดูบิล</button>
+                            <button type="button" class="btn-bill" onclick="viewBill(${bill.order_id})"><i class="fas fa-receipt"></i> ดูบิล</button>
+                            <button type="button" class="btn-delete-bill" onclick="deleteBill(${bill.order_id})" title="ลบบิล">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </td>
                     </tr>
                     `;
@@ -507,28 +585,61 @@ function fetchBillsData() {
 
 // ฟังก์ชันส่งคำสั่งลบบิลไปยัง backend
 function deleteBill(orderId) {
-    if (confirm(`คุณต้องการลบบิลรหัส ${orderId} หรือไม่?`)) {
-        let formData = new FormData();
-        formData.append('order_id', orderId);
-
-        fetch('delete_bill.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('ลบบิลเรียบร้อยแล้ว');
-                    fetchBillsData(); // รีโหลดรายการบิลใหม่ทันที
-                } else {
-                    alert('เกิดข้อผิดพลาด: ' + (data.message || 'ไม่สามารถลบบิลได้'));
+    Swal.fire({
+        html: `
+            <style>
+                .swal2-actions button {
+                border-radius: 20px !important;
                 }
+            </style>
+            `,
+        title: 'ยืนยันการลบ?',
+        text: `คุณต้องการลบบิลเลขที่ ${orderId} หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'ยืนยัน',
+        cancelButtonText: 'ยกเลิก'
+        
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let formData = new FormData();
+            formData.append('order_id', orderId);
+
+            fetch('delete_bill.php', {
+                method: 'POST',
+                body: formData
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
-            });
-    }
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'ลบสำเร็จ!',
+                            text: 'ลบบิลเรียบร้อยแล้ว',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        fetchBillsData(); // รีโหลดรายการบิลใหม่ทันที
+                    } else {
+                        Swal.fire(
+                            'เกิดข้อผิดพลาด!',
+                            data.message || 'ไม่สามารถลบบิลได้',
+                            'error'
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire(
+                        'เชื่อมต่อล้มเหลว!',
+                        'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                        'error'
+                    );
+                });
+        }
+    });
 }
 
 // ==================== ปุ่มดูบิล ====================
@@ -574,13 +685,16 @@ function viewBill(orderId) {
                              <span class="order-name" style="font-weight: 500; color: #333;">${item.name} x${item.quantity}</span>
                             </div>
 
-                ${optionHtml}
-                ${remarkHtml}
-            </div>
+                            ${optionHtml}
+                            ${remarkHtml}
+                            </div>
 
-            <span class="order-price" style="white-space: nowrap; color: #333; margin-top: 2px;">${sum.toFixed(2)}</span>
-        </div>
-        `;
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                            <span class="order-price" style="white-space: nowrap; color: #333; margin-top: 2px;">${sum.toFixed(2)}</span>
+                            <button type="button" onclick="editOrderItem(${item.detail_id}, '${item.name}', ${item.quantity}, '${item.remark || ''}', ${orderId})" style="background: none; border: none; cursor: pointer; color: oklch(39.8% 0.195 277.366); font-size: 14px; padding: 0;"><i class="fa-solid fa-pencil"></i></button>
+                            </div>
+                            </div>
+                            `;
                     });
                     orderContainer.innerHTML = html;
                 }
@@ -949,7 +1063,7 @@ function generatePromptPayPayload(promptpayID, amount) {
 }
 
 // ================================= เช็ดออเดอร๋ใหม่และเล่นเสียง ===================================
-let previousOrderCount = null; 
+let previousOrderCount = null;
 // เช็คออเดอร์ใหม่แบบอัตโนมัติ
 function checkNewOrders() {
     fetch('check_new_order_count.php')
@@ -1244,25 +1358,6 @@ setTimeout(() => {
 }, 300);
 
 // ปุ่มรับออเดอร์และสั่งปริ้น
-// function processOrder(orderId) {
-//     // เรียก API เพื่ออัปเดตสถานะในฐานข้อมูล
-
-//     fetch('api/accept_order_v2.php', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-//         body: 'order_id=' + orderId
-//     })
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.status === 'success') {
-//                 // window.open('print_kitchen.php?id=' + data.print_id, '_blank', 'width=300,height=500');
-//                 window.open('print_kitchen.php?order_id=' + data.print_id, '_blank', 'width=300,height=500');
-//                 location.reload();
-//             }
-//         });
-// }
-
-// ปุ่มรับออเดอร์และสั่งปริ้น
 function processOrder(orderId) {
     // เรียก API เพื่ออัปเดตสถานะในฐานข้อมูล
     fetch('api/accept_order_v2.php', {
@@ -1285,3 +1380,235 @@ function processOrder(orderId) {
             console.error('Error:', error);
         });
 }
+
+// เปิด popup เพิ่มโต๊ะ
+function openAddTableModal() {
+    const modal = document.getElementById('addTableModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+function closeAddTableModal() {
+    const modal = document.getElementById('addTableModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// ปิด Popup ตอนคลิกพื้นที่ภายนอก
+window.addEventListener('click', function (event) {
+    const modal = document.getElementById('addTableModal');
+    if (event.target === modal) {
+        closeAddTableModal();
+    }
+});
+
+// ส่งข้อมูลเพิ่มโต๊ะผ่าน AJAX ไม่เปลี่ยนหน้า
+function submitAddTable(event) {
+    event.preventDefault();
+
+    const form = document.getElementById('addTableForm');
+    const formData = new FormData(form);
+
+    fetch('add_table.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                closeAddTableModal();
+                form.reset();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ!',
+                    text: data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    location.reload();
+                });
+
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่สามารถบันทึกได้',
+                    text: data.message,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'ตกลง'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'ข้อผิดพลาดระบบ',
+                text: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้',
+                confirmButtonColor: '#d33'
+            });
+        });
+}
+// end
+
+// ปุ่มดูรายการอาหารก่อนกดรับ
+function viewOrderDetails(orderId) {
+    fetch('get_neworder_details.php?order_id=' + orderId)
+        .then(res => res.text())
+        .then(htmlData => {
+            Swal.fire({
+                title: 'รายการอาหาร ออเดอร์ #' + orderId,
+                html: htmlData,
+                width: '600px',
+                showCloseButton: true,
+                confirmButtonText: 'ปิดหน้าต่าง',
+                confirmButtonColor: '#6c757d'
+            });
+        })
+        .catch(err => {
+            Swal.fire('ผิดพลาด', 'ไม่สามารถดึงข้อมูลรายการอาหารได้', 'error');
+        });
+}
+// end
+
+// popup แก้ไขรายการบันทึกแล้ว
+function editOrderItem(detailId, itemName, currentQty, currentRemark, orderId) {
+    Swal.fire({
+        title: 'แก้ไขรายการสินค้า',
+        html: `
+            <style>
+                .swal2-actions button {
+                    border-radius: 20px !important;
+                }
+            </style>
+
+            <div style="text-align: left; font-weight: bold; margin-bottom: 15px; font-size: 16px;">
+                ${itemName}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <label style="font-weight: bold;">จำนวน</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button type="button" onclick="document.getElementById('edit-qty').stepDown()" style="width: 35px; height: 35px; border-radius: 5px; border: 1px solid #ccc; background: #fff; cursor: pointer;">-</button>
+                    <input type="number" id="edit-qty" value="${currentQty}" min="1" style="width: 50px; text-align: center; height: 35px; border: none; font-size: 16px;" readonly>
+                    <button type="button" onclick="document.getElementById('edit-qty').stepUp()" style="width: 35px; height: 35px; border-radius: 5px; border: 1px solid #ccc; background: #fff; cursor: pointer;">+</button>
+                </div>
+            </div>
+            <div style="text-align: left;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">หมายเหตุ</label>
+                <input type="text" id="edit-remark" value="${currentRemark}" class="swal2-input" style="width: 100%; margin: 0; box-sizing: border-box; border-radius: 10px; font-size: 16px;" placeholder="เช่น ไม่ใส่หอม">
+            </div>
+        `,
+        showCancelButton: true,
+        showDenyButton: true, // ใช้เป็นปุ่ม "ลบรายการ"
+        confirmButtonText: 'บันทึก',
+        denyButtonText: 'ลบรายการ',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#28a745',
+        denyButtonColor: '#dc3545',
+        preConfirm: () => {
+            return {
+                qty: document.getElementById('edit-qty').value,
+                remark: document.getElementById('edit-remark').value
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            saveEditedItem(detailId, orderId, result.value.qty, result.value.remark);
+        } else if (result.isDenied) {
+            deleteOrderItem(detailId, orderId);
+        }
+    });
+}
+
+function saveEditedItem(detailId, orderId, newQty, newRemark) {
+    fetch('edit_order_item.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `detail_id=${detailId}&order_id=${orderId}&qty=${newQty}&remark=${encodeURIComponent(newRemark)}`
+    })
+        .then(async res => {
+            const text = await res.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error("PHP Response error:", text);
+                throw new Error("JSON Parse Error");
+            }
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // เรียกฟังก์ชันโหลดข้อมูลบิลเดิมขึ้นมาใหม่
+                if (typeof viewBill === 'function') {
+                    viewBill(orderId);
+                } else {
+                    location.reload();
+                }
+            } else {
+                Swal.fire('ผิดพลาด', data.message, 'error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อระบบได้', 'error');
+        });
+}
+
+// ลบรายการที่บันทึกแล้ว
+function deleteOrderItem(detailId, orderId) {
+    Swal.fire({
+        html: `
+            <style>
+                .swal2-actions button {
+                border-radius: 20px !important;
+                }
+            </style>
+            `,
+
+        title: 'ยืนยันการลบ?',
+        text: "คุณต้องการลบรายการนี้ออกจากบิลใช่หรือไม่?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'ยืนยันลบรายการ',
+        cancelButtonText: 'ยกเลิก',
+        customClass: {
+            confirmButton: 'swal2-confirm-btn'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('delete_order_item.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `detail_id=${detailId}&order_id=${orderId}`
+            })
+                .then(async res => {
+                    const text = await res.text();
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error("Delete Response Error:", text);
+                        throw new Error("JSON Parse Error");
+                    }
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        // อัปเดตไม่ต้องรีโหลด
+                        if (typeof viewBill === 'function') {
+                            viewBill(orderId);
+                        } else {
+                            location.reload();
+                        }
+                    } else {
+                        Swal.fire('ผิดพลาด', data.message, 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อระบบได้', 'error');
+                });
+        }
+    });
+}
+// end

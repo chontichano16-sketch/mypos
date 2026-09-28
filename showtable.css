@@ -1,0 +1,90 @@
+/* หน้ารายการโต๊ะมั้งหมด */
+html,
+body {
+    background: #ffffff !important;
+}
+
+.table-container-1 {
+    max-width: 900px;
+    margin: 20px auto;
+    font-family: sans-serif;
+    overflow-y: auto;
+}
+
+.table-container-1::-webkit-scrollbar {
+    display: none;
+}
+
+.header-action-1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.header-action-1 h2 {
+    color: #3f342d;
+}
+
+.header-action-1 button {
+    background-color: #e7e7e7;
+    padding: 5px 10px;
+    border: 1px solid oklch(49.97% 0.00006 271.152);
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+.controls-1 {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    color: #63554c;
+}
+
+th {
+    background-color: #f9f9f9;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-available {
+    background-color: #4CAF50;
+}
+
+.status-occupied {
+    background-color: #F44336;
+}
+
+.status-payment {
+    background-color: #FFC107;
+}
+
+.action-links a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #0066cc;
+}
+
+.action-links a.delete {
+    color: #dc3545;
+}

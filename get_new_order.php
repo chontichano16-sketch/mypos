@@ -17,15 +17,20 @@ if (!$res || mysqli_num_rows($res) == 0) {
     </thead>
     <tbody>
         <?php while ($row = mysqli_fetch_assoc($res)): ?>
-        <tr>
-            <td><?php echo htmlspecialchars($row['table_id']); ?></td>
-            <td style="display: flex; justify-content: center;"><?php echo date('H:i', strtotime($row['created_at'])); ?></td>
-            <td>
-                <button class="btn-print" onclick="processOrder(<?php echo $row['order_id']; ?>)">
-                    รับออเดอร์/ปริ้น
-                </button>
-            </td>
-        </tr>
+            <tr>
+                <td><?php echo htmlspecialchars($row['table_id']); ?></td>
+                <td><?php echo date('H:i', strtotime($row['created_at'])); ?></td>
+                <td>
+                    <div class="btn-ordernew">
+                        <button type="button" class="btn-detail" onclick="viewOrderDetails(<?php echo $row['order_id']; ?>)">
+                            ดูรายการ
+                        </button>
+                        <button class="btn-print" onclick="processOrder(<?php echo $row['order_id']; ?>)">
+                            รับออเดอร์/ปริ้น
+                        </button>
+                    </div>
+                </td>
+            </tr>
         <?php endwhile; ?>
     </tbody>
 </table>

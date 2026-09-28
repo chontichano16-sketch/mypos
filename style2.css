@@ -231,6 +231,10 @@ body {
     min-height: 0;
 }
 
+.order-items-container::-webkit-scrollbar {
+    display: none;
+}
+
 .order-section {
     width: 320px;
     max-width: 32%;
@@ -281,10 +285,12 @@ body {
 }
 
 /* สไตล์ปุ่มเมื่อถูกปิดการใช้งาน */
-button:disabled, .btn-disabled {
+button:disabled,
+.btn-disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    pointer-events: none; /* ป้องกันการกดคลิก */
+    pointer-events: none;
+    /* ป้องกันการกดคลิก */
 }
 
 .btn-save {
@@ -589,10 +595,10 @@ button:disabled, .btn-disabled {
     padding: 20px;
     border-radius: 30px;
     width: 700px;
-    ;
     overflow-y: auto;
     position: relative;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    animation: var(--swal2-show-animation);
 }
 
 .modal-header {
@@ -682,7 +688,7 @@ button:disabled, .btn-disabled {
 .search-box input {
     font-size: 16px;
     height: 30px;
-    border-radius: 5px;
+    border-radius: 15px;
     border: 1px solid #9a9a9a;
     padding-inline: 10px;
     padding-right: 30px;
@@ -694,7 +700,7 @@ button:disabled, .btn-disabled {
     border: none;
     font-size: 18px;
     display: inline;
-    color: #7d7d7d;
+    color: #cfcfcf;
     right: 10px;
     padding-right: inherit;
 }
@@ -740,14 +746,16 @@ button:disabled, .btn-disabled {
     overflow-y: auto;
     position: relative;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    animation: var(--swal2-show-animation);
 }
 
 .btn-bill {
-    font-size: 14px;
-    width: 50%;
+    font-size: 16px;
+    padding: 5px 10px;
     border-radius: 5px;
     border: 1px solid #c6c6c6;
     cursor: pointer;
+    color: #515151;
 }
 
 /* ========================= popup เพิ่มหมายเหตุ ===================*/
@@ -772,6 +780,7 @@ button:disabled, .btn-disabled {
     color: oklch(37.4% 0.01 67.558);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 30px;
+    animation: var(--swal2-show-animation);
 }
 
 .modal-qty-control {
@@ -820,12 +829,12 @@ button:disabled, .btn-disabled {
 
 .modal-action {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
     margin-top: 20px;
 }
 
 .btn-cancel {
-    background: oklch(70.4% 0.191 22.216);
+    background: #dc3545;
     color: white;
     width: 20%;
     padding: 8px 15px;
@@ -1324,6 +1333,8 @@ button:disabled, .btn-disabled {
     border: none;
     color: oklch(58.6% 0.253 17.585);
     font-size: inherit;
+    border-bottom: 1px solid;
+    cursor: pointer;
 }
 
 /* การตั้งค่าการพิมพ์ */
@@ -1493,14 +1504,16 @@ button:disabled, .btn-disabled {
 }
 
 .table-order tbody td {
-    padding: 10px 70px;
-    font-size: 18px;
+    padding: 10px 20px;
+    font-size: 16px;
     color: #333;
+    text-align: center;
 }
 
 .table-order tbody td:first-child {
     font-weight: bold;
     color: #1f8a45;
+    text-align: center;
 }
 
 .modal-content h3 {
@@ -1508,19 +1521,42 @@ button:disabled, .btn-disabled {
     color: #63554c;
 }
 
+.btn-ordernew {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 .btn-print {
     width: max-content;
     background-color: oklch(88.2% 0.059 254.128);
     padding-inline: 10px;
-    border-radius: 10px;
-    border: 1px solid oklch(0.57 0.02 234.87);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+    border-radius: 5px;
+    border: 1px solid oklch(0.87 0 0);
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10); */
     height: 40px;
-    font-size: 18px;
+    font-size: 16px;
 }
+
+.btn-detail {
+    width: max-content;
+    background-color: oklch(97.7% 0.013 236.62);
+    padding-inline: 10px;
+    border-radius: 5px;
+    border: 1px solid oklch(0.87 0 0);
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10); */
+    height: 40px;
+    font-size: 16px;
+}
+
 
 /* alert */
 .swal2-popup {
     border-radius: 30px !important;
+}
+
+/* บังคับให้กล่องแจ้งเตือน SweetAlert2 อยู่หน้าสุดเสมอ */
+.swal2-container {
+    z-index: 99999 !important;
 }
 

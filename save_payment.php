@@ -23,10 +23,10 @@ if ($is_takeaway === 'yes' && is_array($items) && count($items) > 0) {
         echo json_encode(["status" => "error", "message" => "Invalid takeaway order"]);
         exit;
     }
-    
+
     ensureProductOptionsTable($conn);
     mysqli_begin_transaction($conn);
-    try {       
+    try {
         $total_amount = 0;
         $processed_items = [];
         $stmt_product = $conn->prepare("SELECT p_price FROM products WHERE p_id = ?");
@@ -83,7 +83,7 @@ if ($is_takeaway === 'yes' && is_array($items) && count($items) > 0) {
             $stmt_detail->execute();
         }
         mysqli_commit($conn);
-        
+
         echo json_encode(["status" => "success", "order_id" => $order_id]);
     } catch (Exception $e) {
         mysqli_rollback($conn);
@@ -104,6 +104,12 @@ else {
         $stmt_update->bind_param("sdi", $payment_method, $total_amount, $order_id);
 
         if ($stmt_update->execute()) {
+            // เช็คว่ามีรหัสโต๊ะ และไม่ใช่Takeaway
+            if (!empty($table_id) && $table_id !== 'Takeaway') {
+                $stmt_clear_table = $conn->prepare("UPDATE `tables` SET `table_status` = 'available' WHERE `tables_id` = ?");
+                $stmt_clear_table->bind_param("s", $table_id);
+                $stmt_clear_table->execute();
+            }
 
             echo json_encode(["status" => "success", "order_id" => $order_id]);
         } else {
@@ -113,4 +119,3 @@ else {
         echo json_encode(["status" => "error", "message" => "No pending bill found (ไม่พบบิลค้างชำระ)"]);
     }
 }
-

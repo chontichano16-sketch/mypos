@@ -86,6 +86,13 @@ try {
         mysqli_stmt_execute($st_sales);
     }
 
+    // อัปเดตสถานะโต๊ะให้เป็น 'occupied' (ไม่ว่าง) 
+    if (!empty($tableId)) {
+        $stTable = mysqli_prepare($conn, "UPDATE `tables` SET `table_status` = 'occupied' WHERE `tables_id` = ?");
+        mysqli_stmt_bind_param($stTable, 's', $tableId);
+        mysqli_stmt_execute($stTable);
+    }
+
     mysqli_commit($conn);
     echo json_encode(['status' => 'success', 'success' => true, 'order_id' => $orderId]);
 } catch (Exception $e) {

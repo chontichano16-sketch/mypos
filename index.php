@@ -26,8 +26,7 @@
     </div>
 
     <?php include "navbar.php" ?>
-    <!-- ปุ่มแฮมเบอร์เกอร์ -->
-
+    
     <div class="main-container">
 
         <div class="left-content">
@@ -68,6 +67,7 @@
                     </div>
                 <?php } ?>
             </div>
+
             <!-- ================================= ประเภทสินค้าด้านล่าง ================================= -->
             <div class="side-bar-menu">
                 <a href="index.php" class="<?php echo !isset($_GET['cate']) ? 'active' : ''; ?>">ทั้งหมด</a>
@@ -130,7 +130,7 @@
 
         <div class="modal-content">
             <div class="modal-header">
-                <h3 style="color: #63554c;">เพิ่มเมนูใหม่</h3>
+                <h4 style="color: #63554c;">เพิ่มเมนูใหม่</h4>
                 <button class="close-btn-clean" onclick="closeModal()">&times;</button>
             </div>
             <form id="formAddProduct" onsubmit="saveProductAjax(event)" enctype="multipart/form-data">
@@ -176,7 +176,7 @@
     <div id="addTypeModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 style=" color: #63554c;">เพิ่มประเภทสินค้าใหม่</h3>
+                <h4 style=" color: #63554c;">เพิ่มประเภทสินค้าใหม่</h4>
                 <button class="close-btn-clean" onclick="closeModal()">&times;</button>
             </div>
             <form id="formAddType" onsubmit="saveTypeAjax(event)" enctype="multipart/form-data">
@@ -205,10 +205,9 @@
                     <table style="width: 100%; border-collapse: collapse; text-align: left;">
                         <thead>
                             <tr style="border-bottom: 2px solid #ddd; background-color: #f1f3f5;">
-                                <th style="padding: 10px; text-align: center; width: 40px; color: #63554c;"></th>
-                                <th style="padding: 10px; text-align: center; color: #63554c;">รหัสบิล</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">เลขที่บิล</th>
                                 <th style="padding: 10px; text-align: center; color: #63554c;">เบอร์โต๊ะ</th>
-                                <th style="padding: 10px; text-align: center; color: #63554c;">เวลาที่เปิดบิล</th>
+                                <th style="padding: 10px; text-align: center; color: #63554c;">เวลาเปิดบิล</th>
                                 <th style="padding: 10px; text-align: center; color: #63554c;">ยอดรวม</th>
                                 <th style="padding: 10px; text-align: center; color: #63554c;">จัดการ</th>
                             </tr>
@@ -224,7 +223,7 @@
         </div>
     </div>
 
-    <!-- ========================== popup ออเดอรืใหม่ =========================-->
+    <!-- ========================== popup ออเดอร์ใหม่ =========================-->
     <div id="newOrderModal" class="modal-overlay" style="display: none; ">
         <div class="modal-content" style="height: 40vh;">
             <div>
@@ -267,7 +266,7 @@
     <div id="paymentModal" class="modal-overlay1" style="display: none;">
         <div class="payment-modal-content">
             <div class="payment-modal-header">
-                <h3>วิธีการชำระเงิน</h3>
+                <h4>วิธีการชำระเงิน</h4>
                 <button class="close-btn-pay" onclick="closeModal()">&times;</button>
             </div>
 
@@ -316,6 +315,28 @@
             </div>
         </div>
     </div>
+
+    <!-- popup เพิ่มโต๊ะ -->
+    <div id="addTableModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 style=" color: #63554c;">เพิ่มโต๊ะใหม่</h4>
+                <button class="close-btn-clean" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="addTableForm" onsubmit="submitAddTable(event)">
+                <div class="form-group">
+                    <label>หมายเลยโต๊ะ</label>
+                    <input type="text" name="table_name" id="table_name">
+                </div>
+
+                <div class="form-buntons">
+                    <button type="button" class="btn-reset" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- end -->
 
     <script src="script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

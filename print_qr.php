@@ -1,169 +1,203 @@
 <?php
-$server_ip = "10.5.50.195";
-$total_tables = 9;
-$shop_name = "The Story เรื่องเล่าร้านกาแฟ";
+require 'db.php'; 
+
+// ดึงรายการโต๊ะทั้งหมดที่เปิดใช้งานอยู่
+$sql = "SELECT * FROM `tables` WHERE `is_active` = 1 ORDER BY `tables_id` ASC";
+$result = mysqli_query($conn, $sql);
 ?>
 <!DOCTYPE html>
 <html lang="th">
 
 <head>
     <meta charset="UTF-8">
-    <title>พิมพ์ QR Code โต๊ะอาหาร</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>พิมพ์ QR Code โต๊ะ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Noto Sans Thai", sans-serif;
+        }
+
         body {
-            font-family: 'Kanit', sans-serif;
             background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
-        }
-
-        .top-bar {
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            /* ระยะห่างระหว่างปุ่ม */
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        /* สไตล์ปุ่มกดทั่วไป */
-        .btn {
-            border: none;
-            padding: 10px 25px;
-            font-size: 18px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'Kanit', sans-serif;
-            text-decoration: none;
-            color: white;
-            display: inline-flex;
+            flex-direction: column;
             align-items: center;
         }
 
-        /* ปุ่มพิมพ์ */
-        .btn-print {
-            background-color: #4CAF50;
+        .no-print-bar {
+            background: #ffffff;
+            width: 100%;
+            max-width: 850px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .btn-print:hover {
-            background-color: #45a049;
+        .btn {
+            padding: 10px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
         }
 
-        /* ปุ่มกลับหน้าแรก */
-        .btn-back {
+        .btn-secondary {
             background-color: #6c757d;
+            color: white;
         }
 
-        .btn-back:hover {
+        .btn-secondary:hover {
             background-color: #5a6268;
         }
 
-        /* จัด Layout เป็น Grid สำหรับกระดาษ A4 */
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .a4-container {
+            background: #ffffff;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 12mm 10mm;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
         .qr-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            max-width: 210mm;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
+            gap: 15px;
         }
 
-        /* ดีไซน์การ์ดแต่ละใบ */
         .qr-card {
-            border: 2px dashed oklch(54.7% 0.021 43.1);
-            border-radius: 15px;
-            padding: 15px;
+            border: 2px dashed #888888;
+            border-radius: 16px;
+            padding: 15px 10px;
             text-align: center;
-            background-color: oklch(98.5% 0.001 106.423);
-            break-inside: avoid;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .qr-card h2 {
-            margin: 0 0 5px 0;
-            font-size: 18px;
-            color: #333;
+        .shop-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #222222;
+            margin-bottom: 4px;
         }
 
-        .qr-card .table-num {
-            font-size: 26px;
-            color: oklch(36.7% 0.016 35.7);
-            font-weight: bold;
-            margin-bottom: 10px;
+        .table-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111111;
+            margin-bottom: 8px;
         }
 
-        .qr-card img {
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            padding: 5px;
-            background: white;
-            width: 150px;
-            height: 150px;
+        .qr-code-img {
+            width: 160px;
+            height: 160px;
+            object-fit: contain;
+            margin-bottom: 12px;
         }
 
-        .qr-card .instruction {
-            margin-top: 15px;
-            font-size: 14px;
-            background: oklch(36.7% 0.016 35.7);
-            color: white;
-            padding: 5px;
+        .scan-btn-badge {
+            background-color: #3d3532;
+            color: #ffffff;
+            padding: 6px 0;
             border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            width: 85%;
         }
 
-        /* โหมดสำหรับเครื่องพิมพ์ */
+        /* ตั้งค่าสไตล์เมื่อสั่งพิมพ์จริง (Print CSS) */
         @media print {
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+
             body {
-                background: white;
+                background: none;
                 padding: 0;
             }
 
-            .top-bar {
-                display: none;
+            .no-print-bar {
+                display: none !important;
+                /* ซ่อนแถบปุ่มตอนปริ้น */
             }
 
-            /* ซ่อนทั้งแถบ ตอนพิมพ์ */
-            .qr-grid {
+            .a4-container {
                 box-shadow: none;
+                width: 100%;
+                min-height: auto;
                 padding: 0;
-                gap: 10px;
             }
 
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
+            .qr-grid {
+                gap: 10mm 6mm;
+            }
+
+            .qr-card {
+                page-break-inside: avoid;
+                border-color: #555555;
             }
         }
     </style>
 </head>
 
 <body>
-
-    <div class="top-bar">
-        <a href="index.php" class="btn btn-back">กลับหน้าแรก</a>
-        <button class="btn btn-print" onclick="window.print()"><i class="fa-solid fa-print"></i> กดเพื่อสั่งพิมพ์ (A4)</button>
+    <!-- ปุ่มด้านบน -->
+    <div class="no-print-bar">
+        <a href="index.php" class="btn btn-secondary">กลับหน้าแรก</a>
+        <button class="btn btn-success" onclick="window.print()"><i class="fa-solid fa-print"></i> กดเพื่อสั่งพิมพ์ (A4)</button>
     </div>
 
-    <!-- วนลูปสร้างการ์ดตามจำนวนโต๊ะ -->
-    <div class="qr-grid">
-        <?php for ($i = 1; $i <= $total_tables; $i++): ?>
-            <!-- สร้าง URL สำหรับโต๊ะ -->
-            <?php
-            $table_url = "http://{$server_ip}/mypos/customer_menu.php?tables_id={$i}";
-            // API สร้างรูป
-            $qr_api_url = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($table_url);
-            ?>
-            <div class="qr-card">
-                <h2><?php echo htmlspecialchars($shop_name); ?></h2>
-                <div class="table-num">โต๊ะที่ <?php echo $i; ?></div>
-                <img src="<?php echo $qr_api_url; ?>" alt="QR โต๊ะ <?php echo $i; ?>">
-                <div class="instruction"> สแกนเพื่อสั่งอาหาร</div>
-            </div>
-        <?php endfor; ?>
+    <div class="a4-container">
+        <div class="qr-grid">
+            <?php if (mysqli_num_rows($result) > 0): ?>
+                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                    <?php
+                    $tableName = htmlspecialchars($row['tables_number']);
+                    // ดึงลิงก์จาก DB มาเข้ารหัส URL สำหรับส่งให้ API สร้างรูป QR
+                    $qrLink = urlencode($row['qr_link']);
+                    $qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . $qrLink;
+                    ?>
+                    <div class="qr-card">
+                        <div class="shop-title">The Story เรื่องเล่าร้านกาแฟ</div>
+                        <div class="table-title">โต๊ะที่ <?php echo $tableName; ?></div>
+                        <img src="<?php echo $qrImageUrl; ?>" alt="QR Code โต๊ะ <?php echo $tableName; ?>" class="qr-code-img">
+                        <div class="scan-btn-badge">สแกนเพื่อสั่งอาหาร</div>
+                    </div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <p style="grid-column: 1/-1; text-align: center; font-size: 18px; color: #666;">ไม่พบข้อมูลโต๊ะในระบบ</p>
+            <?php endif; ?>
+        </div>
     </div>
 
 </body>

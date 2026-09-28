@@ -110,9 +110,15 @@ try {
 
         mysqli_stmt_bind_param($st, 'iiidss', $orderId, $c['pid'], $c['qty'], $c['price'], $c['remark'], $optLabel);
         mysqli_stmt_execute($st);
-    }
 
+        // 5. อัปเดตสถานะโต๊ะให้เป็น 'occupied' (ไม่ว่าง) อัตโนมัติ
+        $stTable = mysqli_prepare($conn, "UPDATE `tables` SET `table_status` = 'occupied' WHERE `tables_id` = ?");
+        mysqli_stmt_bind_param($stTable, 'i', $tableId);
+        mysqli_stmt_execute($stTable);
+    }
+    
     mysqli_commit($conn);
+
     echo json_encode(['status' => 'success', 'order_id' => $orderId, 'is_new' => ($parentOrderId == 0)]);
 } catch (Exception $e) {
     mysqli_rollback($conn);

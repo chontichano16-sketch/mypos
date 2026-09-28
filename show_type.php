@@ -65,7 +65,7 @@
         </table>
     </div>
 
-    <!-- ============================= popup เพิ่มประเภทสินค้า (ของเดิมจาก Navbar) ================================= -->
+    <!-- ============================= popup เพิ่มประเภทสินค้า  ================================= -->
     <div id="addTypeModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -85,7 +85,7 @@
         </div>
     </div>
 
-    <!-- ============================= popup แก้ไขประเภทสินค้า (สร้างใหม่สำหรับหน้านี้) ================================= -->
+    <!-- ============================= popup แก้ไขประเภทสินค้า ================================= -->
     <div id="editTypeModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
