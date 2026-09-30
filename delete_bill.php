@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'])) {
     mysqli_begin_transaction($conn);
 
     try {
-        // 1. ลบรายการเมนูย่อยในบิลก่อน (ถ้ามีตาราง order_detail)
+        // ลบรายการเมนูย่อยในบิลก่อน (ถ้ามีตาราง order_detail)
         $sql_detail = "DELETE FROM order_detail WHERE order_id = ?";
         $stmt_detail = mysqli_prepare($conn, $sql_detail);
         if ($stmt_detail) {
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'])) {
             mysqli_stmt_close($stmt_detail);
         }
 
-        // 2. ลบบิลหลักจากตาราง order
+        // ลบบิลหลักจากตาราง order
         $sql_order = "DELETE FROM `order` WHERE order_id = ?";
         $stmt_order = mysqli_prepare($conn, $sql_order);
         mysqli_stmt_bind_param($stmt_order, "i", $order_id);

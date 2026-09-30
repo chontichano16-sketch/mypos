@@ -26,7 +26,7 @@
     </div>
 
     <?php include "navbar.php" ?>
-    
+
     <div class="main-container">
 
         <div class="left-content">

@@ -130,3 +130,18 @@
     </div>
 </div>
 <!-- end -->
+
+<!-- ดูรายละเอียดออเดอร์ที่ยกเลิก -->
+    <div id="orderDetailModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content-5">
+            <div class="modal-header-5">
+                <h3 id="modalTitle"><i class="fa-solid fa-file-invoice"></i> รายละเอียดออเดอร์</h3>
+                <span class="close-btn" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div class="modal-body-5" id="modalBodyContent">
+                <!-- ข้อมูลจาก AJAX จะถูกโหลดมาวางตรงนี้ -->
+                <p style="text-align: center; color: #666;">กำลังโหลดข้อมูล...</p>
+            </div>
+        </div>
+    </div>
+    <!-- จบ -->

@@ -531,9 +531,8 @@ function saveTypeAjax(event) {
 }
 
 // ============================================== ดูบิล ==================================================
-// ฟังก์ชันดึงรายการบิลมาแสดง (ถังขยะหน้าสุด + ปุ่มดูสีเทา)
 function fetchBillsData() {
-    const saveBtn = document.getElementById('save-order'); // ใส่ id ของปุ่มบันทึกของคุณ
+    const saveBtn = document.getElementById('save-order');
     saveBtn.disabled = true;
 
     let tbody = document.getElementById('billListBody');
@@ -562,10 +561,10 @@ function fetchBillsData() {
                         <!--  ยอดรวม -->
                         <td style="color: #63554c; padding: 10px; text-align: center;">${Number(bill.total_amount || 0).toLocaleString()} บาท</td>
                         <!--  ปุ่มดู  -->
-                        <td style="padding: 10px; text-align: center;">
+                        <td style="padding: 10px; text-align: center; display: flex; justify-content: center; gap: 15px;">
                             <button type="button" class="btn-bill" onclick="viewBill(${bill.order_id})"><i class="fas fa-receipt"></i> ดูบิล</button>
-                            <button type="button" class="btn-delete-bill" onclick="deleteBill(${bill.order_id})" title="ลบบิล">
-                                <i class="bi bi-trash"></i>
+                            <button type="button" class="btn-delete-bill" onclick="cancelBill(${bill.order_id})" title="ลบบิล">
+                                <i class="fa-solid fa-ban"></i> ยกเลิกออเดอร์
                             </button>
                         </td>
                     </tr>
@@ -583,40 +582,62 @@ function fetchBillsData() {
 }
 
 
-// ฟังก์ชันส่งคำสั่งลบบิลไปยัง backend
-function deleteBill(orderId) {
+// ฟังก์ชันส่งคำสั่งยกเลิกบิล
+function cancelBill(orderId) {
     Swal.fire({
         html: `
             <style>
                 .swal2-actions button {
-                border-radius: 20px !important;
+                    border-radius: 20px !important;
+                }
+                .swal2-select {
+                    font-size: 16px !important;
+                    padding: 8px 12px;
                 }
             </style>
-            `,
-        title: 'ยืนยันการลบ?',
-        text: `คุณต้องการลบบิลเลขที่ ${orderId} หรือไม่?`,
+        `,
+        title: 'ยืนยันการยกเลิก?',
+        text: `คุณต้องการยกเลิกบิลเลขที่ ${orderId} หรือไม่?`,
         icon: 'warning',
+
+        input: 'select',
+        inputOptions: {
+            'ลูกค้าเปลี่ยนใจ/สั่งผิด': 'ลูกค้าเปลี่ยนใจ / สั่งผิด',
+            'ลูกค้าสั่งซ้ำ': 'ลูกค้าสั่งซ้ำ',
+            'กดผิด/ทดสอบระบบ': 'กดผิด / ทดสอบระบบ'
+        },
+        inputPlaceholder: '--- กรุณาเลือกเหตุผลการยกเลิก ---',
+
+        inputValidator: (value) => {
+            if (!value) {
+                return 'โปรดเลือกเหตุผลที่ยกเลิกออเดอร์นี้!'; // บังคับเลือก
+            }
+        },
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'ยืนยัน',
-        cancelButtonText: 'ยกเลิก'
-        
+        confirmButtonText: 'ยืนยันยกเลิก',
+        cancelButtonText: 'ปิด'
     }).then((result) => {
         if (result.isConfirmed) {
-            let formData = new FormData();
-            formData.append('order_id', orderId);
+            const cancelReason = result.value;
 
-            fetch('delete_bill.php', {
+            fetch('cancel_order.php', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    cancel_reason: cancelReason
+                })
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         Swal.fire({
-                            title: 'ลบสำเร็จ!',
-                            text: 'ลบบิลเรียบร้อยแล้ว',
+                            title: 'ยกเลิกสำเร็จ!',
+                            text: 'ยกเลิกบิลเรียบร้อยแล้ว',
                             icon: 'success',
                             timer: 1500,
                             showConfirmButton: false
@@ -625,7 +646,7 @@ function deleteBill(orderId) {
                     } else {
                         Swal.fire(
                             'เกิดข้อผิดพลาด!',
-                            data.message || 'ไม่สามารถลบบิลได้',
+                            data.message || 'ไม่สามารถยกเลิกบิลได้',
                             'error'
                         );
                     }
@@ -641,6 +662,7 @@ function deleteBill(orderId) {
         }
     });
 }
+// จบ
 
 // ==================== ปุ่มดูบิล ====================
 function viewBill(orderId) {
@@ -1612,3 +1634,158 @@ function deleteOrderItem(detailId, orderId) {
     });
 }
 // end
+
+
+// ปุ่ม 3 จุด
+window.toggleActionMenu = function (event, orderId) {
+    event.stopPropagation();
+
+    // ปิดเมนูอันอื่นทั้งหมดก่อน
+    document.querySelectorAll('.action-dropdown-menu').forEach(menu => {
+        if (menu.id !== 'action-menu-' + orderId) {
+            menu.classList.remove('show');
+        }
+    });
+
+    // สลับเปิด/ปิดเมนูของออเดอร์นี้
+    const currentMenu = document.getElementById('action-menu-' + orderId);
+    if (currentMenu) {
+        currentMenu.classList.toggle('show');
+    }
+};
+
+// ดักจับการคลิกข้างนอกเพื่อปิดเมนู
+document.addEventListener('click', function () {
+    document.querySelectorAll('.action-dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
+    });
+});
+// จบ
+
+// ยกเลิกออเดอรื
+function cancelOrder(orderId) {
+    Swal.fire({
+        title: 'ยืนยันการยกเลิกออเดอร์?',
+        text: `คุณต้องการยกเลิกออเดอร์ #${orderId} ใช่หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'ใช่ ยกเลิกเลย',
+        cancelButtonText: 'ขอยกเลิกก่อน',
+        reverseButtons: true,
+        customClass: {
+            popup: 'rounded-xl'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'กำลังดำเนินการ...',
+                text: 'กรุณารอสักครู่',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('cancel_order.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ order_id: orderId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'ยกเลิกสำเร็จ!',
+                            text: `ยกเลิกออเดอร์ #${orderId} เรียบร้อยแล้ว`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload(); // รีโหลดหน้าเพื่ออัปเดตข้อมูล
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'เกิดข้อผิดพลาด',
+                            text: data.message || 'ไม่สามารถยกเลิกออเดอร์ได้'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เชื่อมต่อล้มเหลว',
+                        text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง'
+                    });
+                });
+        }
+    });
+};
+// จบ
+
+// ฟังก์ชันดลือกสถานะ
+function filterTable() {
+    const filterValue = document.getElementById('statusFilter').value.trim();
+    const rows = document.querySelectorAll('table tbody tr');
+
+    rows.forEach(row => {
+        const statusTd = row.cells[4];
+
+        if (!statusTd) return;
+
+        const statusText = statusTd.textContent.trim();
+
+        if (filterValue === "" || statusText === filterValue) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
+// ฟังก์ชันสำหรับปุ่มรีเซ็ต
+function resetFilters() {
+    document.getElementById('searchInput').value = "";
+    document.getElementById('statusFilter').value = "";
+    filterTable(); // สั่งให้ตารางกลับมาแสดงทั้งหมด
+}
+// จบ
+
+// ดูรายละเอียดออเดอร์หน้าประวัติการขาย
+function viewDetails(orderId, status = 'paid') {
+    const modal = document.getElementById('orderDetailModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const content = document.getElementById('modalBodyContent');
+
+    // เปลี่ยนหัวข้อและสีตามสถานะบิล
+    if (status === 'cancelled') {
+        modalTitle.innerHTML = '<i class="fa-solid fa-ban"></i> รายละเอียดออเดอร์ (ยกเลิก)';
+        modalTitle.style.color = '#dc3545';
+    } else {
+        modalTitle.innerHTML = '<i class="fa-solid fa-circle-check"></i> รายละเอียดบิล (ชำระแล้ว)';
+        modalTitle.style.color = '#28a745';
+    }
+
+    modal.style.display = 'flex';
+    content.innerHTML = '<p style="text-align: center; color: #666;">กำลังโหลดข้อมูล...</p>';
+
+    // ดึงข้อมูลผ่าน AJAX
+    fetch('get_details_his.php?id=' + orderId)
+        .then(response => response.text())
+        .then(html => {
+            content.innerHTML = html;
+        })
+        .catch(err => {
+            content.innerHTML = '<p style="text-align: center; color: red;">เกิดข้อผิดพลาดในการดึงข้อมูล</p>';
+        });
+}
+
+function closeDetailModal() {
+    document.getElementById('orderDetailModal').style.display = 'none';
+}
+// จบ

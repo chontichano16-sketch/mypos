@@ -6,6 +6,50 @@ if (!$res || mysqli_num_rows($res) == 0) {
     exit;
 }
 ?>
+<style>
+    .action-dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 6px;
+        background-color: #ffffff;
+        min-width: 160px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        z-index: 1000;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        text-align: left;
+    }
+
+    .action-dropdown-menu.show {
+        display: block !important;
+    }
+
+    .action-dropdown-menu a {
+        color: #374151;
+        padding: 10px 14px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        transition: background-color 0.15s ease-in-out;
+    }
+
+    .action-dropdown-menu a:hover {
+        background-color: #f3f4f6;
+    }
+
+    .action-dropdown-menu a.text-danger {
+        color: #dc2626;
+    }
+
+    .action-dropdown-menu a.text-danger:hover {
+        background-color: #fef2f2;
+    }
+</style>
 
 <table class="table-order">
     <thead>
@@ -28,7 +72,23 @@ if (!$res || mysqli_num_rows($res) == 0) {
                         <button class="btn-print" onclick="processOrder(<?php echo $row['order_id']; ?>)">
                             รับออเดอร์/ปริ้น
                         </button>
-                    </div>
+
+                        <div style="position: relative; display: inline-block;">
+                            <button style="background: transparent; border: none; font-size: 16px; cursor: pointer;color: #616161;" type="button" class="btn-list" onclick="toggleActionMenu(event, '<?= $row['order_id'] ?>')">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+                            <div id="action-menu-<?= $row['order_id'] ?>" class="action-dropdown-menu">
+                                <a href="javascript:void(0)" onclick="viewOrderDetails('<?= $row['order_id'] ?>')">
+                                    <!-- <i class="fa-solid fa-eye"></i>-->ดูรายการ
+                                </a>
+                                <a href="javascript:void(0)" onclick="processOrder('<?= $row['order_id'] ?>')">
+                                    <!-- <i class="fa-solid fa-print"></i>  --> รับออเดอร์/ปริ้น
+                                </a>
+                                <a href="javascript:void(0)" onclick="cancelOrder('<?= $row['order_id'] ?>')" class="text-danger">
+                                    <!-- <i class="fa-solid fa-circle-xmark"></i>  --> ยกเลิกออเดอร์
+                                </a>
+                            </div>
+                        </div>
                 </td>
             </tr>
         <?php endwhile; ?>

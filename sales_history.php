@@ -1,25 +1,25 @@
 <?php
+session_start();
+if (!isset($_SESSION["user_id"])) {
+    header("Location: login.php");
+    exit();
+}
+
 require 'db.php';
+include "all_popup.php";
 
 $search = $_GET['search'] ?? '';
-$where = "WHERE status = 'paid'";
+$where = "WHERE status IN ('paid', 'cancelled')";
 
 if (!empty($search)) {
     $searchEscaped = mysqli_real_escape_string($conn, $search);
     $where .= " AND (order_id = '$searchEscaped' OR table_id = '$searchEscaped')";
 }
 
-$sql = "SELECT * FROM `order` $where ORDER BY order_id DESC LIMIT 300";
+$sql = "SELECT * FROM `order` $where ORDER BY order_id DESC LIMIT 100";
 $result = mysqli_query($conn, $sql);
 ?>
-<?php
-session_start();
 
-if (!isset($_SESSION["user_id"])) {
-    header("Location: login.php");
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html lang="th">
 
@@ -38,7 +38,6 @@ if (!isset($_SESSION["user_id"])) {
     <style>
         body {
             font-family: sans-serif;
-
             overflow-y: auto;
         }
 
@@ -107,6 +106,22 @@ if (!isset($_SESSION["user_id"])) {
         }
 
         .btn-print-h {
+            color: #414141;
+            border: 1px solid oklch(0.84 0 0);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-detail-h1 {
+            color: #414141;
+            border: 1px solid oklch(0.84 0 0);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-detail-h2 {
             color: #414141;
             border: 1px solid oklch(0.84 0 0);
             padding: 6px 12px;
@@ -196,22 +211,28 @@ if (!isset($_SESSION["user_id"])) {
 <body>
     <nav class="navbar">
         <div class="dropdown">
-            <button type="button" onclick="toggleMenu(event)" class="dropbtn" aria-label="เปิดเมนู"><i class="fa-solid fa-bars"></i></button>
-            <div id="myDropdown" class="dropdown-content">
-                <button type="button" class="menu-btn"><i class="bi bi-chevron-down" style="float: right;"></i>จัดการข้อมูลโต๊ะ</button>
+            <button onclick="toggleMenu(event)" class="dropbtn"><i class="fa-solid fa-bars"></i></button>
+
+            <div id="myDropdown" class="dropdown-content" style="border: none;">
+                <button class="menu-btn"> <i class="bi bi-chevron-down" style="float: right;"></i></i><i class="fa-solid fa-chair"></i> จัดการข้อมูลโต๊ะ</button>
                 <ul class="submenu">
-                    <li><a href="print_qr.php"><i class="bi bi-qr-code"></i> พิมพ์ QR Code โต๊ะ</a></li>
+                    <li><a href="show_tables.php"> รายการโต๊ะทั้งหมด</a></li>
+                    <li><button onclick="openAddTableModal()">เพิ่มโต๊ะ</button></li>
+                    <li><a href="print_qr.php"><!--<i class="bi bi-qr-code">--></i> พิมพ์ QR Code โต๊ะ</a></li>
                 </ul>
-                <button type="button" class="menu-btn"><i class="bi bi-chevron-down" style="float: right;"></i>จัดการข้อมูลเมนูอาหาร</button>
+                <button class="menu-btn"><i class="bi bi-chevron-down" style="float: right;"></i><i class="fa-solid fa-utensils"></i> จัดการข้อมูลเมนูอาหาร</button>
+
                 <ul class="submenu">
-                    <li><button type="button" onclick="openModal('product')">เพิ่มสินค้า</button></li>
-                    <li><button type="button" onclick="openModal('type')">เพิ่มประเภทสินค้า</button></li>
+                    <li><button onclick="openModal('product')">เพิ่มสินค้า</button></li>
+                    <li><button onclick="openModal('type')">เพิ่มประเภทสินค้า</button></li>
                     <li><a href="show_pro.php" style="border-bottom: 1px solid #63554c1f;">รายการสินค้าทั้งหมด</a></li>
                     <li><a href="show_type.php" style="border-bottom: 1px solid #63554c1f;">ประเภทสินค้าทั้งหมด</a></li>
                 </ul>
-                <a href="sale_report.php">รายงานยอดขาย</a>
+
+                <a href="sale_report.php"><i class="fa-solid fa-chart-line"></i> รายงานยอดขาย</a>
             </div>
         </div>
+
 
         <div class="nav-report">
 
@@ -245,80 +266,12 @@ if (!isset($_SESSION["user_id"])) {
 
     </nav>
 
-    <!--====================================== popup เพิ่มสินค้า ===========================================-->
-    <div id="addProductModal" class="modal-overlay" style="display: none;">
-
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="color: #63554c;">เพิ่มเมนูใหม่</h3>
-                <button class="close-btn-clean" onclick="closeModal()">&times;</button>
-            </div>
-            <form id="formAddProduct" onsubmit="saveProductAjax(event)" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="p_name">ชื่อเมนู</label>
-                    <input type="text" name="p_name" id="p_name">
-                </div>
-
-                <div class="form-group">
-                    <label for="p_price">ราคา</label>
-                    <input type="text" name="p_price" id="p_price">
-                </div>
-
-                <div class="form-group">
-                    <label for="file">รูปภาพ</label>
-                    <input type="file" name="p_img" id="file" accept="image/*">
-                </div>
-
-                <div class="form-group">
-                    <label for="type_id" id="type_id" class="form-label">ประเภทสินค้า</label>
-                    <?php include "db.php";
-                    $strSQL = "SELECT * FROM type";
-                    $objQuery = mysqli_query($conn, $strSQL);
-                    ?>
-                    <select name="type_id" id="type_id">
-                        <?php while ($objResult = mysqli_fetch_array($objQuery)) { ?>
-                            <option value="<?php echo $objResult["type_id"]; ?>">
-                                <?php echo $objResult["type_name"]; ?>
-                            </option>
-                        <?php } ?>
-                    </select>
-                </div>
-                <div class="form-buntons">
-                    <button type="button" class="btn-reset" onclick="closeModal()">ยกเลิก</button>
-                    <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
-                </div>
-            </form>
-        </div>
-
-
-    </div>
-    <!-- ==================================== popup เพิ่มประเภทสินค้า ================================== -->
-    <div id="addTypeModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style=" color: #63554c;">เพิ่มประเภทสินค้าใหม่</h3>
-                <button class="close-btn-clean" onclick="closeModal()">&times;</button>
-            </div>
-            <form action="save_type.php" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="type_name">ชื่อประเภทสินค้า</label>
-                    <input type="text" name="type_name" id="type_name">
-                </div>
-
-                <div class="form-buntons">
-                    <button type="button" class="btn-reset" onclick="closeModal()">ยกเลิก</button>
-                    <button type="submit" class="btn-submit">บันทึกข้อมูล</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <div class="card">
         <section class="head-history">
             <h2 style="color: #3f342d;"><i class="fa-solid fa-scroll"></i> ประวัติการขาย (สำหรับสั่งพิมพ์ย้อนหลัง)</h2>
-            <!-- ฟอร์มค้นหาเลขบิล หรือ เลขโต๊ะ -->
+            <!-- ฟอร์มค้นหาเลขโต๊ะ -->
             <form class="search-box-history" method="GET">
-                <input type="text" name="search" placeholder="ค้นหาเลขบิล หรือ โต๊ะ..." value="<?= htmlspecialchars($search) ?>">
+                <input id="searchInput" type="text" name="search" placeholder="ค้นหาเลขบิล หรือ โต๊ะ..." value="<?= htmlspecialchars($search) ?>">
                 <button type="submit">ค้นหา</button>
                 <a href="sales_history.php" style="align-self:center; text-decoration:none; color:#666;">รีเซ็ต</a>
             </form>
@@ -332,7 +285,14 @@ if (!isset($_SESSION["user_id"])) {
                         <th style="text-align: center;">เลขที่ออเดอร์</th>
                         <th style="text-align: center;">โต๊ะ</th>
                         <th style="text-align: center;">ราคารวม</th>
-                        <th style="text-align: center;">สถานะ</th>
+                        <th style="text-align: center;">สถานะ
+                            <select id="statusFilter" onchange="filterTable()"
+                                style="padding: 5px; border: 1px solid #ccc; border-radius: 10px; outline: none; background-color: white;">
+                                <option value="">ทั้งหมด</option>
+                                <option value="ชำระแล้ว">ชำระแล้ว</option>
+                                <option value="ยกเลิก">ยกเลิก</option>
+                            </select>
+                        </th>
                         <th style="text-align: center;">จัดการ</th>
                     </tr>
                 </thead>
@@ -344,14 +304,57 @@ if (!isset($_SESSION["user_id"])) {
                             $formattedDate = $rawDate ? date('d/m/Y H:i', strtotime($rawDate)) . ' น.' : '-';
                             ?>
                             <tr>
-                                <td style="color: #555; text-align: center;"><?= $formattedDate ?></td>
-                                <td style="text-align: center;">#ORD-<?= str_pad((string) $row['order_id'], 4, '0', STR_PAD_LEFT) ?></td>
-                                <td style="text-align: center;"><?= $row['table_id'] ?? '-' ?></td>
-                                <td style="text-align: center;"><?= number_format($row['total_amount'] ?? 0, 2) ?> ฿</td>
-                                <td style="text-align: center;"><span style="color: green; font-weight: bold; "><?= $row['status'] ?></span></td>
+                                <td style="color: #555; text-align: center;">
+                                    <?= $formattedDate ?></td>
+
+                                <td style="text-align: center;">#ORD-
+                                    <?= str_pad((string) $row['order_id'], 4, '0', STR_PAD_LEFT) ?></td>
+
                                 <td style="text-align: center;">
-                                    <button class="btn-print-h" onclick="printReceipt(<?= $row['order_id'] ?>)"><i class="fa-solid fa-print"></i> พิมพ์ใบเสร็จ
-                                    </button>
+                                    <?= $row['table_id'] ?? '-' ?></td>
+
+                                <td style="text-align: center;">
+                                    <?= number_format($row['total_amount'] ?? 0, 2) ?> ฿</td>
+
+                                <td style="text-align: center;">
+                                    <?php
+                                    $statusMap = [
+                                        'paid' => 'ชำระแล้ว',
+                                        'pending'   => 'รอชำระเงิน',
+                                        'cancelled' => 'ยกเลิก'
+                                    ];
+                                    $colorMap = [
+                                        'paid' => 'green',
+                                        'pending' => 'orange',
+                                        'cancelled' => 'red'
+                                    ];
+
+                                    $currentStatus = $row['status'];
+                                    $displayStatus = $statusMap[$currentStatus] ?? $currentStatus;
+                                    $displayColor = $colorMap[$currentStatus] ?? 'black';
+                                    ?>
+                                    <span style="color: <?= $displayColor ?>; font-weight: bold;">
+                                        <?= $displayStatus ?>
+                                    </span>
+                                </td>
+
+                                <td style="text-align: center;">
+                                    <?php if ($currentStatus === 'cancelled'): ?>
+                                        <!-- สถานะยกเลิก -->
+                                        <button class="btn-detail-h1" onclick="viewDetails(<?= $row['order_id'] ?>, 'cancelled')">
+                                            <i class="fa-solid fa-eye"></i> ดูรายละเอียด
+                                        </button>
+                                    <?php else: ?>
+                                        <!-- สถานะชำระแล้ว -->
+                                        <button class="btn-detail-h2" onclick="viewDetails(<?= $row['order_id'] ?>, 'paid')">
+                                            <i class="fa-solid fa-file-invoice"></i> ดูรายละเอียด
+                                        </button>
+
+                                        <button class="btn-print-h" onclick="printReceipt(<?= $row['order_id'] ?>)">
+                                            <i class="fa-solid fa-print"></i> พิมพ์
+                                        </button>
+
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

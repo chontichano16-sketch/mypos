@@ -36,6 +36,19 @@ body {
     border-bottom: 1px solid #e0e0e0;
     flex-shrink: 0;
     border-radius: 0 0 15px 15px;
+
+    /* display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    height: 50px;
+    margin-top: 8px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+    border-radius: 15px; */
 }
 
 .nav-links {
@@ -1298,7 +1311,7 @@ button:disabled,
 }
 
 .detail-report th {
-    background: #f4f2f1;
+    background: #f8fafc;
     color: #63554c;
     font-weight: 600;
 }
@@ -1329,12 +1342,13 @@ button:disabled,
 }
 
 .btn-delete-bill {
-    background: transparent;
-    border: none;
-    color: oklch(58.6% 0.253 17.585);
-    font-size: inherit;
-    border-bottom: 1px solid;
+    font-size: 16px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #f62f2f;
     cursor: pointer;
+    color: #f62f2f;
+    background: oklch(88.5% 0.062 18.334);
 }
 
 /* การตั้งค่าการพิมพ์ */
@@ -1531,7 +1545,7 @@ button:disabled,
     width: max-content;
     background-color: oklch(88.2% 0.059 254.128);
     padding-inline: 10px;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 1px solid oklch(0.87 0 0);
     /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10); */
     height: 40px;
@@ -1542,7 +1556,7 @@ button:disabled,
     width: max-content;
     background-color: oklch(97.7% 0.013 236.62);
     padding-inline: 10px;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 1px solid oklch(0.87 0 0);
     /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10); */
     height: 40px;
@@ -1560,3 +1574,70 @@ button:disabled,
     z-index: 99999 !important;
 }
 
+/* popup ดูรายการที่ยกเลิก */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-content-5 {
+    background: #fff;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header-5 {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #d9534f;
+}
+
+.close-btn {
+    font-size: 24px;
+    font-weight: bold;
+    color: #888;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+.modal-body-5 {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
