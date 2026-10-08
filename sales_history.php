@@ -16,7 +16,8 @@ if (!empty($search)) {
     $where .= " AND (order_id = '$searchEscaped' OR table_id = '$searchEscaped')";
 }
 
-$sql = "SELECT * FROM `order` $where ORDER BY order_id DESC LIMIT 100";
+$sql = "SELECT `order`.*, tables.tables_number FROM `order` LEFT JOIN tables ON `order`.table_id = tables.tables_id 
+$where ORDER BY order_id DESC LIMIT 100";
 $result = mysqli_query($conn, $sql);
 ?>
 
@@ -308,10 +309,12 @@ $result = mysqli_query($conn, $sql);
                                     <?= $formattedDate ?></td>
 
                                 <td style="text-align: center;">#ORD-
-                                    <?= str_pad((string) $row['order_id'], 4, '0', STR_PAD_LEFT) ?></td>
+                                    <?= str_pad((string) $row['order_id'], 4, '0', STR_PAD_LEFT) ?>
+                                </td>
 
                                 <td style="text-align: center;">
-                                    <?= $row['table_id'] ?? '-' ?></td>
+                                    <?= !empty($row['tables_number']) ? $row['tables_number'] : ($row['table_id'] ?? '-') ?>
+                                </td>
 
                                 <td style="text-align: center;">
                                     <?= number_format($row['total_amount'] ?? 0, 2) ?> ฿</td>

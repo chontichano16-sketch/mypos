@@ -13,7 +13,7 @@ if ($tableId === '' || empty($items)) {
 
 mysqli_begin_transaction($conn);
 try {
-    // 1. เช็คว่าโต๊ะนี้มีบิลเดิมที่เปิดค้างอยู่หรือไม่
+    // 1. เช็คว่าโต๊ะนี้มีบิลเดิมที่เปิดค้างอยู่หรือไหม
     $st = mysqli_prepare($conn, "SELECT `order_id` FROM `order` WHERE `table_id` = ? AND `status` IN ('pending', 'cooking') ORDER BY `order_id` DESC LIMIT 1");
     mysqli_stmt_bind_param($st, 's', $tableId);
     mysqli_stmt_execute($st);

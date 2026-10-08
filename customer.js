@@ -7,7 +7,7 @@ let cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
 let current = null;
 let selectedOption = null;
 
-/*  ส่วนจัดการ Option (แก้ไขให้ตรงกับร้านได้เลย)  */
+/*  ส่วนจัดการ Option   */
 const menuOptions = {
     // หมวดเครื่องดื่ม
     "coffee": [

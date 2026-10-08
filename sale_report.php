@@ -8,7 +8,7 @@ if (!isset($_SESSION["user_id"])) {
 require_once 'db.php';
 include "all_popup.php";
 
-// 2. รับค่าพารามิเตอร์การกรองข้อมูล
+//รับค่าพารามิเตอร์การกรองข้อมูล
 $requestedDate = $_GET['report_date'] ?? date('Y-m-d');
 $reportType = $_GET['type'] ?? 'daily'; // 'daily', 'monthly', 'quarterly', 'yearly'
 
@@ -21,7 +21,7 @@ if ($selectedDate === false || ($dateErrors !== false && ($dateErrors['warning_c
 $filterDate = $selectedDate->format('Y-m-d');
 $currentYear = (int)$selectedDate->format('Y');
 
-// 3. คำนวณช่วงเวลาสำหรับการสรุปยอดและการดึงตารางข้อมูล
+// คำนวณช่วงเวลาสำหรับการสรุปยอดและการดึงตารางข้อมูล
 $dayStart = $selectedDate->format('Y-m-d 00:00:00');
 $dayEnd = $selectedDate->modify('+1 day')->format('Y-m-d 00:00:00');
 
@@ -113,7 +113,7 @@ if ($reportType === 'monthly') {
     $card4Title = "ยอดขายปีนี้";
 }
 
-// 4. ดึงปีที่มีในระบบเพื่อใส่ใน Dropdown
+
 $reportYears = [$currentYear];
 $yearsResult = $conn->query("SELECT DISTINCT YEAR(created_at) AS report_year FROM `order` WHERE status = 'paid' AND created_at IS NOT NULL ORDER BY report_year DESC");
 if ($yearsResult) {
@@ -126,7 +126,7 @@ if ($yearsResult) {
 $reportYears = array_values(array_unique($reportYears));
 rsort($reportYears);
 
-// 5. ฟังก์ชันคำนวณยอดขายรวม
+
 function salesSummary(mysqli $conn, string $start, string $end): array
 {
     $statement = $conn->prepare("SELECT COALESCE(SUM(total_amount), 0) AS total_amount, COUNT(order_id) AS total_orders FROM `order` WHERE status = 'paid' AND created_at >= ? AND created_at < ?");
@@ -149,8 +149,8 @@ $dailySummary   = salesSummary($conn, $todayStart, $todayEnd);
 $monthlySummary = salesSummary($conn, $thisMonthStart, $thisMonthEnd);
 $yearlySummary  = salesSummary($conn, $thisYearStart, $thisYearEnd);
 
-// 6. ดึงข้อมูลรายการขายสำหรับตาราง
-$ordersStatement = $conn->prepare("SELECT order_id, table_id, created_at, total_amount, payment_method FROM `order` WHERE status = 'paid' AND created_at >= ? AND created_at < ? ORDER BY created_at DESC");
+// ดึงข้อมูลรายการขายสำหรับตาราง
+$ordersStatement = $conn->prepare("SELECT `order`.*, tables.tables_number FROM `order` LEFT JOIN tables ON `order`.table_id = tables.tables_id WHERE `order`.status = 'paid' AND `order`.created_at >= ? AND `order`.created_at < ? ORDER BY `order`.created_at DESC");
 $ordersStatement->bind_param('ss', $tableStart, $tableEnd);
 $ordersStatement->execute();
 $salesData = $ordersStatement->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -334,7 +334,7 @@ $salesData = $ordersStatement->get_result()->fetch_all(MYSQLI_ASSOC);
             .detail-report {
                 box-shadow: none !important;
             }
-            
+
             table {
                 width: 100% !important;
                 border-collapse: collapse !important;
@@ -526,7 +526,7 @@ $salesData = $ordersStatement->get_result()->fetch_all(MYSQLI_ASSOC);
                                         ?>
                                     </td>
                                     <td>#ORD-<?= str_pad((string) $row['order_id'], 4, '0', STR_PAD_LEFT) ?></td>
-                                    <td><?= htmlspecialchars((string) $row['table_id'], ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars((string) (!empty($row['tables_number']) ? $row['tables_number'] : ($row['table_id'] ?? '-')), ENT_QUOTES, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars($row['payment_method'] ?: 'เงินสด', ENT_QUOTES, 'UTF-8') ?></td>
                                     <td class="amount"><strong><?= number_format((float) $row['total_amount'], 2) ?></strong></td>
 

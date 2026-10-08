@@ -97,7 +97,7 @@
                         <option value="" selected>ไม่ได้เลือก</option>
                         <option value="Takeaway">กลับบ้าน</option>
                         <?php
-                        $sql_tables = "SELECT * FROM tables";
+                        $sql_tables = "SELECT * FROM tables WHERE is_active = 1";
                         $query_tabels = mysqli_query($conn, $sql_tables);
 
                         if (mysqli_num_rows($query_tabels) > 0) {
