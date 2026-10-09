@@ -1,10 +1,10 @@
 <?php
 require_once "db.php";
 
-if (!isset($_GET['tables_id']) || empty($_GET['tables_id'])) {
+if (!isset($_GET['table_id']) || empty($_GET['table_id'])) {
     die("กรุณาแสกนคิวอาร์โค้ดที่โต๊ะเพื่อสั่งอาหาร");
 }
-$tables_id = $_GET['tables_id'];
+$table_id = $_GET['table_id'];
 
 // API สำหรับ ค้นหาเมนูแบบ Real-time Dropdown
 if (isset($_GET['action']) && $_GET['action'] == 'live_search') {
@@ -13,16 +13,16 @@ if (isset($_GET['action']) && $_GET['action'] == 'live_search') {
 
     if ($query !== '') {
         $q_escaped = mysqli_real_escape_string($conn, $query);
-        $search_sql = "SELECT p_id, p_name, p_price, p_img FROM products WHERE p_name LIKE '%{$q_escaped}%' ORDER BY p_name ASC LIMIT 8";
+        $search_sql = "SELECT product_id, product_name, product_price, product_img FROM `product` WHERE product_name LIKE '%{$q_escaped}%' ORDER BY product_name ASC LIMIT 8";
         $res = mysqli_query($conn, $search_sql);
 
         $items = [];
         while ($r = mysqli_fetch_assoc($res)) {
-            $img = !empty($r['p_img']) ? 'upload/' . $r['p_img'] : 'https://placehold.co/100x100?text=No+Img';
+            $img = !empty($r['product_img']) ? 'upload/' . $r['product_img'] : 'https://placehold.co/100x100?text=No+Img';
             $items[] = [
-                'id'    => (int)$r['p_id'],
-                'name'  => $r['p_name'],
-                'price' => (float)$r['p_price'],
+                'id'    => (int)$r['product_id'],
+                'name'  => $r['product_name'],
+                'price' => (float)$r['product_price'],
                 'img'   => $img
             ];
         }
@@ -45,14 +45,14 @@ if ($type_id != '') {
     $where[] = "type_id = '" . mysqli_real_escape_string($conn, $type_id) . "'";
 }
 if ($search != '') {
-    $where[] = "p_name LIKE '%" . mysqli_real_escape_string($conn, $search) . "%'";
+    $where[] = "product_name LIKE '%" . mysqli_real_escape_string($conn, $search) . "%'";
 }
 
-$sql = "SELECT * FROM products";
+$sql = "SELECT * FROM product";
 if (count($where) > 0) {
     $sql .= " WHERE " . implode(' AND ', $where);
 }
-$sql .= " ORDER BY p_id ASC";
+$sql .= " ORDER BY product_id ASC";
 
 $result = mysqli_query($conn, $sql);
 ?>
@@ -63,7 +63,7 @@ $result = mysqli_query($conn, $sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สั่งอาหาร - โต๊ะ <?php echo htmlspecialchars($tables_id); ?></title>
+    <title>สั่งอาหาร - โต๊ะ <?php echo htmlspecialchars($table_id); ?></title>
     <link rel="stylesheet" href="customer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -93,7 +93,7 @@ $result = mysqli_query($conn, $sql);
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
                 <form action="" method="get" id="inlineSearchForm" style="display: inline-flex; margin: 0;" onsubmit="return false;">
-                    <input type="hidden" name="tables_id" value="<?php echo htmlspecialchars($tables_id); ?>">
+                    <input type="hidden" name="table_id" value="<?php echo htmlspecialchars($table_id); ?>">
                     <?php if ($type_id != '') : ?>
                         <input type="hidden" name="type_id" value="<?php echo htmlspecialchars($type_id); ?>">
                     <?php endif; ?>
@@ -109,9 +109,9 @@ $result = mysqli_query($conn, $sql);
                 </button>
             </div>
 
-            <a href="?tables_id=<?php echo htmlspecialchars($tables_id); ?>" class="<?php echo ($type_id == '' && $search == '') ? 'active' : ''; ?>">ทั้งหมด</a>
+            <a href="?table_id=<?php echo htmlspecialchars($table_id); ?>" class="<?php echo ($type_id == '' && $search == '') ? 'active' : ''; ?>">ทั้งหมด</a>
             <?php while ($type = mysqli_fetch_assoc($result_type)) : ?>
-                <a href="?tables_id=<?php echo htmlspecialchars($tables_id); ?>&type_id=<?php echo $type['type_id']; ?>"
+                <a href="?table_id=<?php echo htmlspecialchars($table_id); ?>&type_id=<?php echo $type['type_id']; ?>"
                     class="<?php echo ($type_id == $type['type_id']) ? 'active' : ''; ?>">
                     <?php echo htmlspecialchars($type['type_name']); ?>
                 </a>
@@ -119,12 +119,12 @@ $result = mysqli_query($conn, $sql);
         </div>
 
         <div class="type-dropdown-menu" id="typeDropdown">
-            <a href="?tables_id=<?php echo htmlspecialchars($tables_id); ?>" class="type-dropdown-item <?php echo ($type_id == '' && $search == '') ? 'active' : ''; ?>">
+            <a href="?table_id=<?php echo htmlspecialchars($table_id); ?>" class="type-dropdown-item <?php echo ($type_id == '' && $search == '') ? 'active' : ''; ?>">
                 <span>ทั้งหมด</span>
                 <i class="fa-solid fa-chevron-right" style="font-size: 12px; color: #94a3b8;"></i>
             </a>
             <?php while ($type_drop = mysqli_fetch_assoc($result_type_drop)) : ?>
-                <a href="?tables_id=<?php echo htmlspecialchars($tables_id); ?>&type_id=<?php echo $type_drop['type_id']; ?>"
+                <a href="?table_id=<?php echo htmlspecialchars($table_id); ?>&type_id=<?php echo $type_drop['type_id']; ?>"
                     class="type-dropdown-item <?php echo ($type_id == $type_drop['type_id']) ? 'active' : ''; ?>">
                     <span><?php echo htmlspecialchars($type_drop['type_name']); ?></span>
                     <i class="fa-solid fa-chevron-right" style="font-size: 12px; color: #94a3b8;"></i>
@@ -137,19 +137,19 @@ $result = mysqli_query($conn, $sql);
         <?php if (mysqli_num_rows($result) > 0) : ?>
             <?php while ($row = mysqli_fetch_assoc($result)) :
                 $placehold = "https://placehold.co/200x200?text=No+Image";
-                $img = !empty($row['p_img']) ? 'upload/' . $row['p_img'] : $placehold;
+                $img = !empty($row['product_img']) ? 'upload/' . $row['product_img'] : $placehold;
             ?>
                 <div class="product-card"
-                    data-id="<?php echo (int)$row['p_id']; ?>"
-                    data-name="<?php echo htmlspecialchars($row['p_name'], ENT_QUOTES); ?>"
-                    data-price="<?php echo (float)$row['p_price']; ?>"
+                    data-id="<?php echo (int)$row['product_id']; ?>"
+                    data-name="<?php echo htmlspecialchars($row['product_name'], ENT_QUOTES); ?>"
+                    data-price="<?php echo (float)$row['product_price']; ?>"
                     data-img="<?php echo htmlspecialchars($img, ENT_QUOTES); ?>">
 
                     <img src="<?php echo htmlspecialchars($img); ?>"
-                        alt="<?php echo htmlspecialchars($row['p_name']); ?>">
+                        alt="<?php echo htmlspecialchars($row['product_name']); ?>">
 
-                    <div class="product-name"><?php echo htmlspecialchars($row['p_name']); ?></div>
-                    <div class="product-price"><?php echo number_format($row['p_price'], 0); ?> ฿</div>
+                    <div class="product-name"><?php echo htmlspecialchars($row['product_name']); ?></div>
+                    <div class="product-price"><?php echo number_format($row['product_price'], 0); ?> ฿</div>
 
                     <button type="button" class="btn-add">
                         <i class="fa-solid fa-circle-plus"></i>
@@ -157,10 +157,10 @@ $result = mysqli_query($conn, $sql);
                 </div>
             <?php endwhile; ?>
         <?php endif; ?>
-        <p id="noProductsMessage">ไม่พบรายการอาหารที่ค้นหา</p>
+        <p id="noProductMessage">ไม่พบรายการอาหารที่ค้นหา</p>
     </div>
 
-    <input type="hidden" id="tablesId" value="<?php echo htmlspecialchars($tables_id, ENT_QUOTES); ?>">
+    <input type="hidden" id="tableId" value="<?php echo htmlspecialchars($table_id, ENT_QUOTES); ?>">
 
     <!-- Modal เลือกจำนวน / หมายเหตุ -->
     <div class="order-modal" id="orderModal">

@@ -1,7 +1,7 @@
 /* ===== customer.js ===== */
 const $ = id => document.getElementById(id);
 
-const TABLE_ID = $('tablesId')?.value || '';
+const TABLE_ID = $('tableId')?.value || '';
 const CART_KEY = 'cart_' + TABLE_ID;
 let cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
 let current = null;
@@ -366,7 +366,7 @@ function toggleInlineSearch() {
 function handleLiveSearch(query) {
     const filter = query.trim().toLowerCase();
     const cards = document.querySelectorAll('#productGrid .product-card');
-    const noMsg = document.getElementById('noProductsMessage');
+    const noMsg = document.getElementById('noProductMessage');
     let visibleCount = 0;
 
     cards.forEach(card => {

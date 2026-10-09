@@ -777,7 +777,7 @@ body.modal-open {
     z-index: 999999 !important;
 }
 
-#noProductsMessage {
+#noProductMessage {
     text-align: center;
     width: 100%;
     color: #888;

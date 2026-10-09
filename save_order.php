@@ -3,7 +3,7 @@ require 'db.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $data = json_decode(file_get_contents('php://input'), true);
-$tableId = trim((string)($data['table_id'] ?? $data['tables_id'] ?? ''));
+$tableId = trim((string)($data['table_id'] ?? $data['table_id'] ?? ''));
 $items = $data['items'] ?? [];
 
 if ($tableId === '' || empty($items)) {
@@ -23,13 +23,13 @@ try {
     // 2. ค้นหาราคาตั้งต้นของเมนู
     $ids = array_values(array_unique(array_map(fn($i) => (int)($i['id'] ?? 0), $items)));
     $ph = implode(',', array_fill(0, count($ids), '?'));
-    $st = mysqli_prepare($conn, "SELECT p_id, p_price FROM products WHERE p_id IN ($ph)");
+    $st = mysqli_prepare($conn, "SELECT product_id, product_price FROM product WHERE product_id IN ($ph)");
     mysqli_stmt_bind_param($st, str_repeat('i', count($ids)), ...$ids);
     mysqli_stmt_execute($st);
     $res = mysqli_stmt_get_result($st);
     $priceMap = [];
     while ($r = mysqli_fetch_assoc($res)) {
-        $priceMap[(int)$r['p_id']] = (float)$r['p_price'];
+        $priceMap[(int)$r['product_id']] = (float)$r['product_price'];
     }
 
     // 3. คำนวณยอดรวมและเตรียมข้อมูลให้สะอาด
@@ -73,8 +73,8 @@ try {
     // 5. บันทึกรายการอาหารลง order_detail และ อัปเดตยอดขายสินค้า
     $st = mysqli_prepare($conn, "INSERT INTO `order_detail` (`order_id`, `product_id`, `quantity`, `price`, `remark`, `option_label`) VALUES (?, ?, ?, ?, ?, ?)");
 
-    // เพิ่ม: เตรียมคำสั่งอัปเดตยอดขายในตาราง products
-    $st_sales = mysqli_prepare($conn, "UPDATE `products` SET `sales_count` = `sales_count` + ? WHERE `p_id` = ?");
+    // เพิ่ม: เตรียมคำสั่งอัปเดตยอดขายในตาราง product
+    $st_sales = mysqli_prepare($conn, "UPDATE `product` SET `sales_count` = `sales_count` + ? WHERE `product_id` = ?");
 
     foreach ($clean as $c) {
         // 5.1 บันทึกรายการลง order_detail
@@ -88,7 +88,7 @@ try {
 
     // อัปเดตสถานะโต๊ะให้เป็น 'occupied' (ไม่ว่าง) 
     if (!empty($tableId)) {
-        $stTable = mysqli_prepare($conn, "UPDATE `tables` SET `table_status` = 'occupied' WHERE `tables_id` = ?");
+        $stTable = mysqli_prepare($conn, "UPDATE `table` SET `table_status` = 'occupied' WHERE `table_id` = ?");
         mysqli_stmt_bind_param($stTable, 's', $tableId);
         mysqli_stmt_execute($stTable);
     }

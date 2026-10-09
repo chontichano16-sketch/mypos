@@ -2,7 +2,7 @@
 require 'db.php'; 
 
 // ดึงรายการโต๊ะทั้งหมดที่เปิดใช้งานอยู่
-$sql = "SELECT * FROM `tables` WHERE `is_active` = 1 ORDER BY `tables_id` ASC";
+$sql = "SELECT * FROM `table` WHERE `is_active` = 1 ORDER BY `table_id` ASC";
 $result = mysqli_query($conn, $sql);
 ?>
 <!DOCTYPE html>
@@ -182,7 +182,7 @@ $result = mysqli_query($conn, $sql);
             <?php if (mysqli_num_rows($result) > 0): ?>
                 <?php while ($row = mysqli_fetch_assoc($result)): ?>
                     <?php
-                    $tableName = htmlspecialchars($row['tables_number']);
+                    $tableName = htmlspecialchars($row['table_number']);
                     // ดึงลิงก์จาก DB มาเข้ารหัส URL สำหรับส่งให้ API สร้างรูป QR
                     $qrLink = urlencode($row['qr_link']);
                     $qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . $qrLink;

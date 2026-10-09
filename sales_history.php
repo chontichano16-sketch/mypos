@@ -13,11 +13,11 @@ $where = "WHERE status IN ('paid', 'cancelled')";
 
 if (!empty($search)) {
     $searchEscaped = mysqli_real_escape_string($conn, $search);
-    $where .= " AND (order_id = '$searchEscaped' OR table_id = '$searchEscaped')";
+    $where .= " AND (`order`.order_id = '$searchEscaped' OR `order`.table_id = '$searchEscaped')";
 }
 
-$sql = "SELECT `order`.*, tables.tables_number FROM `order` LEFT JOIN tables ON `order`.table_id = tables.tables_id 
-$where ORDER BY order_id DESC LIMIT 100";
+$sql = "SELECT `order`.*, table.table_number FROM `order` LEFT JOIN `table` ON `order`.table_id = table.table_id
+$where ORDER BY `order`.order_id DESC LIMIT 100";
 $result = mysqli_query($conn, $sql);
 ?>
 
@@ -217,7 +217,7 @@ $result = mysqli_query($conn, $sql);
             <div id="myDropdown" class="dropdown-content" style="border: none;">
                 <button class="menu-btn"> <i class="bi bi-chevron-down" style="float: right;"></i></i><i class="fa-solid fa-chair"></i> จัดการข้อมูลโต๊ะ</button>
                 <ul class="submenu">
-                    <li><a href="show_tables.php"> รายการโต๊ะทั้งหมด</a></li>
+                    <li><a href="show_table.php"> รายการโต๊ะทั้งหมด</a></li>
                     <li><button onclick="openAddTableModal()">เพิ่มโต๊ะ</button></li>
                     <li><a href="print_qr.php"><!--<i class="bi bi-qr-code">--></i> พิมพ์ QR Code โต๊ะ</a></li>
                 </ul>
@@ -313,7 +313,7 @@ $result = mysqli_query($conn, $sql);
                                 </td>
 
                                 <td style="text-align: center;">
-                                    <?= !empty($row['tables_number']) ? $row['tables_number'] : ($row['table_id'] ?? '-') ?>
+                                    <?= !empty($row['table_number']) ? $row['table_number'] : ($row['table_id'] ?? '-') ?>
                                 </td>
 
                                 <td style="text-align: center;">

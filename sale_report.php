@@ -150,7 +150,7 @@ $monthlySummary = salesSummary($conn, $thisMonthStart, $thisMonthEnd);
 $yearlySummary  = salesSummary($conn, $thisYearStart, $thisYearEnd);
 
 // ดึงข้อมูลรายการขายสำหรับตาราง
-$ordersStatement = $conn->prepare("SELECT `order`.*, tables.tables_number FROM `order` LEFT JOIN tables ON `order`.table_id = tables.tables_id WHERE `order`.status = 'paid' AND `order`.created_at >= ? AND `order`.created_at < ? ORDER BY `order`.created_at DESC");
+$ordersStatement = $conn->prepare("SELECT `order`.*, table.table_number FROM `order` LEFT JOIN `table` ON `order`.table_id = table.table_id WHERE `order`.status = 'paid' AND `order`.created_at >= ? AND `order`.created_at < ? ORDER BY `order`.created_at DESC");
 $ordersStatement->bind_param('ss', $tableStart, $tableEnd);
 $ordersStatement->execute();
 $salesData = $ordersStatement->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -351,7 +351,7 @@ $salesData = $ordersStatement->get_result()->fetch_all(MYSQLI_ASSOC);
             <div id="myDropdown" class="dropdown-content" style="border: none;">
                 <button class="menu-btn"> <i class="bi bi-chevron-down" style="float: right;"></i></i><i class="fa-solid fa-chair"></i> จัดการข้อมูลโต๊ะ</button>
                 <ul class="submenu">
-                    <li><a href="show_tables.php"> รายการโต๊ะทั้งหมด</a></li>
+                    <li><a href="show_table.php"> รายการโต๊ะทั้งหมด</a></li>
                     <li><button onclick="openAddTableModal()">เพิ่มโต๊ะ</button></li>
                     <li><a href="print_qr.php"><!--<i class="bi bi-qr-code">--></i> พิมพ์ QR Code โต๊ะ</a></li>
                 </ul>
@@ -526,7 +526,7 @@ $salesData = $ordersStatement->get_result()->fetch_all(MYSQLI_ASSOC);
                                         ?>
                                     </td>
                                     <td>#ORD-<?= str_pad((string) $row['order_id'], 4, '0', STR_PAD_LEFT) ?></td>
-                                    <td><?= htmlspecialchars((string) (!empty($row['tables_number']) ? $row['tables_number'] : ($row['table_id'] ?? '-')), ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= htmlspecialchars((string) (!empty($row['table_number']) ? $row['table_number'] : ($row['table_id'] ?? '-')), ENT_QUOTES, 'UTF-8') ?></td>
                                     <td><?= htmlspecialchars($row['payment_method'] ?: 'เงินสด', ENT_QUOTES, 'UTF-8') ?></td>
                                     <td class="amount"><strong><?= number_format((float) $row['total_amount'], 2) ?></strong></td>
 

@@ -3,21 +3,21 @@ include "db.php";
 //เก็บค่าไว้ในตัวแปร
 
 
-$p_name  = $_POST['p_name'];
-$p_price = $_POST['p_price'];
-$p_img = "";
+$product_name  = $_POST['product_name'];
+$product_price = $_POST['product_price'];
+$product_img = "";
 $type_id = $_POST['type_id'];
 
 
 
 //เช็คว่ามีการอัปโหลดรูป
-if (isset($_FILES['p_img']['name']) && $_FILES['p_img']['name'] != "") {
-    $p_img = "img_" . date("His") . ".jpg";
-    move_uploaded_file($_FILES['p_img']["tmp_name"], "upload/" . $p_img);
+if (isset($_FILES['product_img']['name']) && $_FILES['product_img']['name'] != "") {
+    $product_img = "img_" . date("His") . ".jpg";
+    move_uploaded_file($_FILES['product_img']["tmproduct_name"], "upload/" . $product_img);
 }
 
-$add_product = "INSERT INTO products (p_name, p_price, p_img, type_id)
-        VALUES ('$p_name','$p_price','$p_img', '$type_id')";
+$add_product = "INSERT INTO product (product_name, product_price, product_img, type_id)
+        VALUES ('$product_name','$product_price','$product_img', '$type_id')";
 
 $check = mysqli_query($conn, $add_product) or die(mysqli_error($conn));
 

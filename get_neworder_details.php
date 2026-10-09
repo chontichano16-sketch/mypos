@@ -8,9 +8,9 @@ if (!isset($_GET['order_id']) || empty($_GET['order_id'])) {
 
 $orderId = intval($_GET['order_id']);
 
-$sql = "SELECT od.*, p.p_name 
+$sql = "SELECT od.*, p.product_name 
         FROM `order_detail` od 
-        LEFT JOIN `products` p ON od.product_id = p.p_id 
+        LEFT JOIN `product` p ON od.product_id = p.product_id 
         WHERE od.order_id = ?";
 
 $stmt = mysqli_prepare($conn, $sql);
@@ -37,7 +37,7 @@ $total = 0;
     <tbody>
         <?php while ($item = mysqli_fetch_assoc($res)): ?>
             <?php
-            $name = htmlspecialchars($item['p_name'] ?? 'ไม่พบชื่อสินค้า');
+            $name = htmlspecialchars($item['product_name'] ?? 'ไม่พบชื่อสินค้า');
             $qty = intval($item['quantity']);
             $price = floatval($item['price']);
             $subtotal = $qty * $price;

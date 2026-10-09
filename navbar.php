@@ -94,7 +94,7 @@ if (!isset($_SESSION["user_id"])) {
         <div id="myDropdown" class="dropdown-content" style="border: none;">
             <button class="menu-btn"> <i class="bi bi-chevron-down" style="float: right;"></i></i><i class="fa-solid fa-chair"></i> จัดการข้อมูลโต๊ะ</button>
             <ul class="submenu">
-                <li><a href="show_tables.php"> รายการโต๊ะทั้งหมด</a></li>
+                <li><a href="show_table.php"> รายการโต๊ะทั้งหมด</a></li>
                 <li><button onclick="openAddTableModal()">เพิ่มโต๊ะ</button></li>
                 <li><a href="print_qr.php"><!--<i class="bi bi-qr-code">--></i> พิมพ์ QR Code โต๊ะ</a></li>
             </ul>

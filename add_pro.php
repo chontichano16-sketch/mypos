@@ -17,18 +17,18 @@
 
       <form action="save_pro.php" method="post" enctype="multipart/form-data">
         <div class="form-group">
-          <label for="p_name">ชื่อเมนู</label>
-          <input type="text" name="p_name" id="p_name">
+          <label for="product_name">ชื่อเมนู</label>
+          <input type="text" name="product_name" id="product_name">
         </div>
 
         <div class="form-group">
-          <label for="p_price">ราคา</label>
-          <input type="text" name="p_price" id="p_price">
+          <label for="product_price">ราคา</label>
+          <input type="text" name="product_price" id="product_price">
         </div>
 
         <div class="form-group">
           <label for="file">รูปภาพ</label>
-          <input type="file" name="p_img" id="file" accept="image/*">
+          <input type="file" name="product_img" id="file" accept="image/*">
         </div>
 
         <div class="form-group">

@@ -23,9 +23,9 @@ if (!empty($pids)) {
 //  ดักกรองหมวดหมู่เครื่องดื่มออกจากการพิมพ์
 $where .= " AND p.type_id NOT IN ('5', '6', '7')"; 
 
-$sql = "SELECT od.*, p.p_name
+$sql = "SELECT od.*, p.product_name
         FROM order_detail od
-        JOIN products p ON od.product_id = p.p_id
+        JOIN product p ON od.product_id = p.product_id
         WHERE $where";
 $result = mysqli_query($conn, $sql);
 if (!$result) {
@@ -109,7 +109,7 @@ $tableId = $o['table_id'] ?? '-';
     <table>
         <?php foreach ($rows as $row): ?>
             <tr>
-                <td><?= htmlspecialchars($row['p_name']) ?></td>
+                <td><?= htmlspecialchars($row['product_name']) ?></td>
                 <td class="qty">x<?= (int)$row['quantity'] ?></td>
             </tr>
             <?php if (!empty($row['remark'])): ?>

@@ -18,9 +18,9 @@ $order = mysqli_fetch_assoc($result_order);
 
 //  ดึงรายการอาหารในบิล (เชื่อมตาราง order_detail กับตารางสินค้า)
 $sql_details = "
-    SELECT od.*, p.p_name AS product_name 
+    SELECT od.*, p.product_name AS product_name 
     FROM order_detail od 
-    LEFT JOIN products p ON od.product_id = p.p_id 
+    LEFT JOIN product p ON od.product_id = p.product_id 
     WHERE od.order_id = $order_id
 ";
 $result_details = mysqli_query($conn, $sql_details);

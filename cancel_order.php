@@ -27,7 +27,7 @@ if ($stmt) {
             $table_id = $table_row['table_id'];
 
             if (!empty($table_id)) {
-                $update_table_sql = "UPDATE `tables` SET table_status = 'available' WHERE tables_id = '$table_id'";
+                $update_table_sql = "UPDATE `table` SET table_status = 'available' WHERE table_id = '$table_id'";
                 mysqli_query($conn, $update_table_sql);
             }
         }

@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tableNameEscaped = mysqli_real_escape_string($conn, $tableName);
 
         // ตรวจสอบชื่อโต๊ะซ้ำ
-        $checkQuery = "SELECT * FROM `tables` WHERE `tables_number` = '$tableNameEscaped' AND `is_active` = 1";
+        $checkQuery = "SELECT * FROM `table` WHERE `table_number` = '$tableNameEscaped' AND `is_active` = 1";
         $checkResult = mysqli_query($conn, $checkQuery);
 
         if ($checkResult && mysqli_num_rows($checkResult) > 0) {
@@ -22,11 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // ลิงก์สำหรับ QR Code
         $host = $_SERVER['HTTP_HOST']; //  127.0.0.1 หรือ localhost อัตโนมัติ
-        $baseUrl = "http://" . $host . "/mypos/customer_menu.php?tables_id=";
+        $baseUrl = "http://" . $host . "/mypos/customer_menu.php?table_id=";
         $qrLink = $baseUrl . urlencode($tableNameEscaped);
 
         // บันทึกข้อมูล
-        $sql = "INSERT INTO `tables` (`tables_number`, `qr_link`, `table_status`, `is_active`) 
+        $sql = "INSERT INTO `table` (`table_number`, `qr_link`, `table_status`, `is_active`) 
                 VALUES ('$tableNameEscaped', '$qrLink', 'available', 1)";
 
         if (mysqli_query($conn, $sql)) {

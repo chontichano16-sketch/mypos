@@ -29,8 +29,8 @@ renderOrder();
 function renderOrder() {
 
     let savedTable = sessionStorage.getItem('selectedTable');
-    if (savedTable && document.getElementById('tables')) {
-        document.getElementById('tables').value = savedTable;
+    if (savedTable && document.getElementById('table')) {
+        document.getElementById('table').value = savedTable;
     }
 
     sessionStorage.setItem('orderItems', JSON.stringify(orderItems));
@@ -173,7 +173,7 @@ function saveOrder() {
         return;
     }
 
-    const table = document.getElementById('tables').value;
+    const table = document.getElementById('table').value;
 
     if (!table || table === 'T.0' || table === '' || table === 'ไม่ได้เลือก') {
         alert('กรุณาเลือกโต๊ะก่อนบันทึก');
@@ -218,7 +218,7 @@ function saveOrder() {
             }
         })
     sessionStorage.removeItem('selectedTable');
-    document.getElementById('tables').value = "";
+    document.getElementById('table').value = "";
 }
 
 // เมนูย่อย
@@ -308,10 +308,10 @@ function openEditModal(button) {
         return;
     }
 
-    document.getElementById('edit_p_id').value = product.id ?? '';
+    document.getElementById('edit_product_id').value = product.id ?? '';
     document.getElementById('edit_old_img').value = product.image ?? '';
-    document.getElementById('edit_p_name').value = product.name ?? '';
-    document.getElementById('edit_p_price').value = product.price ?? '';
+    document.getElementById('edit_product_name').value = product.name ?? '';
+    document.getElementById('edit_product_price').value = product.price ?? '';
     document.getElementById('edit_type_id').value = product.typeId ?? '';
 
     const preview = document.getElementById('current_img_preview');
@@ -676,7 +676,7 @@ function viewBill(orderId) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                let tableSelect = document.getElementById('tables');
+                let tableSelect = document.getElementById('table');
                 if (tableSelect) tableSelect.value = data.table_id;
 
                 let orderContainer = document.querySelector('.order-items-container');
@@ -738,7 +738,7 @@ function viewBill(orderId) {
 }
 
 function closeBillView() {
-    document.getElementById('tables').value = "";
+    document.getElementById('table').value = "";
 
     let orderContainer = document.querySelector('.order-items-container');
     if (orderContainer) {
@@ -755,7 +755,7 @@ function closeBillView() {
     if (saveBtn) saveBtn.disabled = false;
 
     sessionStorage.removeItem('selectedTable');
-    document.getElementById('tables').value = "";
+    document.getElementById('table').value = "";
 }
 
 function decreaseItem(index) {
@@ -1138,7 +1138,7 @@ setInterval(checkNewOrders, 5000);
 document.addEventListener('DOMContentLoaded', checkNewOrders);
 
 function confirmPayment() {
-    let tableId = document.getElementById('tables').value;
+    let tableId = document.getElementById('table').value;
     if (tableId === "") {
         alert("กรุณาเลือกโต๊ะก่อนชำระเงิน");
         return;

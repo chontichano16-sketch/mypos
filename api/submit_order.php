@@ -3,7 +3,7 @@ require '../db.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $data = json_decode(file_get_contents('php://input'), true);
-$tableId = trim((string)($data['table_id'] ?? $data['tables_id'] ?? ''));
+$tableId = trim((string)($data['table_id'] ?? $data['table_id'] ?? ''));
 $items = $data['items'] ?? [];
 $source = trim((string)($data['source'] ?? 'qr')); // รับค่า source (ถ้ามาจาก POS จะส่ง 'pos' มา)
 
@@ -24,13 +24,13 @@ try {
     // 2. คำนวณราคารวม
     $ids = array_values(array_unique(array_map(fn($i) => (int)($i['id'] ?? 0), $items)));
     $ph = implode(',', array_fill(0, count($ids), '?'));
-    $st = mysqli_prepare($conn, "SELECT p_id, p_price FROM products WHERE p_id IN ($ph)");
+    $st = mysqli_prepare($conn, "SELECT product_id, product_price FROM `product` WHERE product_id IN ($ph)");
     mysqli_stmt_bind_param($st, str_repeat('i', count($ids)), ...$ids);
     mysqli_stmt_execute($st);
     $res = mysqli_stmt_get_result($st);
     $priceMap = [];
     while ($r = mysqli_fetch_assoc($res)) {
-        $priceMap[(int)$r['p_id']] = (float)$r['p_price'];
+        $priceMap[(int)$r['product_id']] = (float)$r['product_price'];
     }
 
     $total = 0;
@@ -88,7 +88,6 @@ try {
     // 3. จัดการบิล (แยกเคส POS รวมบิล กับ QR สั่งเพิ่ม)
     if ($parentOrderId > 0 && $source === 'pos') {
         // --- กรณีสั่งจาก POS และโต๊ะนี้มีบิลเปิดอยู่แล้ว ---
-        // ให้ยึด order_id เดิม แล้วบวกยอดเงินเพิ่มเข้าไป (ไม่สร้างแถวใหม่ในตาราง order)
         $orderId = $parentOrderId;
         $st = mysqli_prepare($conn, "UPDATE `order` SET `total_amount` = `total_amount` + ? WHERE `order_id` = ?");
         mysqli_stmt_bind_param($st, 'di', $total, $orderId);
@@ -96,8 +95,12 @@ try {
     } else {
         // --- กรณีเปิดโต๊ะใหม่ หรือเป็นออเดอร์จาก QR ---
         $status = ($source === 'pos') ? 'pending' : 'new_item';
-        $st = mysqli_prepare($conn, "INSERT INTO `order` (`table_id`, `source`, `status`, `total_amount`, `parent_order_id`) VALUES (?, ?, ?, ?, ?)");
-        mysqli_stmt_bind_param($st, 'sssdi', $tableId, $source, $status, $total, $parentOrderId);
+
+        // รับ user_id จาก request (ถ้ามาจาก POS) หรือเป็น null (ถ้ามาจาก QR)
+        $userId = isset($data['user_id']) && !empty($data['user_id']) ? (int)$data['user_id'] : null;
+
+        $st = mysqli_prepare($conn, "INSERT INTO `order` (`table_id`, `user_id`, `source`, `status`, `total_amount`, `parent_order_id`) VALUES (?, ?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($st, 'isssdi', $tableId, $userId, $source, $status, $total, $parentOrderId);
         mysqli_stmt_execute($st);
         $orderId = mysqli_insert_id($conn);
     }
@@ -112,11 +115,11 @@ try {
         mysqli_stmt_execute($st);
 
         // 5. อัปเดตสถานะโต๊ะให้เป็น 'occupied' (ไม่ว่าง) อัตโนมัติ
-        $stTable = mysqli_prepare($conn, "UPDATE `tables` SET `table_status` = 'occupied' WHERE `tables_id` = ?");
+        $stTable = mysqli_prepare($conn, "UPDATE `table` SET `table_status` = 'occupied' WHERE `table_id` = ?");
         mysqli_stmt_bind_param($stTable, 'i', $tableId);
         mysqli_stmt_execute($stTable);
     }
-    
+
     mysqli_commit($conn);
 
     echo json_encode(['status' => 'success', 'order_id' => $orderId, 'is_new' => ($parentOrderId == 0)]);

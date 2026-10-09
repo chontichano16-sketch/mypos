@@ -461,11 +461,11 @@ button:disabled,
     font-size-adjust: ex-height 0.5;
 }
 
-#p_name {
+#product_name {
     padding-inline: 10px;
 }
 
-#p_price {
+#product_price {
     padding-inline: 10px;
 }
 

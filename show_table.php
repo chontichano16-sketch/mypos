@@ -12,11 +12,11 @@ include "all_popup.php";
 $showHidden = isset($_GET['status']) && $_GET['status'] == 'hidden';
 if ($showHidden) {
     // ดึงเฉพาะโต๊ะที่ถูกซ่อน
-    $sql = "SELECT * FROM `tables` WHERE `is_active` = 0 ORDER BY `tables_id` ASC";
+    $sql = "SELECT * FROM `table` WHERE `is_active` = 0 ORDER BY `table_id` ASC";
     $pageTitle = "โต๊ะที่ถูกซ่อน";
 } else {
     // ดึงเฉพาะโต๊ะปกติ
-    $sql = "SELECT * FROM `tables` WHERE `is_active` = 1 ORDER BY `tables_id` ASC";
+    $sql = "SELECT * FROM `table` WHERE `is_active` = 1 ORDER BY `table_id` ASC";
     $pageTitle = "รายการโต๊ะทั้งหมด";
 }
 $result = mysqli_query($conn, $sql);
@@ -120,7 +120,7 @@ $result = mysqli_query($conn, $sql);
             <div id="myDropdown" class="dropdown-content" style="border: none;">
                 <button class="menu-btn"> <i class="bi bi-chevron-down" style="float: right;"></i></i><i class="fa-solid fa-chair"></i> จัดการข้อมูลโต๊ะ</button>
                 <ul class="submenu">
-                    <li><a href="show_tables.php"> รายการโต๊ะทั้งหมด</a></li>
+                    <li><a href="show_table.php"> รายการโต๊ะทั้งหมด</a></li>
                     <li><button onclick="openAddTableModal()">เพิ่มโต๊ะ</button></li>
                     <li><a href="print_qr.php"><!--<i class="bi bi-qr-code">--></i> พิมพ์ QR Code โต๊ะ</a></li>
                 </ul>
@@ -161,9 +161,9 @@ $result = mysqli_query($conn, $sql);
         <div class="header-action-1">
             <h2><?php echo $pageTitle; ?></h2>
             <?php if ($showHidden): ?>
-                <a href="show_tables.php" style="margin-right: 15px; color: #666;">กลับไปหน้าปกติ</a>
+                <a href="show_table.php" style="margin-right: 15px; color: #666;">กลับไปหน้าปกติ</a>
             <?php else: ?>
-                <a href="show_tables.php?status=hidden" style="margin-right: 15px; color: #ff9800;">ดูโต๊ะที่ถูกซ่อน</a>
+                <a href="show_table.php?status=hidden" style="margin-right: 15px; color: #ff9800;">ดูโต๊ะที่ถูกซ่อน</a>
             <?php endif; ?>
             <button class="btn-add" onclick="openAddTableModal()"><i class="fa-solid fa-plus"></i> เพิ่มโต๊ะ</button>
         </div>
@@ -196,8 +196,8 @@ $result = mysqli_query($conn, $sql);
                         $statusText = ($row['table_status'] === 'occupied') ? 'มีออเดอร์' : 'ว่าง';
 
                         // แปลงข้อความป้องกัน XSS และ Single/Double quote พังใน JavaScript
-                        $tableId = $row['tables_id'];
-                        $tableName = htmlspecialchars($row['tables_number'], ENT_QUOTES);
+                        $tableId = $row['table_id'];
+                        $tableName = htmlspecialchars($row['table_number'], ENT_QUOTES);
                         $qrLink = htmlspecialchars($row['qr_link'], ENT_QUOTES);
 
                         echo "<tr>";
@@ -237,9 +237,9 @@ $result = mysqli_query($conn, $sql);
 
                 navSearch.addEventListener('keyup', function() {
                     let input = this.value.toLowerCase();
-                    let tables = document.querySelectorAll("table");
+                    let table = document.querySelectorAll("table");
 
-                    tables.forEach(table => {
+                    table.forEach(table => {
                         let rows = table.querySelectorAll("tbody tr");
 
                         rows.forEach(row => {

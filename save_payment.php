@@ -29,7 +29,7 @@ if ($is_takeaway === 'yes' && is_array($items) && count($items) > 0) {
     try {
         $total_amount = 0;
         $processed_items = [];
-        $stmt_product = $conn->prepare("SELECT p_price FROM products WHERE p_id = ?");
+        $stmt_product = $conn->prepare("SELECT product_price FROM product WHERE product_id = ?");
 
         foreach ($items as $item) {
             $pid = (int)($item['id'] ?? 0);
@@ -50,7 +50,7 @@ if ($is_takeaway === 'yes' && is_array($items) && count($items) > 0) {
                 throw new Exception("Product not found");
             }
 
-            $price = (float)$product['p_price'] + $option_adjustment;
+            $price = (float)$product['product_price'] + $option_adjustment;
             $total_amount += $price * $qty;
             $remark_parts = [];
             if ($option_label !== '') {
@@ -106,7 +106,7 @@ else {
         if ($stmt_update->execute()) {
             // เช็คว่ามีรหัสโต๊ะ และไม่ใช่Takeaway
             if (!empty($table_id) && $table_id !== 'Takeaway') {
-                $stmt_clear_table = $conn->prepare("UPDATE `tables` SET `table_status` = 'available' WHERE `tables_id` = ?");
+                $stmt_clear_table = $conn->prepare("UPDATE `table` SET `table_status` = 'available' WHERE `table_id` = ?");
                 $stmt_clear_table->bind_param("s", $table_id);
                 $stmt_clear_table->execute();
             }

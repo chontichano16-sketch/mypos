@@ -4,18 +4,18 @@ require_once "product_options_lib.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // รับค่าจากฟอร์มใน Modal
-    $p_id = mysqli_real_escape_string($conn, $_POST['p_id']);
-    $p_name = mysqli_real_escape_string($conn, $_POST['p_name']);
-    $p_price = mysqli_real_escape_string($conn, $_POST['p_price']);
+    $product_id = mysqli_real_escape_string($conn, $_POST['product_id']);
+    $product_name = mysqli_real_escape_string($conn, $_POST['product_name']);
+    $product_price = mysqli_real_escape_string($conn, $_POST['product_price']);
     $type_id = mysqli_real_escape_string($conn, $_POST['type_id']);
     $old_img = $_POST['old_img'];
 
-    $p_img = $old_img; // ตั้งต้นให้ใช้รูปเดิม
+    $product_img = $old_img; // ตั้งต้นให้ใช้รูปเดิม
 
     // ตรวจสอบว่ามีการอัปโหลดรูปภาพใหม่มาด้วยหรือไม่
-    if (isset($_FILES['p_img']['name']) && $_FILES['p_img']['name'] != "") {
-        $file_name = $_FILES['p_img']['name'];
-        $file_tmp = $_FILES['p_img']['tmp_name'];
+    if (isset($_FILES['product_img']['name']) && $_FILES['product_img']['name'] != "") {
+        $file_name = $_FILES['product_img']['name'];
+        $file_tmp = $_FILES['product_img']['tmproduct_name'];
         
         // แยกนามสกุลไฟล์และตั้งชื่อใหม่เพื่อป้องกันไฟล์ซ้ำ
         $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // อัปโหลดไฟล์ใหม่ไปยังโฟลเดอร์ upload
         if (move_uploaded_file($file_tmp, $upload_dir . $new_file_name)) {
-            $p_img = $new_file_name;
+            $product_img = $new_file_name;
 
             // ลบรูปภาพเก่าทิ้ง (ถ้ามีรูปเก่าและไฟล์มีอยู่จริง)
             if (!empty($old_img) && file_exists($upload_dir . $old_img)) {
@@ -34,12 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // คำสั่ง SQL สำหรับอัปเดตข้อมูลสินค้า
-    $sql = "UPDATE products SET 
-            p_name = '$p_name', 
-            p_price = '$p_price', 
+    $sql = "UPDATE product SET 
+            product_name = '$product_name', 
+            product_price = '$product_price', 
             type_id = '$type_id', 
-            p_img = '$p_img' 
-            WHERE p_id = '$p_id'";
+            product_img = '$product_img' 
+            WHERE product_id = '$product_id'";
 
     $result = mysqli_query($conn, $sql);
 
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ensureProductOptionsTable($conn);
 
             $delete_options = $conn->prepare('DELETE FROM product_options WHERE product_id = ?');
-            $product_id_int = (int)$p_id;
+            $product_id_int = (int)$product_id;
             $delete_options->bind_param('i', $product_id_int);
             $delete_options->execute();
 

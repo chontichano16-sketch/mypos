@@ -20,27 +20,27 @@
     require_once "db.php";
     include "navbar.php";
 
-    // ดึงข้อมูลสินค้าพร้อมชื่อประเภท (JOIN ตาราง products และ type)
+    // ดึงข้อมูลสินค้าพร้อมชื่อประเภท (JOIN ตาราง product และ type)
     $sql = "SELECT p.*, t.type_name 
-            FROM products p 
+            FROM product p 
             LEFT JOIN type t ON p.type_id = t.type_id 
-            ORDER BY t.type_id ASC, p.p_id DESC";
+            ORDER BY t.type_id ASC, p.product_id DESC";
     $result = mysqli_query($conn, $sql);
 
     // จัดกลุ่มสินค้าใส่ Array แยกตามประเภท
-    $products_by_category = [];
+    $product_by_category = [];
     while ($row = mysqli_fetch_array($result)) {
         $category_name = !empty($row['type_name']) ? $row['type_name'] : 'ทั่วไป / ไม่ระบุประเภท';
-        $products_by_category[$category_name][] = $row;
+        $product_by_category[$category_name][] = $row;
     }
     ?>
 
     <div class="container">
         <h2 style="color: #3f342d; margin-bottom: 20px;">รายการสินค้าทั้งหมด</h2>
 
-        <?php if (!empty($products_by_category)): ?>
+        <?php if (!empty($product_by_category)): ?>
             <!-- วนลูปแยกแสดงตารางตามประเภทสินค้า -->
-            <?php foreach ($products_by_category as $category_name => $items): ?>
+            <?php foreach ($product_by_category as $category_name => $items): ?>
 
                 <h3 class="header-showpro">
                     <i class="fa-solid fa-tag"></i><?= htmlspecialchars($category_name); ?>
@@ -59,24 +59,24 @@
                     <tbody>
                         <?php foreach ($items as $row) { ?>
                             <tr>
-                                <td><?= $row['p_id']; ?></td>
+                                <td><?= $row['product_id']; ?></td>
                                 <td>
-                                    <img src="upload/<?= $row['p_img']; ?>" width="50" height="50" alt="รูปสินค้า" style="object-fit: cover; border-radius: 4px;">
+                                    <img src="upload/<?= $row['product_img']; ?>" width="50" height="50" alt="รูปสินค้า" style="object-fit: cover; border-radius: 4px;">
                                 </td>
-                                <td><?= $row['p_name']; ?></td>
-                                <td><?= number_format($row['p_price'], 2); ?> ฿</td>
+                                <td><?= $row['product_name']; ?></td>
+                                <td><?= number_format($row['product_price'], 2); ?> ฿</td>
                                 <td>
-                                    <a href="edit_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-edit"
+                                    <a href="edit_pro.php?product_id=<?= $row['product_id']; ?>" class="btn-edit"
                                         data-product='<?= htmlspecialchars(json_encode([
-                                                            'id' => $row['p_id'],
-                                                            'name' => $row['p_name'],
-                                                            'price' => $row['p_price'],
-                                                            'image' => $row['p_img'],
+                                                            'id' => $row['product_id'],
+                                                            'name' => $row['product_name'],
+                                                            'price' => $row['product_price'],
+                                                            'image' => $row['product_img'],
                                                             'typeId' => $row['type_id'],
                                                         ], JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>'
                                         onclick="openEditModal(this); return false;">
                                         <i class="fa-regular fa-pen-to-square"></i></a>
-                                    <a href="delete_pro.php?p_id=<?= $row['p_id']; ?>" class="btn-delete" onclick="return confirm('คุณแน่ใจแล้วหรือไม่ว่าต้องการลบรายการสินค้านี้?')">
+                                    <a href="delete_pro.php?product_id=<?= $row['product_id']; ?>" class="btn-delete" onclick="return confirm('คุณแน่ใจแล้วหรือไม่ว่าต้องการลบรายการสินค้านี้?')">
                                         <i class="fa-solid fa-trash"></i></i></a>
                                 </td>
                             </tr>
@@ -99,18 +99,18 @@
             </div>
             <form id="formAddProduct" onsubmit="saveProductAjax(event)" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="p_name">ชื่อเมนู</label>
-                    <input type="text" name="p_name" id="p_name">
+                    <label for="product_name">ชื่อเมนู</label>
+                    <input type="text" name="product_name" id="product_name">
                 </div>
 
                 <div class="form-group">
-                    <label for="p_price">ราคา</label>
-                    <input type="text" name="p_price" id="p_price">
+                    <label for="product_price">ราคา</label>
+                    <input type="text" name="product_price" id="product_price">
                 </div>
 
                 <div class="form-group">
                     <label for="file">รูปภาพ</label>
-                    <input type="file" name="p_img" id="file" accept="image/*">
+                    <input type="file" name="product_img" id="file" accept="image/*">
                 </div>
 
                 <div class="form-group">
@@ -164,17 +164,17 @@
                 <button class="close-btn-clean" onclick="closeEditModal()">&times;</button>
             </div>
             <form action="update_pro.php" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="p_id" id="edit_p_id">
+                <input type="hidden" name="product_id" id="edit_product_id">
                 <input type="hidden" name="old_img" id="edit_old_img">
 
                 <div class="form-group">
-                    <label for="edit_p_name">ชื่อเมนู</label>
-                    <input type="text" name="p_name" id="edit_p_name" required>
+                    <label for="product_name">ชื่อเมนู</label>
+                    <input type="text" name="product_name" id="product_name" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="edit_p_price">ราคา</label>
-                    <input type="text" name="p_price" id="edit_p_price" required>
+                    <label for="edit_product_price">ราคา</label>
+                    <input type="text" name="product_price" id="edit_product_price" required>
                 </div>
 
                 <!-- แสดงรูปภาพปัจจุบัน -->
@@ -186,7 +186,7 @@
                 </div>
 
                 <div class="form-group">
-                    <input type="file" name="p_img" id="edit_file" accept="image/*">
+                    <input type="file" name="product_img" id="edit_file" accept="image/*">
                 </div>
 
                 <div class="form-group">
@@ -273,9 +273,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
         
         navSearch.addEventListener('keyup', function() {
             let input = this.value.toLowerCase();
-            let tables = document.querySelectorAll("table");
+            let table = document.querySelectorAll("table");
 
-            tables.forEach(table => {
+            table.forEach(table => {
                 let rows = table.querySelectorAll("tbody tr");
                 let hasVisibleRow = false;
 

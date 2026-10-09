@@ -20,9 +20,9 @@ if (!$order) {
 }
 
 // ดึงรายการสินค้า
-$items_sql = "SELECT od.*, p.p_name 
+$items_sql = "SELECT od.*, p.product_name 
               FROM `order_detail` od 
-              LEFT JOIN `products` p ON od.product_id = p.p_id 
+              LEFT JOIN `product` p ON od.product_id = p.product_id 
               WHERE od.order_id = $order_id";
 $items_query = mysqli_query($conn, $items_sql);
 

@@ -6,33 +6,45 @@ require_once "db.php";
 if (!isset($conn)) {
     if (isset($connect)) $conn = $connect;
     elseif (isset($con)) $conn = $con;
-    elseif (isset($db))  $conn = $db;
+    elseif (isset($db)) $conn = $db;
 }
 
-if (isset($_POST['pin'])) {
+// เคลียร์คิวคำสั่งค้างใน MySQL เพื่อป้องกันปัญหา Commands out of sync
+while (mysqli_more_results($conn) && mysqli_next_result($conn)) {
+    if ($res = mysqli_store_result($conn)) {
+        mysqli_free_result($res);
+    }
+}
+
+if (isset($_POST['pin']) && $_POST['pin'] !== '') {
 
     $raw_pin = $_POST['pin'];
     $md5_pin = md5($raw_pin);
 
-    // ค้นหาเฉพาะ PIN ที่ตรงกัน และสถานะเป็น active (ตัดการเช็ค username ออก)
-    $sql = "SELECT * FROM users 
-            WHERE (pin = '$raw_pin' OR pin = '$md5_pin')
-            AND status = 'active'";
+    // ป้องกัน SQL Injection
+    $pin_safe = mysqli_real_escape_string($conn, $md5_pin);
+
+    // ค้นหาข้อมูลผู้ใช้งาน (ดึงเฉพาะคอลัมน์ที่มีอยู่ในฐานข้อมูล)
+    $sql = "SELECT user_id, username, role 
+            FROM `users` 
+            WHERE `pin` = '$pin_safe' AND `status` = 'active' 
+            LIMIT 1";
 
     $result = mysqli_query($conn, $sql);
 
-    if ($result && mysqli_num_rows($result) >= 1) {
+    if ($result && mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
 
-        // ระบบจะดึงข้อมูลของคนที่ตรงกับ PIN นั้นมาเก็บเข้า Session
+        // บันทึกข้อมูลเข้า Session
         $_SESSION["user_id"]  = $row["user_id"];
-        $_SESSION["fullname"] = $row["fullname"] ?? $row["username"];
+        $_SESSION["username"] = $row["username"];
+        $_SESSION["fullname"] = $row["username"]; 
         $_SESSION["role"]     = $row["role"];
 
         header("Location: index.php");
         exit();
     } else {
-        // เมื่อรหัสผิด ให้เด้งกลับหน้า login.php พร้อมแนบ error ไปด้วย
+        // เมื่อรหัสผิด ให้เด้งกลับหน้า login.php พร้อมแนบ error
         header("Location: login.php?error=invalid_pin");
         exit();
     }
@@ -40,4 +52,3 @@ if (isset($_POST['pin'])) {
     header("Location: login.php");
     exit();
 }
-?>

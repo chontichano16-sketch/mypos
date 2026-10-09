@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id']) && isset($_POST
     $newName = mysqli_real_escape_string($conn, trim($_POST['new_name']));
 
     // เช็คชื่อซ้ำ (ยกเว้นโต๊ะตัวเอง)
-    $checkQuery = "SELECT * FROM `tables` WHERE `tables_number` = '$newName' AND `is_active` = 1 AND `tables_id` != $id";
+    $checkQuery = "SELECT * FROM `table` WHERE `table_number` = '$newName' AND `is_active` = 1 AND `table_id` != $id";
     $checkResult = mysqli_query($conn, $checkQuery);
 
     if (mysqli_num_rows($checkResult) > 0) {
@@ -17,10 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id']) && isset($_POST
 
     // อัปเดตข้อมูล
     $host = $_SERVER['HTTP_HOST']; //  127.0.0.1 หรือ localhost อัตโนมัติ
-    $baseUrl = "http://" . $host . "/mypos/customer_menu.php?tables_id=";
+    $baseUrl = "http://" . $host . "/mypos/customer_menu.php?table_id=";
     
     $newQrLink = $baseUrl . urlencode($newName);
-    $sql = "UPDATE `tables` SET `tables_number` = '$newName', `qr_link` = '$newQrLink' WHERE `tables_id` = $id";
+    $sql = "UPDATE `table` SET `table_number` = '$newName', `qr_link` = '$newQrLink' WHERE `table_id` = $id";
 
     if (mysqli_query($conn, $sql)) {
         echo json_encode(['status' => 'success']);

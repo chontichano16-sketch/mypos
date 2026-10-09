@@ -38,31 +38,30 @@
                 if (isset($_GET['cate'])) {
                     $cate = $_GET['cate'];
 
-                    $sql = "SELECT * FROM products WHERE type_id = '$cate' ORDER BY p_name ASC";
+                    $sql = "SELECT * FROM product WHERE type_id = '$cate' ORDER BY product_name ASC";
                 } else {
-                    #$sql = "SELECT * FROM products ORDER BY sort_order ASC";
-                    $sql = "SELECT * FROM products ORDER BY sales_count DESC, p_id ASC";
+                    $sql = "SELECT * FROM product ORDER BY sales_count DESC, product_id ASC";
                 }
                 $result = mysqli_query($conn, $sql);
                 while ($row = mysqli_fetch_assoc($result)) {
                 ?>
                     <!-- เมนูการ์ด -->
                     <div class="menu-item"
-                        data-id="<?php echo $row['p_id']; ?>"
-                        data-name="<?php echo htmlspecialchars($row['p_name']) ?>"
-                        data-price="<?php echo $row['p_price'] ?>"
-                        onclick="openOrderModal(<?php echo $row['p_id']; ?>, '<?php echo htmlspecialchars($row['p_name']); ?>', <?php echo $row['p_price']; ?>)">
+                        data-id="<?php echo $row['product_id']; ?>"
+                        data-name="<?php echo htmlspecialchars($row['product_name']) ?>"
+                        data-price="<?php echo $row['product_price'] ?>"
+                        onclick="openOrderModal(<?php echo $row['product_id']; ?>, '<?php echo htmlspecialchars($row['product_name']); ?>', <?php echo $row['product_price']; ?>)">
 
                         <?php
                         $placehold = "https://placehold.co/200x200?text=No+Image";
-                        $img_src = !empty($row['p_img']) ? "upload/" . $row['p_img'] : $placehold;
+                        $img_src = !empty($row['product_img']) ? "upload/" . $row['product_img'] : $placehold;
                         ?>
                         <img src="<?php echo $img_src; ?>" onerror="this.onerror=null; this.src='<?php echo $placehold; ?>'"
-                            alt="<?php echo $row['p_name'] ?>">
+                            alt="<?php echo $row['product_name'] ?>">
 
                         <div class="overlay">
-                            <h4><?php echo $row['p_name'] ?></h4>
-                            <h5><?php echo $row['p_price'] ?> บาท</h5>
+                            <h4><?php echo $row['product_name'] ?></h4>
+                            <h5><?php echo $row['product_price'] ?> บาท</h5>
                         </div>
                     </div>
                 <?php } ?>
@@ -93,18 +92,18 @@
                 <h3>รายการออเดอร์</h3>
                 <div>
                     <label>โต๊ะ : </label>
-                    <select name="tables" id="tables" style="font-size: 14px; cursor: pointer;">
+                    <select name="table" id="table" style="font-size: 14px; cursor: pointer;">
                         <option value="" selected>ไม่ได้เลือก</option>
                         <option value="Takeaway">กลับบ้าน</option>
                         <?php
-                        $sql_tables = "SELECT * FROM tables WHERE is_active = 1";
-                        $query_tabels = mysqli_query($conn, $sql_tables);
+                        $sql_table = "SELECT * FROM `table` WHERE is_active = 1";
+                        $query_tabels = mysqli_query($conn, $sql_table);
 
                         if (mysqli_num_rows($query_tabels) > 0) {
                             while ($row_table = mysqli_fetch_assoc($query_tabels)) {
                         ?>
-                                <option value="<?php echo $row_table['tables_id']; ?>">
-                                    <?php echo $row_table['tables_number']; ?>
+                                <option value="<?php echo $row_table['table_id']; ?>">
+                                    <?php echo $row_table['table_number']; ?>
                                 </option>
                         <?php
                             }
@@ -135,18 +134,18 @@
             </div>
             <form id="formAddProduct" onsubmit="saveProductAjax(event)" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label for="p_name">ชื่อเมนู</label>
-                    <input type="text" name="p_name" id="p_name">
+                    <label for="product_name">ชื่อเมนู</label>
+                    <input type="text" name="product_name" id="product_name">
                 </div>
 
                 <div class="form-group">
-                    <label for="p_price">ราคา</label>
-                    <input type="text" name="p_price" id="p_price">
+                    <label for="product_price">ราคา</label>
+                    <input type="text" name="product_price" id="product_price">
                 </div>
 
                 <div class="form-group">
                     <label for="file">รูปภาพ</label>
-                    <input type="file" name="p_img" id="file" accept="image/*">
+                    <input type="file" name="product_img" id="file" accept="image/*">
                 </div>
 
                 <div class="form-group">
@@ -342,7 +341,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // 1. ดักจับเมื่อเปลี่ยนโต๊ะ ให้บันทึกค่าไว้
-        const tableSelect = document.getElementById('tables');
+        const tableSelect = document.getElementById('table');
         if (tableSelect) {
             tableSelect.addEventListener('change', function() {
                 sessionStorage.setItem('selectedTable', this.value);

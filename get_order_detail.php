@@ -14,9 +14,9 @@ if ($order_id > 0) {
     }
 
     // ดึง od.id (Primary Key) เพิ่มเข้ามาเพื่อใช้เป็น detail_id ในการแก้ไข/ลบ
-    $sql_details = "SELECT od.id AS detail_id, od.quantity, od.price, p.p_name AS name, od.remark, od.option_label
+    $sql_details = "SELECT od.id AS detail_id, od.quantity, od.price, p.product_name AS name, od.remark, od.option_label
                     FROM order_detail od
-                    JOIN products p ON od.product_id = p.p_id
+                    JOIN product p ON od.product_id = p.product_id
                     WHERE od.order_id IN (
                         SELECT order_id FROM `order`
                         WHERE order_id = $order_id OR parent_order_id =$order_id
